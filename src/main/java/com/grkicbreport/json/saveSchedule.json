@@ -1,0 +1,34 @@
+{
+  "save_mode": "string",
+  "creditor": {
+    "type": "string",
+    "code": "string",
+    "office": "string"
+  },
+  "contract": {
+    "contract_guid": "string",
+    "contract_id": "string"
+  },
+  "repayments": [
+    {
+      "date_percent": "string",
+      "amount_percent": "string",
+      "date_main": "string",
+      "amount_main": "string"
+      "date_prolong_percent": "string",
+      "amount_prolong_percent": "string"
+    },
+    ...
+  ],
+  "change_basis": {
+    "revisor": "string",
+    "number": "string",
+    "date": "string",
+    "reason": "string",
+    "revisor_chief": "string"
+  },
+  "prolongation": {
+    "date_prolongation": "string",
+    "order_number": "string"
+  }
+}

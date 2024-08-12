@@ -1,0 +1,12 @@
+{
+  "save_mode": "string",
+  "creditor": {
+    "type": "string",
+    "code": "string",
+    "office": "string"
+  },
+  "contract": {
+    "contract_guid": "string",
+    "contract_id": "string"
+  }
+}

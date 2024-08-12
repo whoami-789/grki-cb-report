@@ -1,0 +1,11 @@
+{
+  "creditor": {
+    "type": "string",
+    "code": "string",
+    "office": "string"
+  },
+  "identity": {
+    "identity_type": "string",
+    "identity_id": "string"
+  }
+}

@@ -1,6 +1,6 @@
 package com.grkicbreport.repository;
 
-import org.creditbureaureport.model.AzolikYur;
+import com.grkicbreport.model.AzolikYur;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,0 +1,117 @@
+{
+  "save_mode": "string",
+  "creditor": {
+    "type": "string",
+    "code": "string",
+    "office": "string"
+  },
+  "contract": {
+    "contract_guid": "string",
+    "contract_id": "string"
+  },
+  "borrower": {
+    "resident_code": "string",
+    "pinfl": "string",
+    "inn": "string",
+    "nibbd_code": "string",
+    "second_name": "string",
+    "first_name": "string",
+    "patronymic": "string",
+    "birth_date": "string",
+    "gender": "string",
+    "citizenship": "string",
+    "area": "string",
+    "region": "string",
+    "work_area": "string",
+    "work_region": "string",
+    "activity_direction": "string",
+    "egrsp_data": "string",
+    "egrsp_number": "string",
+    "oked": "string",
+    "ownership": "string",
+    "legal_form": "string",
+    "soogu": "string",
+    "soato": "string",
+    "type _business": "string",
+    "full_name": "string",
+    "short_name": "string",
+    "staff_count": "string",
+    "reorg_form": "string",
+    "doc_type": "string",
+    "doc_seria": "string",
+    "doc_number": "string",
+    "doc_date": "string",
+    "doc_issuer": "string",
+    "contacts": {
+      "post_address": "string",
+      "post_index": "string",
+      "phone": "string",
+      "email": "string"
+    },
+    "legal": {
+      "director": {
+        "inn": "string",
+        "pinfl": "string",
+        "full_name": "string",
+        "resident": "string",
+        "birth_date": "string",
+        "gender": "string",
+        "citizenship": "string",
+        "area": "string",
+        "region": "string",
+        "doc_type": "string",
+        "doc_seria": "string",
+        "doc_number": "string",
+        "doc_date": "string",
+        "doc_issuer": "string",
+        "contacts": {
+          "post_address": "string",
+          "post_index": "string",
+          "phone": "string",
+          "email": "string"
+        }
+      },
+      "capital": {
+        "amount_uzs": "string",
+        "amount_usd": "string",
+        "amount_eur": "string"
+      },
+      "founders": [
+        {
+          "subject_type": "string",
+          "name": "string",
+          "registership": "string",
+          "founder_share": "string",
+          "inn": "string",
+          "citizenship": "string",
+          "pinfl": "string",
+          "resident": "string",
+          "birth_date": "string",
+          "gender": "string",
+          "area": "string",
+          "region": "string",
+          "egrsp_data": "string",
+          "egrsp_number": "string",
+          "oked": "string",
+          "ownership": "string",
+          "legal_form": "string",
+          "soogu": "string",
+          "soato": "string",
+          "type_business": "string",
+          "doc_type": "string",
+          "doc_seria": "string",
+          "doc_number": "string",
+          "doc_date": "string",
+          "doc_issuer": "string"
+          "contacts": {
+            "post_address": "string",
+            "post_index": "string",
+            "phone": "string",
+            "email": "string"
+          }
+        }
+        …
+      ]
+    }
+  }
+}

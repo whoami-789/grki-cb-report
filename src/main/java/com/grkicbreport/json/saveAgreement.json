@@ -1,0 +1,22 @@
+{
+  "save_mode": "string",
+  "creditor": {
+    "type": "string",
+    "code": "string",
+    "office": "string"
+  },
+  "agreement": {
+    "agreement_guid": "string",
+    "agreement_id": "string",
+    "number": "string",
+    "date_begin": "string",
+    "date_end": "string",
+    "subject_type": "string",
+    "pinfl": "string",
+    "inn": "string",
+    "resident": "string",
+    "name": "string",
+    "currency": "string",
+    "amount": "string"
+  }
+}

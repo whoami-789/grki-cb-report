@@ -1,6 +1,6 @@
 package com.grkicbreport.repository;
 
-import org.creditbureaureport.model.Kredit;
+import com.grkicbreport.model.Kredit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

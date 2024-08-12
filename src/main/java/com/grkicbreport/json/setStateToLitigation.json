@@ -1,0 +1,20 @@
+{
+  "save_mode": "string",
+  "creditor": {
+    "type": "string",
+    "code": "string",
+    "office": "string"
+  },
+  "contract": {
+    "contract_guid": "string",
+    "contract_id": "string"
+  },
+  "litigation_basis": {
+    "decide": "string",
+    "decide_number": "string",
+    "decide_date": "string",
+    "decide_chief": "string",
+    "conclusion": "string",
+    "send_date": "string"
+  }
+}

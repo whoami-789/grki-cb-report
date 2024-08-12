@@ -1,10 +1,10 @@
 package com.grkicbreport.model;
 
+import com.grkicbreport.customId.GrafikId;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.creditbureaureport.customId.GrafikId;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

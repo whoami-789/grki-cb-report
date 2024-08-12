@@ -1,0 +1,36 @@
+{
+  "save_mode": "string",
+  "old_creditor": {
+    "type": "string",
+    "code": "string",
+    "office": "string"
+  },
+  "new_creditor": {
+    "type": "string",
+    "code": "string",
+    "office": "string"
+  },
+  "contract": {
+    "claim_guid": "string",
+    "old_contract_id": "string",
+    "new_contract_id": "string",
+    "contract_guid": "string"
+  },
+  "move_basis": {
+    "decide": "string",
+    "decide_number": "string",
+    "decide_date": "string",
+    "decide_chief": "string"
+  },
+  "move_info": {
+    "reason": "string",
+    "comment": "string",
+    "send_date": "string",
+    "recv_date": "string"
+  },
+  "move_debt": {
+    "main_debt": "string",
+    "debt_percent": "string"
+  }
+}
+}

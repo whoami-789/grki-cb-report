@@ -1,0 +1,162 @@
+{
+  "save_mode": "string",
+  "creditor": {
+    "type": "string",
+    "code": "string",
+    "office": "string"
+  },
+  "contract": {
+    "contract_guid": "string",
+    "contract_id": "string",
+    "agreement_guid": "string",
+    "agreement_id": "string"
+  },
+  "provisions": [
+    {
+      "provision_type": "string",
+      "currency": "string",
+      "amount": "string",
+      "provision_source": "string",
+      "number": "string",
+      "date": "string",
+      "name": "string",
+      "mortgage": [
+        {
+          "provision_id": "string",
+          "cadaster": "string",
+          "estimate_amount": "string",
+          "cadastre_amount": "string",
+          "pledge_amount": "string",
+          "year": "string",
+          "object_country": "string",
+          "object_area": "string",
+          "object_region": "string",
+          "estimate_inn": "string",
+          "estimate_name": "string",
+          "estimate_date": "string",
+          "insurance_inn": "string",
+          "insurance_name": "string"
+        },
+        ...
+      ],
+      "vehicles": [
+        {
+          "provision_id": "string",
+          "engine_number": "string",
+          "body_number": "string",
+          "year": "string",
+          "country": "string",
+          "state_number": "string",
+          "model": "string",
+          "chassis_number": "string",
+          "color": "string",
+          "doc_seria_number": "string",
+          "vin_number": "string",
+          "estimate_amount": "string",
+          "pledge_amount": "string",
+          "estimate_inn": "string",
+          "estimate_name": "string",
+          "insurance_inn": "string",
+          "insurance_name": "string"
+        },
+        ...
+      ],
+      "securities": [
+        {
+          "provision_id": "string",
+          "date_begin": "string",
+          "date_end": "string",
+          "emitent_resident": "string",
+          "emitent_inn": "string",
+          "total_amount": "string",
+          "total_count": "string",
+          "single_amount": "string",
+          "discount_amount": "string",
+          "emitent_name": "string"
+        },
+        ...
+      ],
+      "guarantees_sureties": [
+        {
+          "provision_id": "string",
+          "date_end": "string"
+        },
+        ...
+      ],
+      "insurance_policies": [
+        {
+          "provision_id": "string",
+          "insurance_name": "string",
+          "insurance_inn": "string",
+          "date_end": "string"
+        }
+        …
+      ],
+      "deposits": [
+        {
+          "provision_id": "string",
+          "date_end": "string",
+          "bank_code": "string",
+          "deposit_account": "string",
+          "deposit_name": "string"
+        },
+        ...
+      ],
+      "collateral": [
+        {
+          "provision_id": "string",
+          "estimate_amount": "string",
+          "pledge_amount": "string",
+          "object_name": "string",
+          "year": "string",
+          "date_receivables": "string",
+          "object_country": "string",
+          "object_area": "string",
+          "object_region": "string",
+          "estimate_inn": "string",
+          "estimate_name": "string",
+          "estimate_date": "string",
+          "insurance_inn": "string",
+          "insurance_name": "string"
+        },
+        ...
+      ],
+      "owner_legal": {
+        "resident_code": "string",
+        "resident_inn": "string",
+        "nibbd_code": "string",
+        "noresident_inn": "string",
+        "name": "string",
+        "country": "string",
+        "area": "string",
+        "region": "string",
+        "post_address": "string",
+        "post_index": "string",
+        "web_site": "string",
+        "phone": "string",
+        "email": "string"
+      },
+      "owner_individual": {
+        "resident_code": "string",
+        "pinfl": "string",
+        "birth_date": "string",
+        "gender": "string",
+        "country": "string",
+        "area": "string",
+        "region": "string",
+        "doc_type": "string",
+        "doc_seria": "string",
+        "doc_number": "string",
+        "doc_date": "string",
+        "doc_issuer": "string",
+        "second_name": "string",
+        "first_name": "string",
+        "patronymic": "string",
+        "post_address": "string",
+        "phone": "string",
+        "email": "string"
+      }
+    },
+    ...
+  ]
+}

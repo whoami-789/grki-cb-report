@@ -1,0 +1,29 @@
+{
+  "save_mode": "string",
+  "creditor": {
+    "type": "string",
+    "code": "string",
+    "office": "string"
+  },
+  "contract": {
+    "contract_guid": "string",
+    "contract_id": "string"
+  },
+  "writeoff_basis": {
+    "decide": "string",
+    "decide_number": "string",
+    "decide_date": "string",
+    "decide_chief": "string",
+    "conclusion": "string"
+  },
+  "repaid_debt": {
+    "repaid_percent": "string",
+    "repaid_main": "string",
+    "repaid_percent_alt": "string",
+    "repaid_main_alt": "string"
+  },
+  "writeoff_debt": {
+    "writeoff_percent": "string",
+    "writeoff_main": "string"
+  }
+}
