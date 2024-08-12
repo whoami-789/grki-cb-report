@@ -29,6 +29,12 @@ public class AzolikYur {
     @Column(name = "shotname")
     private String shotname;
 
+    @Column(name = "soogu")
+    private String soogu;
+
+    @Column(name = "soato")
+    private String soato;
+
     @Column(name = "inn", nullable = false, columnDefinition = "nchar()")
     private String inn;
 

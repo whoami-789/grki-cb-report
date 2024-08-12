@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AzolikFiz {
-    
+
     @Column(name = "kodchlen", nullable = false, columnDefinition = "nchar(8)")
     private String kodchlen;
 
@@ -34,6 +34,15 @@ public class AzolikFiz {
 
     @Column(name = "ser_num_pasp")
     private String serNumPasp;
+
+    @Column(name = "ser_pasp")
+    private String ser_pasp;
+
+    @Column(name = "num_pasp")
+    private String num_pasp;
+
+    @Column(name = "kem_pasp")
+    private String kem_pasp;
 
     @Column(name = "vidan_pasp")
     private LocalDate vidanPasp;

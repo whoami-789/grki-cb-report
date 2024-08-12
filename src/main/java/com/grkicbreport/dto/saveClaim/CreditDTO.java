@@ -2,10 +2,11 @@ package com.grkicbreport.dto.saveClaim;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class CreditDTO {
     private String subject_type;
