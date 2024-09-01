@@ -2,8 +2,9 @@ package com.grkicbreport.dto.saveContract;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class PercentDTO {
     private String percent_type;

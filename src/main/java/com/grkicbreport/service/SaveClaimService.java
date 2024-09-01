@@ -1,5 +1,8 @@
 package com.grkicbreport.service;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.grkicbreport.dto.CreditorDTO;
 import com.grkicbreport.dto.saveClaim.*;
 import com.grkicbreport.model.AzolikFiz;
 import com.grkicbreport.model.AzolikYur;
@@ -114,7 +117,12 @@ public class SaveClaimService {
             dto.setContacts(contactsDTO);
 
             // Возвращаем заполненный DTO
-            System.out.println(dto);
+            Gson gson = new GsonBuilder()
+                    .serializeNulls() // Include null values in the JSON output
+                    .setPrettyPrinting() // Enable pretty printing for better readability
+                    .create();
+            String formattedJson = gson.toJson(dto);
+            System.out.println(formattedJson);
             return dto;
 
         } catch (Exception e) {
@@ -203,9 +211,14 @@ public class SaveClaimService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
+        // Добавляем заголовки login и password
+        headers.set("Login", "NK06005");
+        headers.set("Password", "75c75fce1b53addf6c52f96c32555b12");
+
         HttpEntity<saveClaimDTO> request = new HttpEntity<>(dto, headers);
 
         String url = "http://grki-service/grci/resources/cb/saveClaim";
         return restTemplate.postForEntity(url, request, String.class);
     }
+
 }

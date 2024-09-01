@@ -1,6 +1,6 @@
 package com.grkicbreport.dto.saveClaim;
 
-import lombok.AllArgsConstructor;
+import com.grkicbreport.dto.CreditorDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

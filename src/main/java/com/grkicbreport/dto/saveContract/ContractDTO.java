@@ -1,12 +1,11 @@
 package com.grkicbreport.dto.saveContract;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
 @Data
-@AllArgsConstructor
+@NoArgsConstructor
 public class ContractDTO {
     private String loan_type;
     private String issue_mode;
@@ -29,4 +28,5 @@ public class ContractDTO {
     private String currency_commission;
     private String amount_commission;
     private String guarantee_info;
+
 }

@@ -229,6 +229,12 @@ public class Kredit {
     @Column(name = "lspeni")
     private String lspeni;
 
+    @Column(name = "grki-claim-id")
+    private String grkiClaimId;
+
+    @Column(name = "procpeni")
+    private Long procpeni;
+
     @OneToMany(mappedBy = "kredit")
     private List<Grafik> grafiks;
 

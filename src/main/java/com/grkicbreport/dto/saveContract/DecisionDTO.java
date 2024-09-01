@@ -2,9 +2,10 @@ package com.grkicbreport.dto.saveContract;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
+@NoArgsConstructor
 public class DecisionDTO {
     private String decide;
     private String number;
