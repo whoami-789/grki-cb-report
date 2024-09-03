@@ -215,7 +215,13 @@ public class SaveClaimService {
         headers.set("Login", "NK06005");
         headers.set("Password", "75c75fce1b53addf6c52f96c32555b12");
 
-        HttpEntity<saveClaimDTO> request = new HttpEntity<>(dto, headers);
+        Gson gson = new GsonBuilder()
+                .serializeNulls() // Include null values in the JSON output
+                .setPrettyPrinting() // Enable pretty printing for better readability
+                .create();
+        String formattedJson = gson.toJson(dto);
+
+        HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
         String url = "http://grki-service/grci/resources/cb/saveClaim";
         return restTemplate.postForEntity(url, request, String.class);
