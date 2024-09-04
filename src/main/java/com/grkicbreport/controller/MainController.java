@@ -2,6 +2,7 @@ package com.grkicbreport.controller;
 
 import com.grkicbreport.dto.RequestDTO;
 import com.grkicbreport.dto.saveClaim.saveClaimDTO;
+import com.grkicbreport.dto.setStateToClose.setStateToCloseDTO;
 import com.grkicbreport.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,8 @@ public class MainController {
     private setStateToLitigationService setStateToLitigationService;
     @Autowired
     private saveCourtDecisionService saveCourtDecisionService;
+    @Autowired
+    private setStateToCloseService setStateToCloseService;
 
     @PostMapping("/get-save-claim")
     public ResponseEntity<String> sendSaveClaim(@RequestBody RequestDTO requestDTO) {
@@ -65,5 +68,10 @@ public class MainController {
     public ResponseEntity<String> saveCourtDecision(@RequestBody RequestDTO requestDTO) {
         return saveCourtDecisionService.sendSaveCourtDecision(requestDTO.getContractNumber(), requestDTO.getType(),
                 requestDTO.getNumber(), requestDTO.getDate());
+    }
+
+    @PostMapping("/get-setStateToClose")
+    public ResponseEntity<String> setStateToClose(@RequestBody RequestDTO requestDTO) {
+        return setStateToCloseService.sendSetStateToClose(requestDTO.getContractNumber());
     }
 }
