@@ -20,5 +20,18 @@ public class RequestDTO {
     private String agreement_name;
     private String agreement_amount;
 
+    private String provisionNumber;
+    private String provisionDate;
+    private String nibbd;
+
+    private String decide_number;
+    private String decide_date;
+    private String conclusion;
+    private String send_date;
+
+    private String type;
+    private String number;
+    private String date;
+
 }
 

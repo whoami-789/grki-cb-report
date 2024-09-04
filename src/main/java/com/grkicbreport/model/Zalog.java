@@ -36,6 +36,9 @@ public class Zalog {
     @Column(name = "sost")
     private Byte sost;
 
+    @Column(name = "kod_zalog")
+    private Integer kodZalog;
+
     @Column(name = "dats")
     private LocalDate dats;
 
