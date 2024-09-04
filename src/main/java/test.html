@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POST Request Example</title>
+</head>
+<body>
+<h1>Send POST Request</h1>
+<button id="sendRequest">Send Request</button>
+
+<script>
+  document.getElementById('sendRequest').addEventListener('click', function() {
+    const url = 'http://localhost:5051/api/grki/get-save-claim';
+    const data = {
+      "contractNumber": "99000479    ",
+      "work": "01"
+    };
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Login': 'NK06005',
+        'Password': '75c75fce1b53addf6c52f96c32555b12'
+      },
+      body: JSON.stringify(data)
+    })
+            .then(response => response.json())
+            .then(data => console.log('Success:', data))
+            .catch(error => console.error('Error:', error));
+  });
+</script>
+</body>
+</html>
