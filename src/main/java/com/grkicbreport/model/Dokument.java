@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "dok")
+@Table(name = "dokum")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,52 +19,55 @@ public class Dokument {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "kod")
-    private Long kod;
+    private Long id;
 
-    @Column(name = "numdok", nullable = false, columnDefinition = "nchar(10)")
+    @Column(name = "numdok", nullable = false, length = 10)
     private String numdok;
 
     @Column(name = "dats", nullable = false)
     private LocalDate dats;
 
-    @Column(name = "tipdoc", columnDefinition = "tinyint")
-    private int tipdoc;
+    @Column(name = "tipdoc", nullable = false)
+    private Byte tipdoc;
 
-    @Column(name = "ls", nullable = false, columnDefinition = "nchar(20)")
+    @Column(name = "ls", nullable = false, length = 20)
     private String ls;
 
-    @Column(name = "lscor", nullable = false, columnDefinition = "nchar(20)")
+    @Column(name = "lscor", nullable = false, length = 20)
     private String lscor;
 
-    @Column(name = "nazn", nullable = false)
+    @Column(name = "nazn", nullable = false, length = 160)
     private String nazn;
 
-    @Column(name = "sost", columnDefinition = "tinyint")
-    private int sost;
+    @Column(name = "sost", nullable = false)
+    private Byte sost;
 
-    @Column(name = "users", columnDefinition = "smallint")
-    private int users;
+    @Column(name = "users", nullable = false)
+    private Short users;
 
     @Column(name = "dtime", nullable = false)
-    private LocalDateTime dtime;
+    private LocalDateTime dtime = LocalDateTime.now();
 
-    @Column(name = "sums", nullable = false)
+    @Column(name = "sums", precision = 18, scale = 2)
     private BigDecimal sums;
 
     @Column(name = "dat_prov")
     private LocalDate datProv;
 
-    @Column(name = "datsproc")
-    private LocalDate datsProc;
+    @Column(name = "kod_dog", nullable = false, columnDefinition = "int default 0")
+    private Integer kodDog = 0;
 
-    @Column(name = "koduch", nullable = false, columnDefinition = "nchar(8)")
-    private String kodUch;
+    @Column(name = "datsproc")
+    private LocalDate datsproc;
+
+    @Column(name = "koduch", length = 8)
+    private String koduch;
 
     @Column(name = "prixgroup")
-    private Integer prixGroup;
+    private Integer prixgroup;
 
-    @Column(name = "groupstr", columnDefinition = "tinyint")
-    private Integer groupStr;
+    @Column(name = "groupstr")
+    private Byte groupstr;
 
 
 }

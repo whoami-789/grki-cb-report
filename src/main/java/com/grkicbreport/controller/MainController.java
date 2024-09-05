@@ -28,6 +28,8 @@ public class MainController {
     private saveCourtDecisionService saveCourtDecisionService;
     @Autowired
     private setStateToCloseService setStateToCloseService;
+    @Autowired
+    private FileGeneratorService fileGeneratorService;
 
     @PostMapping("/get-save-claim")
     public ResponseEntity<String> sendSaveClaim(@RequestBody RequestDTO requestDTO) {
@@ -73,5 +75,10 @@ public class MainController {
     @PostMapping("/get-setStateToClose")
     public ResponseEntity<String> setStateToClose(@RequestBody RequestDTO requestDTO) {
         return setStateToCloseService.sendSetStateToClose(requestDTO.getContractNumber());
+    }
+
+    @GetMapping("/generate-files")
+    public String generateFiles(@RequestParam String date) {
+        return fileGeneratorService.createFiles(date);
     }
 }

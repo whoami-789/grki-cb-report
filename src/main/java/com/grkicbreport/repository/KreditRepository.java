@@ -1,10 +1,14 @@
 package com.grkicbreport.repository;
 
+import com.grkicbreport.model.Analiz_schetDTO;
 import com.grkicbreport.model.Kredit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -12,16 +16,11 @@ import java.util.Set;
 public interface KreditRepository extends JpaRepository<Kredit, String> {
     Optional<Kredit> findByNumdog(String kod);
 
-//    List<Kredit> findAllByDokuments_LscorIn(Set<String> lscorList);
+    @Query(value = "EXEC analiz_schet :date, :bal", nativeQuery = true)
+    List<Analiz_schetDTO> callAnaliz_schet(@Param("date") Date date, @Param("bal") String bal);
 
-    List<Kredit> findAllByLskredIn(Set<String> lsprocList);
+    @Query(value = "EXEC analiz_schet :date, :bal", nativeQuery = true)
+    List<String> calAnaliz_schet(@Param("date") Date date, @Param("bal") String bal);
 
-    List<Kredit> findByDatsIzmBetweenAndDatsIzmLessThanEqualOrStatus(LocalDate start, LocalDate end, LocalDate startAgain, byte status);
-    List<Kredit> findByDatsIzmBetweenOrStatus(LocalDate start, LocalDate end, Byte status);
-    List<Kredit> findByDatsIzmBetweenAndNumdog(LocalDate start, LocalDate end, String numdog);
-    List<Kredit> findByDatadogBetweenOrStatus(LocalDate start, LocalDate end,  Byte status);
-    List<Kredit> findKodByDatadogBetween(LocalDate start, LocalDate end);
 
-    @Query(value = "select * from SpisokProsrochennixKreditov(:numdog, :endate)", nativeQuery = true)
-    List<Object> SpisProsrKred(String numdog, LocalDate endate);
 }
