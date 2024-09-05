@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -83,9 +84,9 @@ public class FileGeneratorService {
 
     public String createFiles(String date) {
         // Парсим строку даты в объект java.sql.Date
-        java.sql.Date currentDate;
+        Date currentDate;
         try {
-            currentDate = java.sql.Date.valueOf(date);  // Преобразование строки в java.sql.Date
+            currentDate = Date.valueOf(date);  // Преобразование строки в java.sql.Date
         } catch (IllegalArgumentException e) {
             return "Неверный формат даты.";
         }
@@ -94,7 +95,7 @@ public class FileGeneratorService {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(currentDate);
         calendar.add(Calendar.DATE, -1);
-        java.sql.Date previousDay = new java.sql.Date(calendar.getTime().getTime());
+        Date previousDay = new Date(calendar.getTime().getTime());
 
         // Преобразуем даты в нужный формат yyyyMMdd
         SimpleDateFormat outputSdf = new SimpleDateFormat("yyyyMMdd");
@@ -203,9 +204,9 @@ public class FileGeneratorService {
                                 ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + "↔" +
                                 extractedCode + "↔" +
                                 dok.getKod() + "↔" +
-                                //dok.7
-                                //8
-                                //9
+                                "0103" + "↔" +
+                                "1" + "↔" +
+                                "3" + "↔" +
                                 dok.getNumdok() + "↔" +
                                 "119" + "↔" +
                                 dok.getLs() + "↔" +
@@ -230,7 +231,7 @@ public class FileGeneratorService {
                                 dok.getKod() + "↔" +
                                 //dok.7
                                 //8
-                                //9
+                                "3" + "↔" +
                                 dok.getNumdok() + "↔" +
                                 "119" + "↔" +
                                 dok.getLs() + "↔" +
@@ -249,6 +250,38 @@ public class FileGeneratorService {
                     }
                 } else if (dok.getNazn().startsWith("Погашение")) {
 
+                    String nalCard = "";
+                    String typeOption = "";
+                    if (dok.getLscor().startsWith("10509")) {
+                        nalCard = "3";
+                    } else {
+                        nalCard = "1";
+                    }
+
+                    if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10509")) {
+                        typeOption = "0300";
+                    } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
+                        typeOption = "0303";
+                    } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101")) {
+                        typeOption = "0305";
+                    } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10509")) {
+                        typeOption = "0307";
+                    } else if (dok.getLs().startsWith("12409")) {
+                        typeOption = "0312";
+                    } else if (dok.getLs().startsWith("12501")) {
+                        typeOption = "0313";
+                    } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10101")) {
+                        typeOption = "0403";
+                    } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509")) {
+                        typeOption = "0400";
+                    } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10101")) {
+                        typeOption = "0419";
+                    } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
+                        typeOption = "0400";
+                    } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
+                        typeOption = "0407";
+                    }
+
                     if (fiz == null) {
                         String line009 = dateString + "↔" +
                                 "02" + "↔" +
@@ -256,9 +289,9 @@ public class FileGeneratorService {
                                 ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + "↔" +
                                 extractedCode + "↔" +
                                 dok.getKod() + "↔" +
-                                //dok.7
-                                //8
-                                //9
+                                typeOption + "↔" +
+                                nalCard + "↔" +
+                                "3" + "↔" +
                                 dok.getNumdok() + "↔" +
                                 "119" + "↔" +
                                 dok.getLscor() + "↔" +
@@ -283,7 +316,7 @@ public class FileGeneratorService {
                                 dok.getKod() + "↔" +
                                 //dok.7
                                 //8
-                                //9
+                                "6" + "↔" +
                                 dok.getNumdok() + "↔" +
                                 "119" + "↔" +
                                 dok.getLs() + "↔" +
