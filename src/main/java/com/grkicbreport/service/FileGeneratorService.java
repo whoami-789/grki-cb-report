@@ -215,7 +215,7 @@ public class FileGeneratorService {
                                 dok.getSums() + "↔" +
                                 "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + "↔" +
                                 yur.getName() + "↔" +
-                                //18 +
+                                dok.getLs().substring(0, 5) + "↔" +
                                 dok.getNazn();
 
 
@@ -229,8 +229,8 @@ public class FileGeneratorService {
                                 ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + "↔" +
                                 extractedCode + "↔" +
                                 dok.getKod() + "↔" +
-                                //dok.7
-                                //8
+                                "0103" + "↔" +
+                                "1" + "↔" +
                                 "3" + "↔" +
                                 dok.getNumdok() + "↔" +
                                 "119" + "↔" +
@@ -240,7 +240,7 @@ public class FileGeneratorService {
                                 dok.getSums() + "↔" +
                                 "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + "↔" +
                                 fiz.getName() + "↔" +
-                                //18 +
+                                dok.getLs().substring(0, 5) + "↔" +
                                 dok.getNazn();
 
 
@@ -300,7 +300,7 @@ public class FileGeneratorService {
                                 dok.getSums() + "↔" +
                                 yur.getName() + "↔" +
                                 "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + "↔" +
-                                //18 +
+                                dok.getLs().substring(0, 5) + "↔" +
                                 dok.getNazn();
 
 
@@ -314,9 +314,9 @@ public class FileGeneratorService {
                                 ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + "↔" +
                                 extractedCode + "↔" +
                                 dok.getKod() + "↔" +
-                                //dok.7
-                                //8
-                                "6" + "↔" +
+                                typeOption + "↔" +
+                                nalCard + "↔" +
+                                "3" + "↔" +
                                 dok.getNumdok() + "↔" +
                                 "119" + "↔" +
                                 dok.getLs() + "↔" +
@@ -325,7 +325,7 @@ public class FileGeneratorService {
                                 dok.getSums() + "↔" +
                                 "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + "↔" +
                                 fiz.getName() + "↔" +
-                                //18 +
+                                dok.getLs().substring(0, 5) + "↔" +
                                 dok.getNazn();
 
 
