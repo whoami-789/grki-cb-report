@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -29,6 +30,7 @@ public class setStateToCloseService {
     public setStateToCloseDTO createStateClose(String contractNumber) {
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
         if (kreditList.isEmpty()) {
             throw new IllegalArgumentException("Кредит с таким номером не найден.");
@@ -43,12 +45,12 @@ public class setStateToCloseService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("6005");
+            creditorDTO.setCode("06005");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             setStateToCloseDTO.ContractDTO contract = new setStateToCloseDTO.ContractDTO();
-            contract.setContract_guid(kredit.getGrkiClaimId());
+            contract.setContract_guid(kredit.getGrkiContractId());
             contract.setContract_id(kredit.getNumdog());
             dto.setContract(contract);
 

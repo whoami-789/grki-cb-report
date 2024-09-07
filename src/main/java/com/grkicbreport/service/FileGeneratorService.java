@@ -91,6 +91,8 @@ public class FileGeneratorService {
             return "Неверный формат даты.";
         }
 
+        char separator = '\u001D';
+
         // Получаем дату для предыдущего дня относительно указанной даты
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(currentDate);
@@ -107,7 +109,8 @@ public class FileGeneratorService {
         String fileName009 = generateFilename(dateString, "009");
 
         // Создание и запись в файл с расширением .008
-        try (BufferedWriter writer008 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName008), "windows-1251"))) {
+        try {
+            BufferedWriter writer008 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName008), "windows-1251"));
             // Итерация по всем значениям bal
             for (String bal : balValues) {
                 // Получаем сырые данные в виде List<String>
@@ -155,15 +158,15 @@ public class FileGeneratorService {
                             .orElse(BigDecimal.ZERO);
 
                     // Формируем строку для записи
-                    String line008 = dateString + "↔" +
-                            "02" + "↔" +
-                            "6005" + "↔" +
+                    String line008 = dateString + separator +
+                            "02" + separator +
+                            "6005" + separator +
                             ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + "↔" +
-                            extractedCode + "↔" +
-                            record.getBal() + "↔" +
-                            previousDayDeb + "↔" +
-                            debitSum + "↔" +
-                            kreditSum + "↔" +
+                            extractedCode + separator +
+                            record.getBal() + separator +
+                            previousDayDeb + separator +
+                            debitSum + separator +
+                            kreditSum + separator +
                             record.getDeb() + "\n";
 
                     // Записываем строку в файл с расширением .008
@@ -177,7 +180,9 @@ public class FileGeneratorService {
         }
 
         // Создание и запись в файл с расширением .009
-        try (BufferedWriter writer009 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName009), "windows-1251"))) {
+        try {
+            BufferedWriter writer009 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName009), "windows-1251"));
+
             // Логика для записи данных в файл .009
             List<Dok> dokList = dokRepository.findAllByDatProv(currentDate);
             for (Dok dok : dokList) {
@@ -198,24 +203,24 @@ public class FileGeneratorService {
                 if (dok.getNazn().startsWith("Выдача")) {
 
                     if (fiz == null) {
-                        String line009 = dateString + "↔" +
-                                "02" + "↔" +
-                                "6005" + "↔" +
+                        String line009 = dateString + separator +
+                                "02" + separator +
+                                "6005" + separator +
                                 ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + "↔" +
-                                extractedCode + "↔" +
-                                dok.getKod() + "↔" +
-                                "0103" + "↔" +
-                                "1" + "↔" +
-                                "3" + "↔" +
-                                dok.getNumdok() + "↔" +
-                                "119" + "↔" +
-                                dok.getLs() + "↔" +
-                                "119" + "↔" +
-                                dok.getLscor() + "↔" +
-                                dok.getSums() + "↔" +
-                                "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + "↔" +
-                                yur.getName() + "↔" +
-                                dok.getLs().substring(0, 5) + "↔" +
+                                extractedCode + separator +
+                                dok.getKod() + separator +
+                                "0103" + separator +
+                                "1" + separator +
+                                "3" + separator +
+                                dok.getNumdok() + separator +
+                                "119" + separator +
+                                dok.getLs() + separator +
+                                "119" + separator +
+                                dok.getLscor() + separator +
+                                dok.getSums() + separator +
+                                "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                yur.getName() + separator +
+                                dok.getLs().substring(0, 5) + separator +
                                 dok.getNazn();
 
 
@@ -223,24 +228,24 @@ public class FileGeneratorService {
                         writer009.write(line009);
                         System.out.println("Записана строка в .009 файл: " + line009);
                     } else {
-                        String line009 = dateString + "↔" +
-                                "02" + "↔" +
-                                "6005" + "↔" +
-                                ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + "↔" +
-                                extractedCode + "↔" +
-                                dok.getKod() + "↔" +
-                                "0103" + "↔" +
-                                "1" + "↔" +
-                                "3" + "↔" +
-                                dok.getNumdok() + "↔" +
-                                "119" + "↔" +
-                                dok.getLs() + "↔" +
-                                "119" + "↔" +
-                                dok.getLscor() + "↔" +
-                                dok.getSums() + "↔" +
-                                "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + "↔" +
-                                fiz.getName() + "↔" +
-                                dok.getLs().substring(0, 5) + "↔" +
+                        String line009 = dateString + separator +
+                                "02" + separator +
+                                "6005" + separator +
+                                ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
+                                extractedCode + separator +
+                                dok.getKod() + separator +
+                                "0103" + separator +
+                                "1" + separator +
+                                "3" + separator +
+                                dok.getNumdok() + separator +
+                                "119" + separator +
+                                dok.getLs() + separator +
+                                "119" + separator +
+                                dok.getLscor() + separator +
+                                dok.getSums() + separator +
+                                "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                fiz.getName() + separator +
+                                dok.getLs().substring(0, 5) + separator +
                                 dok.getNazn();
 
 
@@ -283,24 +288,24 @@ public class FileGeneratorService {
                     }
 
                     if (fiz == null) {
-                        String line009 = dateString + "↔" +
-                                "02" + "↔" +
-                                "6005" + "↔" +
-                                ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + "↔" +
-                                extractedCode + "↔" +
-                                dok.getKod() + "↔" +
-                                typeOption + "↔" +
-                                nalCard + "↔" +
-                                "3" + "↔" +
-                                dok.getNumdok() + "↔" +
-                                "119" + "↔" +
-                                dok.getLscor() + "↔" +
-                                "119" + "↔" +
-                                dok.getLs() + "↔" +
-                                dok.getSums() + "↔" +
-                                yur.getName() + "↔" +
-                                "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + "↔" +
-                                dok.getLs().substring(0, 5) + "↔" +
+                        String line009 = dateString + separator +
+                                "02" + separator +
+                                "6005" + separator +
+                                ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
+                                extractedCode + separator +
+                                dok.getKod() + separator +
+                                typeOption + separator +
+                                nalCard + separator +
+                                "3" + separator +
+                                dok.getNumdok() + separator +
+                                "119" + separator +
+                                dok.getLscor() + separator +
+                                "119" + separator +
+                                dok.getLs() + separator +
+                                dok.getSums() + separator +
+                                yur.getName() + separator +
+                                "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                dok.getLs().substring(0, 5) + separator +
                                 dok.getNazn();
 
 
@@ -308,24 +313,24 @@ public class FileGeneratorService {
                         writer009.write(line009);
                         System.out.println("Записана строка в .009 файл: " + line009);
                     } else {
-                        String line009 = dateString + "↔" +
-                                "02" + "↔" +
-                                "6005" + "↔" +
+                        String line009 = dateString + separator +
+                                "02" + separator +
+                                "6005" + separator +
                                 ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + "↔" +
-                                extractedCode + "↔" +
-                                dok.getKod() + "↔" +
-                                typeOption + "↔" +
-                                nalCard + "↔" +
-                                "3" + "↔" +
-                                dok.getNumdok() + "↔" +
-                                "119" + "↔" +
-                                dok.getLs() + "↔" +
-                                "119" + "↔" +
-                                dok.getLscor() + "↔" +
-                                dok.getSums() + "↔" +
-                                "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + "↔" +
-                                fiz.getName() + "↔" +
-                                dok.getLs().substring(0, 5) + "↔" +
+                                extractedCode + separator +
+                                dok.getKod() + separator +
+                                typeOption + separator +
+                                nalCard + separator +
+                                "3" + separator +
+                                dok.getNumdok() + separator +
+                                "119" + separator +
+                                dok.getLs() + separator +
+                                "119" + separator +
+                                dok.getLscor() + separator +
+                                dok.getSums() + separator +
+                                "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                fiz.getName() + separator +
+                                dok.getLs().substring(0, 5) + separator +
                                 dok.getNazn();
 
 

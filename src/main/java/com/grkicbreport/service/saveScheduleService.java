@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +45,7 @@ public class saveScheduleService {
         if (grafikList.isEmpty()) {
             throw new IllegalArgumentException("График с таким номером не найден.");
         }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
         Kredit kredit = kreditList.get();
 
@@ -54,12 +56,12 @@ public class saveScheduleService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("6005");
+            creditorDTO.setCode("06005");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             saveScheduleDTO.Contract contract = new saveScheduleDTO.Contract();
-            contract.setContract_guid(kredit.getGrkiClaimId());
+            contract.setContract_guid(kredit.getGrkiContractId());
             contract.setContract_id(kredit.getNumdog());
             dto.setContract(contract);
 
@@ -69,11 +71,11 @@ public class saveScheduleService {
             for (Grafik grafik : grafikList) {
                 saveScheduleDTO.Repayment repayment = new saveScheduleDTO.Repayment();
                 if (grafik.getPogKred().compareTo(BigDecimal.ZERO) == 0) {
-                    repayment.setDate_percent(String.valueOf(grafik.getDats()));
+                    repayment.setDate_percent(String.valueOf(grafik.getDats().format(formatter)));
                 }
                 repayment.setAmount_percent(String.valueOf(grafik.getPogProc())); // Сумма процентов
                 if (grafik.getPogProc().compareTo(BigDecimal.ZERO) == 0) {
-                    repayment.setDate_main(String.valueOf(grafik.getDats())); // Устанавливаем дату основного платежа только если pogProc = 0.00
+                    repayment.setDate_main(String.valueOf(grafik.getDats().format(formatter))); // Устанавливаем дату основного платежа только если pogProc = 0.00
                 }
                 repayment.setAmount_main(grafik.getPogKred().toString()); // Сумма основного платежа
 

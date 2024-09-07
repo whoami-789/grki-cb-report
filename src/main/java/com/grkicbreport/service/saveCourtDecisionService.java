@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -27,13 +29,15 @@ public class saveCourtDecisionService {
     }
 
     public saveCourtDecisionDTO createCourtDecide(String contractNumber, String type,
-                                                  String number, String date) {
+                                                  String number, LocalDate date) {
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
 
         if (kreditList.isEmpty()) {
             throw new IllegalArgumentException("Кредит с таким номером не найден.");
         }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
 
         Kredit kredit = kreditList.get();
 
@@ -44,12 +48,12 @@ public class saveCourtDecisionService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("6005");
+            creditorDTO.setCode("06005");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             saveCourtDecisionDTO.Contract contract = new saveCourtDecisionDTO.Contract();
-            contract.setContract_guid(kredit.getGrkiClaimId());
+            contract.setContract_guid(kredit.getGrkiContractId());
             contract.setContract_id(kredit.getNumdog());
             dto.setContract(contract);
 
@@ -60,7 +64,7 @@ public class saveCourtDecisionService {
                 court_decision.setType("02");
             }
             court_decision.setNumber(number);
-            court_decision.setDate(date);
+            court_decision.setDate(date.format(formatter));
             dto.setCourt_decision(court_decision);
 
             return dto;
@@ -72,7 +76,7 @@ public class saveCourtDecisionService {
     }
 
     public ResponseEntity<String> sendSaveCourtDecision(String contractNumber, String type,
-                                                        String number, String date) {
+                                                        String number, LocalDate date) {
         saveCourtDecisionDTO dto = createCourtDecide(contractNumber, type, number, date);
 
         HttpHeaders headers = new HttpHeaders();

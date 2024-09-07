@@ -21,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -41,7 +43,7 @@ public class SaveProvisionService {
     }
 
     public saveProvisionDTO createProvision(String contractNumber, String provisionNumber,
-                                            String provisionDate, String nibbd) {
+                                            LocalDate provisionDate, String nibbd) {
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         Optional<Zalog> zalogList = zalogRepository.findByNumdog(contractNumber);
@@ -53,6 +55,7 @@ public class SaveProvisionService {
         if (zalogList.isEmpty()) {
             throw new IllegalArgumentException("Залог с таким номером не найден.");
         }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
         Kredit kredit = kreditList.get();
         Zalog zalog = zalogList.get();
@@ -66,12 +69,12 @@ public class SaveProvisionService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("6005");
+            creditorDTO.setCode("06005");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             ContractDTO contractDTO = new ContractDTO();
-            contractDTO.setContract_guid(kredit.getGrkiClaimId());
+            contractDTO.setContract_guid(kredit.getGrkiContractId());
             contractDTO.setContract_id(kredit.getNumdog());
             dto.setContract(contractDTO);
 
@@ -85,11 +88,11 @@ public class SaveProvisionService {
             } else if (zalog.getKodZalog() == 8) {
                 provisionsDTO.setProvision_type("400");
             }
-            provisionsDTO.setCurrency("0");
+            provisionsDTO.setCurrency("000");
             provisionsDTO.setAmount(String.valueOf(zalog.getSums()));
             provisionsDTO.setProvision_source("02");
             provisionsDTO.setNumber(provisionNumber);
-            provisionsDTO.setDate(provisionDate);
+            provisionsDTO.setDate(provisionDate.format(formatter));
             if (zalog.getKodZalog() == 1) {
                 provisionsDTO.setName("Ювелирные изделия");
             } else if (zalog.getKodZalog() == 2) {
@@ -112,7 +115,7 @@ public class SaveProvisionService {
                     ownerLegal.setNibbd_code(nibbd);
                     ownerLegal.setName(azolikYur1.getName());
                     ownerLegal.setCountry("860");
-                    ownerLegal.setArea("6");
+                    ownerLegal.setArea("06");
                     ownerLegal.setRegion("30");
                     ownerLegal.setPost_address(azolikYur1.getAdres());
                     provisionsDTO.setOwner_legal(ownerLegal);
@@ -131,7 +134,7 @@ public class SaveProvisionService {
                     ProvisionsDTO.OwnerIndividual ownerIndividual = new ProvisionsDTO.OwnerIndividual();
                     ownerIndividual.setResident_code("1");
                     ownerIndividual.setPinfl(azolikFiz.getKodPension());
-                    ownerIndividual.setBirth_date(String.valueOf(azolikFiz.getDatsRojd()));
+                    ownerIndividual.setBirth_date(String.valueOf(azolikFiz.getDatsRojd().format(formatter)));
                     ownerIndividual.setGender(String.valueOf(azolikFiz.getFsobst()));
                     ownerIndividual.setCountry("860");
                     ownerIndividual.setArea("6");
@@ -163,7 +166,7 @@ public class SaveProvisionService {
     }
 
     public ResponseEntity<String> sendSaveProvision(String contractNumber, String provisionNumber,
-                                                    String provisionDate, String nibbd) {
+                                                    LocalDate provisionDate, String nibbd) {
         saveProvisionDTO dto = createProvision(contractNumber, provisionNumber, provisionDate, nibbd);
 
         HttpHeaders headers = new HttpHeaders();

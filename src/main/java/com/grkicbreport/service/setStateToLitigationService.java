@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -26,14 +28,15 @@ public class setStateToLitigationService {
     }
 
     public setStateToLitigationDTO createLitigation(String contractNumber, String decide_number,
-                                                    String decide_date,
-                                                    String conclusion, String send_date) {
+                                                    LocalDate decide_date,
+                                                    String conclusion, LocalDate send_date) {
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
 
         if (kreditList.isEmpty()) {
             throw new IllegalArgumentException("Кредит с таким номером не найден.");
         }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
         Kredit kredit = kreditList.get();
 
@@ -44,22 +47,22 @@ public class setStateToLitigationService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("6005");
+            creditorDTO.setCode("06005");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             setStateToLitigationDTO.Contract contract = new setStateToLitigationDTO.Contract();
-            contract.setContract_guid(kredit.getGrkiClaimId());
+            contract.setContract_guid(kredit.getGrkiContractId());
             contract.setContract_id(kredit.getNumdog());
             dto.setContract(contract);
 
             setStateToLitigationDTO.LitigationBasis litigationBasis = new setStateToLitigationDTO.LitigationBasis();
             litigationBasis.setDecide("03");
             litigationBasis.setDecide_number(decide_number);
-            litigationBasis.setDecide_date(decide_date);
+            litigationBasis.setDecide_date(decide_date.format(formatter));
             litigationBasis.setDecide_chief("Тухтаева Манзура Мизробовна");
             litigationBasis.setConclusion(conclusion);
-            litigationBasis.setSend_date(send_date);
+            litigationBasis.setSend_date(send_date.format(formatter));
             dto.setLitigation_basis(litigationBasis);
 
             return dto;
@@ -71,8 +74,8 @@ public class setStateToLitigationService {
     }
 
     public ResponseEntity<String> sendSetStateToLitigation(String contractNumber, String decide_number,
-                                                           String decide_date,
-                                                           String conclusion, String send_date) {
+                                                           LocalDate decide_date,
+                                                           String conclusion, LocalDate send_date) {
         setStateToLitigationDTO dto = createLitigation(contractNumber, decide_number, decide_date,
                 conclusion, send_date);
 

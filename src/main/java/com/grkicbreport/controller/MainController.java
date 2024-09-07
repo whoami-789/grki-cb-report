@@ -12,28 +12,31 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/grki")
 public class MainController {
-    @Autowired
-    private SaveClaimService saveClaimService;
-    @Autowired
-    private SaveContractService saveContractService;
-    @Autowired
-    private SaveAgreementService saveAgreementService;
-    @Autowired
-    private SaveProvisionService saveProvisionService;
-    @Autowired
-    private saveScheduleService saveScheduleService;
-    @Autowired
-    private setStateToLitigationService setStateToLitigationService;
-    @Autowired
-    private saveCourtDecisionService saveCourtDecisionService;
-    @Autowired
-    private setStateToCloseService setStateToCloseService;
-    @Autowired
-    private FileGeneratorService fileGeneratorService;
+    private final SaveClaimService saveClaimService;
+    private final SaveContractService saveContractService;
+    private final SaveAgreementService saveAgreementService;
+    private final SaveProvisionService saveProvisionService;
+    private final saveScheduleService saveScheduleService;
+    private final setStateToLitigationService setStateToLitigationService;
+    private final saveCourtDecisionService saveCourtDecisionService;
+    private final setStateToCloseService setStateToCloseService;
+    private final FileGeneratorService fileGeneratorService;
+
+    public MainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveAgreementService saveAgreementService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService) {
+        this.saveClaimService = saveClaimService;
+        this.saveContractService = saveContractService;
+        this.saveAgreementService = saveAgreementService;
+        this.saveProvisionService = saveProvisionService;
+        this.saveScheduleService = saveScheduleService;
+        this.setStateToLitigationService = setStateToLitigationService;
+        this.saveCourtDecisionService = saveCourtDecisionService;
+        this.setStateToCloseService = setStateToCloseService;
+        this.fileGeneratorService = fileGeneratorService;
+    }
 
     @PostMapping("/get-save-claim")
     public ResponseEntity<String> sendSaveClaim(@RequestBody RequestDTO requestDTO) {
-        return saveClaimService.sendSaveClaim(requestDTO.getContractNumber(), requestDTO.getWork());
+        return saveClaimService.sendSaveClaim(requestDTO.getContractNumber());
     }
 
     @PostMapping("/get-save-contract")
@@ -44,7 +47,7 @@ public class MainController {
 
     @PostMapping("/get-save-agreement")
     public ResponseEntity<String> sendSaveAgreement(@RequestBody RequestDTO requestDTO) {
-        return saveAgreementService.sendSaveAgreement(requestDTO.getAgreement_id(), requestDTO.getAgreement_number(),
+        return saveAgreementService.sendSaveAgreement(requestDTO.getContractNumber(), requestDTO.getAgreement_id(), requestDTO.getAgreement_number(),
                 requestDTO.getAgreement_date_begin(), requestDTO.getAgreement_date_end(), requestDTO.getAgreement_subject_type(),
                 requestDTO.getAgreement_inn_pinfl(), requestDTO.getAgreement_name(), requestDTO.getAgreement_amount());
     }

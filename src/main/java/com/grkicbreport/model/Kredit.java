@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@DynamicUpdate
 public class Kredit {
 
     @Id
@@ -88,7 +90,7 @@ public class Kredit {
     private Byte tel;
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "kod_dog", nullable = false)
+    @Column(name = "kod_dog", updatable = false, nullable = false)
     private Integer kodDog;
 
     @Transient
@@ -231,6 +233,12 @@ public class Kredit {
 
     @Column(name = "grki-claim-id")
     private String grkiClaimId;
+
+    @Column(name = "grki-agreement-id")
+    private String grkiAgreementId;
+
+    @Column(name = "grki-contract-id")
+    private String grkiContractId;
 
     @Column(name = "procpeni")
     private Long procpeni;

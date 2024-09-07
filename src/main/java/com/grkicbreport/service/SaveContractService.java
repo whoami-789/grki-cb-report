@@ -8,6 +8,7 @@ import com.grkicbreport.model.Kredit;
 import com.grkicbreport.repository.AzolikFizRepository;
 import com.grkicbreport.repository.AzolikYurRepository;
 import com.grkicbreport.repository.KreditRepository;
+import com.grkicbreport.response.Response;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -33,7 +36,7 @@ public class SaveContractService {
     }
 
     public saveContractDTO createContract(String contractNumber, String Loan_line,
-                                          String decisionNumber, String decisionDate) {
+                                          String decisionNumber, LocalDate decisionDate) {
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
 
 
@@ -42,6 +45,7 @@ public class SaveContractService {
         }
 
         Kredit kredit = kreditList.get();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
         try {
             // Создаем и заполняем DTO
@@ -52,7 +56,7 @@ public class SaveContractService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("6005");
+            creditorDTO.setCode("06005");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -60,14 +64,14 @@ public class SaveContractService {
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
 //            claimDTO.setClaim_guid("1");
-            claimDTO.setClaim_id(kredit.getNumdog().replaceAll("\\s", ""));
+            claimDTO.setClaim_id(kredit.getKod().replaceAll("\\s", ""));
             claimDTO.setContract_id(kredit.getNumdog().replaceAll("\\s", "")); // Вызов метода или сервиса для получения номера
             dto.setClaim(claimDTO);
 
             DecisionDTO decisionDTO = new DecisionDTO();
             decisionDTO.setDecide("03");
             decisionDTO.setNumber(decisionNumber); // вручную
-            decisionDTO.setDate(decisionDate); // вручную
+            decisionDTO.setDate(decisionDate.format(formatter)); // вручную
             decisionDTO.setDecide_chief("Тухтаева Манзура Мизробовна");
             decisionDTO.setBorrower_link("0");
             dto.setDecision(decisionDTO);
@@ -78,30 +82,29 @@ public class SaveContractService {
             contractDTO.setLoan_line(Loan_line);
             contractDTO.setAsset_quality(String.valueOf(kredit.getKlass()));
             contractDTO.setNumber(kredit.getNumdog().replaceAll("\\s", ""));
-            contractDTO.setDate_begin(String.valueOf(kredit.getDatadog()));
-            contractDTO.setDate_end(String.valueOf(kredit.getDatsZakr()));
-            contractDTO.setCurrency("0");
-            contractDTO.setAmount(String.valueOf(kredit.getSumma()));
+            contractDTO.setDate_begin(String.valueOf(kredit.getDatadog().format(formatter)));
+            contractDTO.setDate_end(String.valueOf(kredit.getDatsZakr().format(formatter)));
+            contractDTO.setCurrency("000");
+            contractDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
             PercentDTO percentDTO = new PercentDTO();
             percentDTO.setPercent_type("101");
             percentDTO.setPercent_total(String.valueOf(kredit.getProsent()));
             percentDTO.setBorrower_percent(String.valueOf(kredit.getProsent()));
             percentDTO.setOverdue_percent(String.valueOf(kredit.getProcpeni()));
             contractDTO.setPercent(percentDTO);
-            contractDTO.setCurrency_first("0");
+            contractDTO.setCurrency_first("000");
             contractDTO.setAmount_first("0");
             dto.setContract(contractDTO);
 
             TargetsDTO targetsDTO = new TargetsDTO();
             targetsDTO.setType("99");
-            targetsDTO.setAmount(String.valueOf(kredit.getSumma()));
-            targetsDTO.setInfo(null);
+            targetsDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
             dto.getTargets().add(targetsDTO);
 
             SourcesDTO sourcesDTO = new SourcesDTO();
             sourcesDTO.setType("100");
-            sourcesDTO.setCurrency("0");
-            sourcesDTO.setAmount(String.valueOf(kredit.getSumma()));
+            sourcesDTO.setCurrency("000");
+            sourcesDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
             dto.getSources().add(sourcesDTO);
 
 // Возвращаем заполненный DTO
@@ -132,7 +135,7 @@ public class SaveContractService {
     }
 
     public ResponseEntity<String> sendSaveContract(String contractNumber, String Loan_line,
-                                                   String decisionNumber, String decisionDate) {
+                                                   String decisionNumber, LocalDate decisionDate) {
         saveContractDTO dto = createContract(contractNumber, Loan_line, decisionNumber, decisionDate);
 
         HttpHeaders headers = new HttpHeaders();
@@ -150,7 +153,33 @@ public class SaveContractService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://grki-service/grci/resources/cb/saveContract";
-        return restTemplate.postForEntity(url, request, String.class);
+        String url = "http://10.95.88.48/grci/resources/cb/saveContract";
+        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+        // Парсинг ответа
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            Response responseBody = gson.fromJson(response.getBody(), Response.class);
+            System.out.println(responseBody);
+
+            // Извлечение claim_guid
+            String claimGuid = responseBody.getAnswer().getIdentity().getContract_guid();
+
+            Optional<Kredit> kreditOptional = kreditRepository.findByNumdog(contractNumber);
+
+
+            if (kreditOptional.isPresent()) {
+                Kredit kredit = kreditOptional.get();
+
+                // Сохранить claim_guid в поле grkiClaimId
+                kreditRepository.updateGrkiContractId(claimGuid, kredit.getNumdog());
+
+            } else {
+                System.out.println("Кредит с таким номером договора не найден");
+            }
+        } else {
+            System.out.println("Ошибка при выполнении запроса");
+        }
+
+        return response;
     }
 }
