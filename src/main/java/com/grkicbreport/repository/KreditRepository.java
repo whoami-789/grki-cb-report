@@ -24,6 +24,7 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     @Query(value = "EXEC analiz_schet :date, :bal", nativeQuery = true)
     List<String> calAnaliz_schet(@Param("date") Date date, @Param("bal") String bal);
 
+    @Modifying
     @Transactional
     @Query("UPDATE Kredit k SET k.grkiClaimId = :grkiClaimId WHERE k.numdog = :numdog")
     void updateGrkiClaimId(@Param("grkiClaimId") String grkiClaimId, @Param("numdog") String numdog);

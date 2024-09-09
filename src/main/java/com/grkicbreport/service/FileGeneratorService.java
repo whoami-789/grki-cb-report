@@ -3,6 +3,7 @@ package com.grkicbreport.service;
 import com.grkicbreport.dto.CodeExtractor;
 import com.grkicbreport.model.*;
 import com.grkicbreport.repository.*;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,9 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class FileGeneratorService {
@@ -23,10 +27,13 @@ public class FileGeneratorService {
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
     private final String[] balValues = {"12401", "12405", "12409", "12499", "12501", "14801", "14899", "15701"};
+    private static final String FOLDER_PATH = "C:/Users/user/Desktop/GRKI"; // Укажите здесь вашу папку
+
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private final Map<String, Integer> dailyFlightNumbers = new HashMap<>();
+    private static final Logger logger = Logger.getLogger(FileGeneratorService.class.getName());
 
     public FileGeneratorService(KreditRepository kreditRepository, DokumRepository dokumRepository, DokRepository dokRepository, Analiz_schetService alizSchetService, AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository) {
         this.kreditRepository = kreditRepository;
@@ -104,9 +111,14 @@ public class FileGeneratorService {
         String dateString = outputSdf.format(currentDate);
         String previousDateString = outputSdf.format(previousDay);
 
+        File folder = new File(FOLDER_PATH);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
         // Создание файлов с разными расширениями
-        String fileName008 = generateFilename(dateString, "008");
-        String fileName009 = generateFilename(dateString, "009");
+        String fileName008 = FOLDER_PATH + "/" + generateFilename(dateString, "008");
+        String fileName009 = FOLDER_PATH + "/" + generateFilename(dateString, "009");
 
         // Создание и запись в файл с расширением .008
         try {
@@ -161,7 +173,7 @@ public class FileGeneratorService {
                     String line008 = dateString + separator +
                             "02" + separator +
                             "06005" + separator +
-                            ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + "↔" +
+                            ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
                             extractedCode + separator +
                             record.getBal() + separator +
                             previousDayDeb + separator +
@@ -171,7 +183,7 @@ public class FileGeneratorService {
 
                     // Записываем строку в файл с расширением .008
                     writer008.write(line008);
-                    System.out.println("Записана строка в .008 файл: " + line008);
+                    logger.info("Записана строка в .008 файл: " + line008);
                 }
             }
         } catch (IOException e) {
@@ -206,7 +218,7 @@ public class FileGeneratorService {
                         String line009 = dateString + separator +
                                 "02" + separator +
                                 "06005" + separator +
-                                ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + "↔" +
+                                ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
                                 extractedCode + separator +
                                 dok.getKod() + separator +
                                 "0103" + separator +
@@ -226,7 +238,7 @@ public class FileGeneratorService {
 
                         // Записываем строку в файл с расширением .009
                         writer009.write(line009);
-                        System.out.println("Записана строка в .009 файл: " + line009);
+                        logger.info("Записана строка в .009 файл: " + line009);
                     } else {
                         String line009 = dateString + separator +
                                 "02" + separator +
@@ -251,7 +263,7 @@ public class FileGeneratorService {
 
                         // Записываем строку в файл с расширением .009
                         writer009.write(line009);
-                        System.out.println("Записана строка в .009 файл: " + line009);
+                        logger.info("Записана строка в .009 файл: " + line009);
                     }
                 } else if (dok.getNazn().startsWith("Погашение")) {
 
@@ -316,7 +328,7 @@ public class FileGeneratorService {
                         String line009 = dateString + separator +
                                 "02" + separator +
                                 "06005" + separator +
-                                ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + "↔" +
+                                ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
                                 extractedCode + separator +
                                 dok.getKod() + separator +
                                 typeOption + separator +
@@ -344,11 +356,71 @@ public class FileGeneratorService {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
-            return "Ошибка при создании файла .009: " + e.getMessage();
+            // Получаем стек вызовов
+            StackTraceElement[] stackTrace = e.getStackTrace();
+
+            // Формируем сообщение об ошибке с информацией о строке
+            StringBuilder errorMessage = new StringBuilder("Ошибка при создании файла .009: " + e.getMessage());
+            if (stackTrace.length > 0) {
+                StackTraceElement firstElement = stackTrace[0];
+                errorMessage.append(" В классе ").append(firstElement.getClassName())
+                        .append(", методе ").append(firstElement.getMethodName())
+                        .append(", строке ").append(firstElement.getLineNumber());
+            }
+
+            // Логируем сообщение об ошибке
+            logger.info(errorMessage.toString());
         }
 
-        return "Файлы созданы: " + fileName008 + " и " + fileName009;
+//        // Архивирование файлов
+//        String zipFileName = generateZipFileName(dateString); // Генерируем имя архива
+//        String zipFilePath = FOLDER_PATH + "/" + zipFileName + ".zip";
+//
+//        try (FileOutputStream fos = new FileOutputStream(zipFilePath);
+//             ZipOutputStream zipOut = new ZipOutputStream(fos)) {
+//
+//            // Добавляем файл .008 в архив
+//            addFileToZip(fileName008, zipOut);
+//
+//            // Добавляем файл .009 в архив
+//            addFileToZip(fileName009, zipOut);
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return "Ошибка при создании архива: " + e.getMessage();
+//        }
+//
+//        return "Файлы созданы и заархивированы: " + zipFilePath;
+        return dateString;
+    }
+
+    // Метод для генерации имени архива в формате NBBBBBRR.YMD
+    private String generateZipFileName(String dateString) {
+        // N = Константа (например, 'N')
+        String N = "A";
+        // BBBBB = Код кредитной организации (например, '12345')
+        String BBBBB = "12345";
+        // RR = Номер рейса (например, '01')
+        String RR = "01";
+        // YMD = Дата в формате год-месяц-день (например, '20230909')
+        String YMD = dateString;
+
+        return N + BBBBB + RR + "." + YMD;
+    }
+
+    // Метод для добавления файла в ZIP-архив
+    private void addFileToZip(String filePath, ZipOutputStream zipOut) throws IOException {
+        File fileToZip = new File(filePath);
+        try (FileInputStream fis = new FileInputStream(fileToZip)) {
+            ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+            zipOut.putNextEntry(zipEntry);
+
+            byte[] bytes = new byte[1024];
+            int length;
+            while ((length = fis.read(bytes)) >= 0) {
+                zipOut.write(bytes, 0, length);
+            }
+        }
     }
 
 }

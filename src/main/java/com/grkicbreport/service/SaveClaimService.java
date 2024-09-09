@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,6 +85,9 @@ public class SaveClaimService {
             creditDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
             creditDTO.setPercent(String.valueOf(kredit.getProsent()));
             creditDTO.setPeriod(String.valueOf(kredit.getSrokkred()));
+            List<String> targets = new ArrayList<>();
+            targets.add("0699");
+            creditDTO.setTargets(targets);
             dto.setCredit(creditDTO);
 
             // Заполнение BorrowerDTO
@@ -98,7 +102,7 @@ public class SaveClaimService {
             borrowerDTO.setGender(String.valueOf(azolikFiz.getFsobst()));
             borrowerDTO.setCitizenship("860");
             borrowerDTO.setArea(azolikFiz.getKodObl());
-            borrowerDTO.setRegion(azolikFiz.getKodRayon().replaceFirst("0", ""));
+            borrowerDTO.setRegion(azolikFiz.getKodRayon().replaceAll("\\s", ""));
             borrowerDTO.setDoc_type("1");
             borrowerDTO.setDoc_seria(azolikFiz.getSer_pasp().replaceAll("\\s", ""));
             borrowerDTO.setDoc_number(azolikFiz.getNum_pasp().replaceAll("\\s", ""));
@@ -108,13 +112,13 @@ public class SaveClaimService {
 
             // Заполнение списка IncomeDTO
             IncomeDTO incomeDTO = new IncomeDTO();
-            incomeDTO.setIncome_type("07");
+            incomeDTO.setIncome_type("08");
             dto.setIncome(List.of(incomeDTO)); // Устанавливаем список доходов
 
             // Заполнение ContactsDTO
             ContactsDTO contactsDTO = new ContactsDTO();
             contactsDTO.setPost_address(azolikFiz.getAdres().replaceAll("\\s", ""));
-            contactsDTO.setPhone("+998" + azolikFiz.getTelmobil());
+            contactsDTO.setPhone("+998" + azolikFiz.getTelmobil().replaceAll("\\s", ""));
             dto.setContacts(contactsDTO);
 
             // Возвращаем заполненный DTO
@@ -181,7 +185,7 @@ public class SaveClaimService {
 
             // Заполнение списка IncomeDTO
             IncomeDTO incomeDTO = new IncomeDTO();
-            incomeDTO.setIncome_type("07");
+            incomeDTO.setIncome_type("08");
             dto.setIncome(List.of(incomeDTO)); // Устанавливаем список доходов
 
             // Заполнение ContactsDTO
