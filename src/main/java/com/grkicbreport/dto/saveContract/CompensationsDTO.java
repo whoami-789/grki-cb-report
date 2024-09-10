@@ -8,4 +8,5 @@ import lombok.Data;
 public class CompensationsDTO {
     private String compens_org;
     private String compens_percent;
+    private String discont_comissions;
 }

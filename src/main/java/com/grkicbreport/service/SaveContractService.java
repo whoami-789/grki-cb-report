@@ -71,10 +71,11 @@ public class SaveContractService {
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
-//            claimDTO.setClaim_guid("1");
-            claimDTO.setClaim_id(kredit.getKod().replaceAll("\\s", ""));
-            claimDTO.setContract_id(kredit.getNumdog().replaceAll("\\s", "")); // Вызов метода или сервиса для получения номера
+            claimDTO.setClaim_guid("0");
+//            claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
+            claimDTO.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setClaim(claimDTO);
 
             DecisionDTO decisionDTO = new DecisionDTO();
@@ -95,6 +96,7 @@ public class SaveContractService {
             contractDTO.setDate_end(maxDats.format(formatter));
             contractDTO.setCurrency("000");
             contractDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
+            contractDTO.setDiscont_commissions("0");
             PercentDTO percentDTO = new PercentDTO();
             percentDTO.setPercent_type("101");
             percentDTO.setPercent_total(String.valueOf(kredit.getProsent()));

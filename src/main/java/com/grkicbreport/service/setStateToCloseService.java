@@ -51,7 +51,8 @@ public class setStateToCloseService {
 
             setStateToCloseDTO.ContractDTO contract = new setStateToCloseDTO.ContractDTO();
             contract.setContract_guid(kredit.getGrkiContractId());
-            contract.setContract_id(kredit.getNumdog());
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            contract.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contract);
 
             return dto;

@@ -53,7 +53,8 @@ public class setStateToLitigationService {
 
             setStateToLitigationDTO.Contract contract = new setStateToLitigationDTO.Contract();
             contract.setContract_guid(kredit.getGrkiContractId());
-            contract.setContract_id(kredit.getNumdog());
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            contract.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contract);
 
             setStateToLitigationDTO.LitigationBasis litigationBasis = new setStateToLitigationDTO.LitigationBasis();

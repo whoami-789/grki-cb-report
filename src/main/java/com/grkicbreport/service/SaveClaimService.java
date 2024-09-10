@@ -74,9 +74,9 @@ public class SaveClaimService {
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            claimDTO.setClaim_id(kredit.getKod().replaceAll("\\s", ""));
+            claimDTO.setClaim_id(kredit.getNumdog().replaceAll("[\\s,-K\\\\]", ""));
             claimDTO.setType("01");
-            claimDTO.setNumber(kredit.getNumdog().replaceAll("\\s", "")); // Вызов метода или сервиса для получения номера
+            claimDTO.setNumber(kredit.getNumdog().replaceAll("[\\s,-K\\\\]", ""));
             claimDTO.setDate(LocalDate.now().format(formatter));
             dto.setClaim(claimDTO);
 
@@ -152,10 +152,11 @@ public class SaveClaimService {
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            claimDTO.setClaim_guid(""); // Вызов метода или сервиса для получения GUID
-            claimDTO.setClaim_id(kredit.getNumdog().replaceAll("\\s", ""));
+            claimDTO.setClaim_guid("");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
+            claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
-            claimDTO.setNumber(kredit.getNumdog().replaceAll("\\s", "")); // Вызов метода или сервиса для получения номера
             claimDTO.setDate(LocalDate.now().toString());
             dto.setClaim(claimDTO);
 

@@ -54,7 +54,8 @@ public class saveCourtDecisionService {
 
             saveCourtDecisionDTO.Contract contract = new saveCourtDecisionDTO.Contract();
             contract.setContract_guid(kredit.getGrkiContractId());
-            contract.setContract_id(kredit.getNumdog());
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            contract.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contract);
 
             saveCourtDecisionDTO.Court_decision court_decision = new saveCourtDecisionDTO.Court_decision();

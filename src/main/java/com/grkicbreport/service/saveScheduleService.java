@@ -62,7 +62,8 @@ public class saveScheduleService {
 
             saveScheduleDTO.Contract contract = new saveScheduleDTO.Contract();
             contract.setContract_guid(kredit.getGrkiContractId());
-            contract.setContract_id(kredit.getNumdog());
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            contract.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contract);
 
             List<saveScheduleDTO.Repayment> repaymentList = new ArrayList<>();
