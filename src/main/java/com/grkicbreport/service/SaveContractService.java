@@ -4,9 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.grkicbreport.dto.CreditorDTO;
 import com.grkicbreport.dto.saveContract.*;
+import com.grkicbreport.model.Grafik;
 import com.grkicbreport.model.Kredit;
 import com.grkicbreport.repository.AzolikFizRepository;
 import com.grkicbreport.repository.AzolikYurRepository;
+import com.grkicbreport.repository.GrafikRepository;
 import com.grkicbreport.repository.KreditRepository;
 import com.grkicbreport.response.Response;
 import org.springframework.http.HttpEntity;
@@ -19,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class SaveContractService {
@@ -26,25 +29,36 @@ public class SaveContractService {
     private final AzolikYurRepository azolikYurRepository;
     private final AzolikFizRepository azolikFizRepository;
     private final KreditRepository kreditRepository;
+    private final GrafikRepository grafikRepository;
     private final RestTemplate restTemplate;
+    private static final Logger logger = Logger.getLogger(SaveContractService.class.getName());
 
-    public SaveContractService(AzolikYurRepository azolikYurRepository, AzolikFizRepository azolikFizRepository, KreditRepository kreditRepository, RestTemplate restTemplate) {
+    public SaveContractService(AzolikYurRepository azolikYurRepository, AzolikFizRepository azolikFizRepository, KreditRepository kreditRepository, GrafikRepository grafikRepository, RestTemplate restTemplate) {
         this.azolikYurRepository = azolikYurRepository;
         this.azolikFizRepository = azolikFizRepository;
         this.kreditRepository = kreditRepository;
+        this.grafikRepository = grafikRepository;
         this.restTemplate = restTemplate;
     }
 
     public saveContractDTO createContract(String contractNumber, String Loan_line,
                                           String decisionNumber, LocalDate decisionDate) {
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
+        Optional<Grafik> grafikList = grafikRepository.findByNumdog(contractNumber);
+        LocalDate maxDats = grafikRepository.findMaxDatsByNumdog(contractNumber);
+        System.out.println("Максимальная дата: " + maxDats);
 
 
         if (kreditList.isEmpty()) {
             throw new IllegalArgumentException("Кредит с таким номером не найден.");
         }
 
+        if (grafikList.isEmpty()) {
+            throw new IllegalArgumentException("Кредит с таким номером не найден.");
+        }
+
         Kredit kredit = kreditList.get();
+        Grafik grafik = grafikList.get();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
         try {
@@ -82,8 +96,8 @@ public class SaveContractService {
             contractDTO.setLoan_line(Loan_line);
             contractDTO.setAsset_quality(String.valueOf(kredit.getKlass()));
             contractDTO.setNumber(kredit.getNumdog().replaceAll("\\s", ""));
-            contractDTO.setDate_begin(String.valueOf(kredit.getDatadog().format(formatter)));
-            contractDTO.setDate_end(String.valueOf(kredit.getDatsZakr().format(formatter)));
+            contractDTO.setDate_begin(kredit.getDatadog().format(formatter));
+            contractDTO.setDate_end(maxDats.format(formatter));
             contractDTO.setCurrency("000");
             contractDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
             PercentDTO percentDTO = new PercentDTO();
@@ -108,12 +122,13 @@ public class SaveContractService {
             dto.getSources().add(sourcesDTO);
 
 // Возвращаем заполненный DTO
+            // Возвращаем заполненный DTO
             Gson gson = new GsonBuilder()
                     .serializeNulls() // Include null values in the JSON output
                     .setPrettyPrinting() // Enable pretty printing for better readability
                     .create();
             String formattedJson = gson.toJson(dto);
-            System.out.println(formattedJson);
+            logger.info(formattedJson);
             return dto;
         } catch (Exception e) {
             System.out.println(e);

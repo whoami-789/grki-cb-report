@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface GrafikRepository extends JpaRepository<Grafik, String> {
 
     List<Grafik> findAllByNumdog(String numdog);
+    Optional<Grafik> findByNumdog(String numdog);
 
     int countGrafikByNumdog(String numdog);
 
@@ -28,4 +29,9 @@ public interface GrafikRepository extends JpaRepository<Grafik, String> {
             "END, 0)",
             nativeQuery = true)
     Integer findGrafikByNumdogAndDats(@Param("numdog") String numdog, @Param("dats") LocalDate dats);
+
+    @Query("SELECT MAX(g.dats) FROM Grafik g WHERE g.numdog = :contractNumber")
+    LocalDate findMaxDatsByNumdog(@Param("contractNumber") String contractNumber);
+
+
 }

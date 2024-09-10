@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class SaveClaimService {
@@ -31,6 +32,8 @@ public class SaveClaimService {
     private final AzolikYurRepository azolikYurRepository;
     private final KreditRepository kreditRepository;
     private final RestTemplate restTemplate;
+    private static final Logger logger = Logger.getLogger(SaveClaimService.class.getName());
+
 
 
     public SaveClaimService(AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository, KreditRepository kreditRepository, RestTemplate restTemplate) {
@@ -127,7 +130,7 @@ public class SaveClaimService {
                     .setPrettyPrinting() // Enable pretty printing for better readability
                     .create();
             String formattedJson = gson.toJson(dto);
-            System.out.println(formattedJson);
+            logger.info(formattedJson);
             return dto;
 
         } catch (Exception e) {
@@ -194,7 +197,7 @@ public class SaveClaimService {
             dto.setContacts(contactsDTO);
 
             // Возвращаем заполненный DTO
-            System.out.println("yur");
+            logger.info("yur");
             return dto;
         }
     }
@@ -223,7 +226,7 @@ public class SaveClaimService {
         // Парсинг ответа
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             Response responseBody = gson.fromJson(response.getBody(), Response.class);
-            System.out.println(responseBody);
+            logger.info(String.valueOf(responseBody));
             // Извлечение claim_guid
             String claimGuid = responseBody.getAnswer().getIdentity().getClaim_guid();
 
