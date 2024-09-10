@@ -111,7 +111,7 @@ public class saveScheduleService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://grki-service/grci/resources/cb/saveSchedule";
+        String url = "http://10.95.88.48/grci/resources/cb/saveSchedule";
         return restTemplate.postForEntity(url, request, String.class);
     }
 }

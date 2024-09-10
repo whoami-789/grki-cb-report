@@ -21,8 +21,9 @@ public class MainController {
     private final saveCourtDecisionService saveCourtDecisionService;
     private final setStateToCloseService setStateToCloseService;
     private final FileGeneratorService fileGeneratorService;
+    private final getIdentityService getIdentityService;
 
-    public MainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveAgreementService saveAgreementService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService) {
+    public MainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveAgreementService saveAgreementService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService, com.grkicbreport.service.getIdentityService getIdentityService) {
         this.saveClaimService = saveClaimService;
         this.saveContractService = saveContractService;
         this.saveAgreementService = saveAgreementService;
@@ -32,6 +33,7 @@ public class MainController {
         this.saveCourtDecisionService = saveCourtDecisionService;
         this.setStateToCloseService = setStateToCloseService;
         this.fileGeneratorService = fileGeneratorService;
+        this.getIdentityService = getIdentityService;
     }
 
     @PostMapping("/get-save-claim")
@@ -83,5 +85,12 @@ public class MainController {
     @GetMapping("/generate-files")
     public String generateFiles(@RequestParam String date) {
         return fileGeneratorService.createFiles(date);
+    }
+
+    @GetMapping("/send-save-info")
+    public ResponseEntity<String> sendSaveInfo(
+            @RequestParam String id,
+            @RequestParam String type) {
+        return getIdentityService.sendSaveInfo(id, type);
     }
 }

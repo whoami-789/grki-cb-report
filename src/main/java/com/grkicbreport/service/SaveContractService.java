@@ -44,7 +44,6 @@ public class SaveContractService {
     public saveContractDTO createContract(String contractNumber, String Loan_line,
                                           String decisionNumber, LocalDate decisionDate) {
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
-        Optional<Grafik> grafikList = grafikRepository.findByNumdog(contractNumber);
         LocalDate maxDats = grafikRepository.findMaxDatsByNumdog(contractNumber);
         System.out.println("Максимальная дата: " + maxDats);
 
@@ -53,12 +52,8 @@ public class SaveContractService {
             throw new IllegalArgumentException("Кредит с таким номером не найден.");
         }
 
-        if (grafikList.isEmpty()) {
-            throw new IllegalArgumentException("Кредит с таким номером не найден.");
-        }
 
         Kredit kredit = kreditList.get();
-        Grafik grafik = grafikList.get();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
         try {
