@@ -71,8 +71,7 @@ public class SaveContractService {
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            claimDTO.setClaim_guid("0");
-//            claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
+            claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
             String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
@@ -108,7 +107,7 @@ public class SaveContractService {
             dto.setContract(contractDTO);
 
             TargetsDTO targetsDTO = new TargetsDTO();
-            targetsDTO.setType("99");
+            targetsDTO.setType("0699");
             targetsDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
             dto.getTargets().add(targetsDTO);
 

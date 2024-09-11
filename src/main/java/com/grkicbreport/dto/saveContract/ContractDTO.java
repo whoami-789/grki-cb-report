@@ -24,7 +24,7 @@ public class ContractDTO {
     private String currency_first;
     private String amount_first;
     private String amount_obligations;
-    private String discont_commissions;
+    private String discont_comissions;
     private String currency_commission;
     private String amount_commission;
     private String guarantee_info;
