@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class saveScheduleService {
@@ -27,6 +28,7 @@ public class saveScheduleService {
     private final RestTemplate restTemplate;
     private final KreditRepository kreditRepository;
     private final GrafikRepository grafikRepository;
+    private static final Logger logger = Logger.getLogger(saveScheduleService.class.getName());
 
     public saveScheduleService(RestTemplate restTemplate, KreditRepository kreditRepository, GrafikRepository grafikRepository) {
         this.restTemplate = restTemplate;
@@ -71,14 +73,10 @@ public class saveScheduleService {
             // Проходим по всем объектам Grafik и создаем объекты Repayment
             for (Grafik grafik : grafikList) {
                 saveScheduleDTO.Repayment repayment = new saveScheduleDTO.Repayment();
-                if (grafik.getPogKred().compareTo(BigDecimal.ZERO) == 0) {
-                    repayment.setDate_percent(String.valueOf(grafik.getDats().format(formatter)));
-                }
-                repayment.setAmount_percent(String.valueOf(grafik.getPogProc())); // Сумма процентов
-                if (grafik.getPogProc().compareTo(BigDecimal.ZERO) == 0) {
-                    repayment.setDate_main(String.valueOf(grafik.getDats().format(formatter))); // Устанавливаем дату основного платежа только если pogProc = 0.00
-                }
-                repayment.setAmount_main(grafik.getPogKred().toString()); // Сумма основного платежа
+                repayment.setDate_percent(grafik.getDats().format(formatter));
+                repayment.setAmount_percent(String.valueOf(grafik.getPogProc().intValue())); // Сумма процентов
+                repayment.setDate_main(grafik.getDats().format(formatter)); // Устанавливаем дату основного платежа только если pogProc = 0.00
+                repayment.setAmount_main(String.valueOf(grafik.getPogKred().intValue())); // Сумма основного платежа
 
                 repaymentList.add(repayment);
             }
@@ -86,8 +84,13 @@ public class saveScheduleService {
             // Устанавливаем список Repayment в DTO
             dto.setRepayments(repaymentList);
 
+            Gson gson = new GsonBuilder()
+                    .serializeNulls() // Include null values in the JSON output
+                    .setPrettyPrinting() // Enable pretty printing for better readability
+                    .create();
+            String formattedJson = gson.toJson(dto);
+            logger.info(formattedJson);
             return dto;
-
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;

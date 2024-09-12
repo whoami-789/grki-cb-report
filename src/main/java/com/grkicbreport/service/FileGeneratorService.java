@@ -205,152 +205,170 @@ public class FileGeneratorService {
                     System.err.println("Код не найден для " + dok.getNazn());
                     continue;
                 }
-                Optional<Kredit> kredit = kreditRepository.findByNumdog(extractedCode);
-                Kredit getGRKIId = kredit.orElse(null);
-                Optional<AzolikFiz> azolikFiz = azolikFizRepository.findByKodchlen(getGRKIId.getKod());
-                Optional<AzolikYur> azolikYur = azolikYurRepository.findByKodchlen(getGRKIId.getKod());
-                AzolikFiz fiz = azolikFiz.orElse(null);
-                AzolikYur yur = azolikYur.orElse(null);
+                kreditRepository.findByNumdog(extractedCode).ifPresent(kredit -> {
+                    Optional<AzolikFiz> azolikFiz = azolikFizRepository.findByKodchlen(kredit.getKod());
+                    Optional<AzolikYur> azolikYur = azolikYurRepository.findByKodchlen(kredit.getKod());
 
-                if (dok.getNazn().startsWith("Выдача")) {
+                    AzolikFiz fiz = azolikFiz.orElse(null);
+                    AzolikYur yur = azolikYur.orElse(null);
 
-                    if (fiz == null) {
-                        String line009 = dateString + separator +
-                                "02" + separator +
-                                "06005" + separator +
-                                ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
-                                extractedCode + separator +
-                                dok.getKod() + separator +
-                                "0103" + separator +
-                                "1" + separator +
-                                "3" + separator +
-                                dok.getNumdok() + separator +
-                                "119" + separator +
-                                dok.getLs() + separator +
-                                "119" + separator +
-                                dok.getLscor() + separator +
-                                dok.getSums() + separator +
-                                "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
-                                yur.getName() + separator +
-                                dok.getLs().substring(0, 5) + separator +
-                                dok.getNazn();
+                    if (dok.getNazn().startsWith("Выдача")) {
 
-
-                        // Записываем строку в файл с расширением .009
-                        writer009.write(line009);
-                        logger.info("Записана строка в .009 файл: " + line009);
-                    } else {
-                        String line009 = dateString + separator +
-                                "02" + separator +
-                                "06005" + separator +
-                                ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
-                                extractedCode + separator +
-                                dok.getKod() + separator +
-                                "0103" + separator +
-                                "1" + separator +
-                                "3" + separator +
-                                dok.getNumdok() + separator +
-                                "119" + separator +
-                                dok.getLs() + separator +
-                                "119" + separator +
-                                dok.getLscor() + separator +
-                                dok.getSums() + separator +
-                                "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
-                                fiz.getName() + separator +
-                                dok.getLs().substring(0, 5) + separator +
-                                dok.getNazn();
+                        if (fiz == null) {
+                            String line009 = dateString + separator +
+                                    "02" + separator +
+                                    "06005" + separator +
+                                    ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
+                                    extractedCode + separator +
+                                    dok.getKod() + separator +
+                                    "0103" + separator +
+                                    "1" + separator +
+                                    "3" + separator +
+                                    dok.getNumdok() + separator +
+                                    "119" + separator +
+                                    dok.getLs() + separator +
+                                    "119" + separator +
+                                    dok.getLscor() + separator +
+                                    dok.getSums() + separator +
+                                    "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                    yur.getName() + separator +
+                                    dok.getLs().substring(0, 5) + separator +
+                                    dok.getNazn();
 
 
-                        // Записываем строку в файл с расширением .009
-                        writer009.write(line009);
-                        logger.info("Записана строка в .009 файл: " + line009);
+                            // Записываем строку в файл с расширением .009
+                            try {
+                                writer009.write(line009);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            logger.info("Записана строка в .009 файл: " + line009);
+                        } else {
+                            String line009 = dateString + separator +
+                                    "02" + separator +
+                                    "06005" + separator +
+                                    ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
+                                    extractedCode + separator +
+                                    dok.getKod() + separator +
+                                    "0103" + separator +
+                                    "1" + separator +
+                                    "3" + separator +
+                                    dok.getNumdok() + separator +
+                                    "119" + separator +
+                                    dok.getLs() + separator +
+                                    "119" + separator +
+                                    dok.getLscor() + separator +
+                                    dok.getSums() + separator +
+                                    "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                    fiz.getName() + separator +
+                                    dok.getLs().substring(0, 5) + separator +
+                                    dok.getNazn();
+
+
+                            // Записываем строку в файл с расширением .009
+                            try {
+                                writer009.write(line009);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            logger.info("Записана строка в .009 файл: " + line009);
+                        }
+                    } else if (dok.getNazn().startsWith("Погашение")) {
+
+                        String nalCard = "";
+                        String typeOption = "";
+                        if (dok.getLscor().startsWith("10509")) {
+                            nalCard = "3";
+                        } else {
+                            nalCard = "1";
+                        }
+
+                        if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10509")) {
+                            typeOption = "0300";
+                        } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
+                            typeOption = "0303";
+                        } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101")) {
+                            typeOption = "0305";
+                        } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10509")) {
+                            typeOption = "0307";
+                        } else if (dok.getLs().startsWith("12409")) {
+                            typeOption = "0312";
+                        } else if (dok.getLs().startsWith("12501")) {
+                            typeOption = "0313";
+                        } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10101")) {
+                            typeOption = "0403";
+                        } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509")) {
+                            typeOption = "0400";
+                        } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10101")) {
+                            typeOption = "0419";
+                        } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
+                            typeOption = "0400";
+                        } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
+                            typeOption = "0407";
+                        }
+
+                        if (fiz == null) {
+                            String line009 = dateString + separator +
+                                    "02" + separator +
+                                    "06005" + separator +
+                                    ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
+                                    extractedCode + separator +
+                                    dok.getKod() + separator +
+                                    typeOption + separator +
+                                    nalCard + separator +
+                                    "3" + separator +
+                                    dok.getNumdok() + separator +
+                                    "119" + separator +
+                                    dok.getLscor() + separator +
+                                    "119" + separator +
+                                    dok.getLs() + separator +
+                                    dok.getSums() + separator +
+                                    yur.getName() + separator +
+                                    "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                    dok.getLs().substring(0, 5) + separator +
+                                    dok.getNazn();
+
+
+                            // Записываем строку в файл с расширением .009
+                            try {
+                                writer009.write(line009);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            System.out.println("Записана строка в .009 файл: " + line009);
+                        } else {
+                            String line009 = dateString + separator +
+                                    "02" + separator +
+                                    "06005" + separator +
+                                    ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
+                                    extractedCode + separator +
+                                    dok.getKod() + separator +
+                                    typeOption + separator +
+                                    nalCard + separator +
+                                    "3" + separator +
+                                    dok.getNumdok() + separator +
+                                    "119" + separator +
+                                    dok.getLs() + separator +
+                                    "119" + separator +
+                                    dok.getLscor() + separator +
+                                    dok.getSums() + separator +
+                                    "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                    fiz.getName() + separator +
+                                    dok.getLs().substring(0, 5) + separator +
+                                    dok.getNazn();
+
+
+                            // Записываем строку в файл с расширением .009
+                            try {
+                                writer009.write(line009);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            System.out.println("Записана строка в .009 файл: " + line009);
+                        }
                     }
-                } else if (dok.getNazn().startsWith("Погашение")) {
+                });
 
-                    String nalCard = "";
-                    String typeOption = "";
-                    if (dok.getLscor().startsWith("10509")) {
-                        nalCard = "3";
-                    } else {
-                        nalCard = "1";
-                    }
-
-                    if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10509")) {
-                        typeOption = "0300";
-                    } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
-                        typeOption = "0303";
-                    } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101")) {
-                        typeOption = "0305";
-                    } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10509")) {
-                        typeOption = "0307";
-                    } else if (dok.getLs().startsWith("12409")) {
-                        typeOption = "0312";
-                    } else if (dok.getLs().startsWith("12501")) {
-                        typeOption = "0313";
-                    } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10101")) {
-                        typeOption = "0403";
-                    } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509")) {
-                        typeOption = "0400";
-                    } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10101")) {
-                        typeOption = "0419";
-                    } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
-                        typeOption = "0400";
-                    } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
-                        typeOption = "0407";
-                    }
-
-                    if (fiz == null) {
-                        String line009 = dateString + separator +
-                                "02" + separator +
-                                "06005" + separator +
-                                ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
-                                extractedCode + separator +
-                                dok.getKod() + separator +
-                                typeOption + separator +
-                                nalCard + separator +
-                                "3" + separator +
-                                dok.getNumdok() + separator +
-                                "119" + separator +
-                                dok.getLscor() + separator +
-                                "119" + separator +
-                                dok.getLs() + separator +
-                                dok.getSums() + separator +
-                                yur.getName() + separator +
-                                "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
-                                dok.getLs().substring(0, 5) + separator +
-                                dok.getNazn();
-
-
-                        // Записываем строку в файл с расширением .009
-                        writer009.write(line009);
-                        System.out.println("Записана строка в .009 файл: " + line009);
-                    } else {
-                        String line009 = dateString + separator +
-                                "02" + separator +
-                                "06005" + separator +
-                                ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
-                                extractedCode + separator +
-                                dok.getKod() + separator +
-                                typeOption + separator +
-                                nalCard + separator +
-                                "3" + separator +
-                                dok.getNumdok() + separator +
-                                "119" + separator +
-                                dok.getLs() + separator +
-                                "119" + separator +
-                                dok.getLscor() + separator +
-                                dok.getSums() + separator +
-                                "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
-                                fiz.getName() + separator +
-                                dok.getLs().substring(0, 5) + separator +
-                                dok.getNazn();
-
-
-                        // Записываем строку в файл с расширением .009
-                        writer009.write(line009);
-                        System.out.println("Записана строка в .009 файл: " + line009);
-                    }
-                }
 
 
             }
@@ -372,26 +390,25 @@ public class FileGeneratorService {
             logger.info(errorMessage.toString());
         }
 
-//        // Архивирование файлов
-//        String zipFileName = generateZipFileName(dateString); // Генерируем имя архива
-//        String zipFilePath = FOLDER_PATH + "/" + zipFileName + ".zip";
-//
-//        try (FileOutputStream fos = new FileOutputStream(zipFilePath);
-//             ZipOutputStream zipOut = new ZipOutputStream(fos)) {
-//
-//            // Добавляем файл .008 в архив
-//            addFileToZip(fileName008, zipOut);
-//
-//            // Добавляем файл .009 в архив
-//            addFileToZip(fileName009, zipOut);
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return "Ошибка при создании архива: " + e.getMessage();
-//        }
-//
-//        return "Файлы созданы и заархивированы: " + zipFilePath;
-        return dateString;
+        // Архивирование файлов
+        String zipFileName = generateZipFileName(dateString); // Генерируем имя архива
+        String zipFilePath = FOLDER_PATH + "/" + zipFileName + ".zip";
+
+        try (FileOutputStream fos = new FileOutputStream(zipFilePath);
+             ZipOutputStream zipOut = new ZipOutputStream(fos)) {
+
+            // Добавляем файл .008 в архив
+            addFileToZip(fileName008, zipOut);
+
+            // Добавляем файл .009 в архив
+            addFileToZip(fileName009, zipOut);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Ошибка при создании архива: " + e.getMessage();
+        }
+
+        return "Файлы созданы и заархивированы: " + zipFilePath;
     }
 
     // Метод для генерации имени архива в формате NBBBBBRR.YMD
@@ -399,7 +416,7 @@ public class FileGeneratorService {
         // N = Константа (например, 'N')
         String N = "A";
         // BBBBB = Код кредитной организации (например, '12345')
-        String BBBBB = "12345";
+        String BBBBB = "06005";
         // RR = Номер рейса (например, '01')
         String RR = "01";
         // YMD = Дата в формате год-месяц-день (например, '20230909')

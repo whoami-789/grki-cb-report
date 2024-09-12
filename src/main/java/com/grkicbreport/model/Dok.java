@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -52,7 +53,7 @@ public class Dok {
     private BigDecimal sums;
 
     @Column(name = "dat_prov")
-    private LocalDate datProv;
+    private Date datProv;
 
     @Column(name = "datsproc")
     private LocalDate datsProc;
