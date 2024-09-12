@@ -20,6 +20,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -71,8 +73,8 @@ public class SaveContractService {
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            claimDTO.setClaim_guid("0");
-//            claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
+//            claimDTO.setClaim_guid("0");
+            claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
             String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
@@ -96,7 +98,6 @@ public class SaveContractService {
             contractDTO.setDate_end(maxDats.format(formatter));
             contractDTO.setCurrency("000");
             contractDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
-            contractDTO.setDiscont_commissions("0");
             PercentDTO percentDTO = new PercentDTO();
             percentDTO.setPercent_type("101");
             percentDTO.setPercent_total(String.valueOf(kredit.getProsent()));
@@ -105,11 +106,15 @@ public class SaveContractService {
             contractDTO.setPercent(percentDTO);
             contractDTO.setCurrency_first("000");
             contractDTO.setAmount_first("0");
+            contractDTO.setDiscont_comissions(null);
             dto.setContract(contractDTO);
 
+
+
             TargetsDTO targetsDTO = new TargetsDTO();
-            targetsDTO.setType("99");
+            targetsDTO.setType("0699");
             targetsDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
+            targetsDTO.setInfo("Ремонт дома");
             dto.getTargets().add(targetsDTO);
 
             SourcesDTO sourcesDTO = new SourcesDTO();

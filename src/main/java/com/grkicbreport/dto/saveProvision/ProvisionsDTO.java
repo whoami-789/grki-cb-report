@@ -63,6 +63,7 @@ public class ProvisionsDTO {
         private String pledge_amount;
         private String estimate_inn;
         private String estimate_name;
+        private String estimate_date;
         private String insurance_inn;
         private String insurance_name;
     }

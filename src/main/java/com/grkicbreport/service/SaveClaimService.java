@@ -74,9 +74,10 @@ public class SaveClaimService {
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            claimDTO.setClaim_id(kredit.getNumdog().replaceAll("[\\s,-K\\\\]", ""));
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
+            claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
-            claimDTO.setNumber(kredit.getNumdog().replaceAll("[\\s,-K\\\\]", ""));
             claimDTO.setDate(LocalDate.now().format(formatter));
             dto.setClaim(claimDTO);
 

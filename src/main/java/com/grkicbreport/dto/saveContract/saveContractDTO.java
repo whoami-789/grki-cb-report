@@ -19,11 +19,9 @@ public class saveContractDTO {
     private ContractDTO contract;
     private List<TargetsDTO> targets = new ArrayList<>();
     private List<SourcesDTO> sources = new ArrayList<>();
-    private List<CompensationsDTO> compensations = new ArrayList<>();
     private Inner_infoDTO inner_info;
     private Change_basisDTO change_basis;
     private String leasing_objects;
     private String export_info;
     private String prolongation;
-
 }

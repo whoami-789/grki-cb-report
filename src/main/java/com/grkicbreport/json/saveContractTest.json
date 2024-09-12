@@ -1,0 +1,73 @@
+{
+  "save_mode": "1",
+  "claim": {
+    "claim_guid": "242550600510080066",
+    "claim_id": "990053108",
+    "contract_guid": null,
+    "contract_id": "990053108"
+  },
+  "creditor": {
+    "type": "02",
+    "code": "06005",
+    "office": null
+  },
+  "decision": {
+    "decide": "03",
+    "number": "0000001151",
+    "date": "11.09.2024",
+    "decide_chief": "Тухтаева Манзура Мизробовна",
+    "borrower_link": "0"
+  },
+  "agreement": null,
+  "borrower": null,
+  "contract": {
+    "loan_type": "10",
+    "issue_mode": "02",
+    "loan_line": "02",
+    "factoring_type": null,
+    "guarantee_type": null,
+    "borrower_class": null,
+    "asset_quality": "1",
+    "number": "99005310-8",
+    "date_begin": "05.09.2024",
+    "date_end": "04.07.2025",
+    "currency": "000",
+    "amount": "4000000",
+    "percent": {
+      "percent_type": "101",
+      "percent_total": "72.00",
+      "percent_nonresident": null,
+      "percent_resident": null,
+      "borrower_percent": "72.00",
+      "overdue_percent": "0"
+    },
+    "compensations": null,
+    "currency_first": "000",
+    "amount_first": "0",
+    "amount_obligations": null,
+    "discont_commissions": null,
+    "currency_commission": null,
+    "amount_commission": null,
+    "guarantee_info": null
+  },
+  "targets": [
+    {
+      "type": "0299",
+      "amount": "4000000",
+      "info": "Ремонт дома"
+    }
+  ],
+  "sources": [
+    {
+      "type": "100",
+      "foreign_org": null,
+      "currency": "000",
+      "amount": "4000000"
+    }
+  ],
+  "inner_info": null,
+  "change_basis": null,
+  "leasing_objects": null,
+  "export_info": null,
+  "prolongation": null
+}

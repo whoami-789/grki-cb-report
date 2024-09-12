@@ -8,7 +8,7 @@ import java.time.LocalDate;
 public class RequestDTO {
     private String contractNumber;
 
-    private String Loan_line;
+    private String loan_line;
     private String decisionNumber;
     private LocalDate decisionDate;
 
@@ -24,6 +24,15 @@ public class RequestDTO {
     private String provisionNumber;
     private LocalDate provisionDate;
     private String nibbd;
+    private String engine_number;
+    private String body_number;
+    private String year;
+    private String state_number;
+    private String model;
+    private String chassis_number;
+    private String color;
+    private String doc_seria_number;
+    private String vin_number;
 
     private String decide_number;
     private LocalDate decide_date;

@@ -2,11 +2,10 @@ package com.grkicbreport.dto.saveContract;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
+@NoArgsConstructor
 public class CompensationsDTO {
-    private String compens_org;
-    private String compens_percent;
-    private String discont_comissions;
+    private String compensation;
 }

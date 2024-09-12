@@ -23,7 +23,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class SaveProvisionService {
@@ -33,6 +36,8 @@ public class SaveProvisionService {
     private final ZalogRepository zalogRepository;
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
+    private static final Logger logger = Logger.getLogger(SaveProvisionService.class.getName());
+
 
     public SaveProvisionService(RestTemplate restTemplate, KreditRepository kreditRepository, ZalogRepository zalogRepository, AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository) {
         this.restTemplate = restTemplate;
@@ -90,7 +95,7 @@ public class SaveProvisionService {
                 provisionsDTO.setProvision_type("400");
             }
             provisionsDTO.setCurrency("000");
-            provisionsDTO.setAmount(String.valueOf(zalog.getSums()));
+            provisionsDTO.setAmount(String.valueOf(zalog.getSums().intValue()));
             provisionsDTO.setProvision_source("02");
             provisionsDTO.setNumber(provisionNumber);
             provisionsDTO.setDate(provisionDate.format(formatter));
@@ -138,28 +143,63 @@ public class SaveProvisionService {
                     ownerIndividual.setBirth_date(String.valueOf(azolikFiz.getDatsRojd().format(formatter)));
                     ownerIndividual.setGender(String.valueOf(azolikFiz.getFsobst()));
                     ownerIndividual.setCountry("860");
-                    ownerIndividual.setArea("6");
-                    ownerIndividual.setRegion("30");
+                    ownerIndividual.setArea("06");
+                    ownerIndividual.setRegion("030");
                     ownerIndividual.setDoc_type("1");
-                    ownerIndividual.setDoc_seria(azolikFiz.getSer_pasp());
-                    ownerIndividual.setDoc_number(azolikFiz.getNum_pasp());
-                    ownerIndividual.setDoc_date(String.valueOf(azolikFiz.getVidanPasp()));
-                    ownerIndividual.setDoc_issuer(azolikFiz.getKem_pasp());
-                    ownerIndividual.setSecond_name(azolikFiz.getImya());
-                    ownerIndividual.setFirst_name(azolikFiz.getFam());
-                    ownerIndividual.setPatronymic(azolikFiz.getOtch());
-                    ownerIndividual.setPost_address(azolikFiz.getAdres());
-                    ownerIndividual.setPhone(azolikFiz.getTelmobil());
+                    ownerIndividual.setDoc_seria(azolikFiz.getSer_pasp().replaceAll("\\s", ""));
+                    ownerIndividual.setDoc_number(azolikFiz.getNum_pasp().replaceAll("\\s", ""));
+                    ownerIndividual.setDoc_date(azolikFiz.getVidanPasp().format(formatter));
+                    ownerIndividual.setDoc_issuer(azolikFiz.getKem_pasp().replaceAll("\\s", ""));
+                    ownerIndividual.setSecond_name(azolikFiz.getImya().replaceAll("\\s", ""));
+                    ownerIndividual.setFirst_name(azolikFiz.getFam().replaceAll("\\s", ""));
+                    ownerIndividual.setPatronymic(azolikFiz.getOtch().replaceAll("\\s", ""));
+                    ownerIndividual.setPost_address(azolikFiz.getAdres().replaceAll("\\s", ""));
+                    ownerIndividual.setPhone("+998" + azolikFiz.getTelmobil().replaceAll("\\s", ""));
+
                     provisionsDTO.setOwner_individual(ownerIndividual);
+                    if (zalog.getKodZalog() == 1) {
+                        List<ProvisionsDTO.Collateral> collateralList = new ArrayList<>();
+                        ProvisionsDTO.Collateral collateral = new ProvisionsDTO.Collateral();
+                        collateral.setProvision_id(cleanedNumdog.replaceAll("\\s", "")); // Replace with actual data
+                        collateral.setPledge_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
+                        collateral.setObject_name("Ювелирные изделия"); // Replace with actual data
+                        collateral.setObject_area("06"); // Replace with actual data
+                        collateral.setObject_region("030"); // Replace with actual data
+
+                        collateralList.add(collateral);
+                        provisionsDTO.setCollateral(collateralList);
+                    } else if (zalog.getKodZalog() == 2) {
+                        List<ProvisionsDTO.Vehicle> vehicleArrayList = new ArrayList<>();
+                        ProvisionsDTO.Vehicle vehicle = new ProvisionsDTO.Vehicle();
+                        vehicle.setProvision_id(cleanedNumdog.replaceAll("\\s", "")); // Replace with actual data
+                        vehicle.setPledge_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
+                        vehicle.setEstimate_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
+                        vehicle.setCountry("860");
+                        vehicle.setEstimate_inn("300469626");
+                        vehicle.setEstimate_name("KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI");
+                        vehicle.setEstimate_date(kredit.getDatadog().format(formatter));
+
+                        vehicleArrayList.add(vehicle);
+                        provisionsDTO.setVehicles(vehicleArrayList);
+                    }
+
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
+            List<ProvisionsDTO> provisionsList = new ArrayList<>();
+            provisionsList.add(provisionsDTO);
 
-            dto.setProvisions(provisionsDTO);
+// Set the list to the dto
+            dto.setProvisions(provisionsList);
 
+            Gson gson = new GsonBuilder()
+                    .serializeNulls() // Include null values in the JSON output
+                    .setPrettyPrinting() // Enable pretty printing for better readability
+                    .create();
+            String formattedJson = gson.toJson(dto);
+            logger.info(formattedJson);
             return dto;
-
 
         } catch (Exception e) {
             return null;
@@ -185,7 +225,7 @@ public class SaveProvisionService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://grki-service/grci/resources/cb/saveProvision";
+        String url = "http://10.95.88.48/grci/resources/cb/saveProvision";
         return restTemplate.postForEntity(url, request, String.class);
     }
 }
