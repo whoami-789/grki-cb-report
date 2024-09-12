@@ -57,7 +57,8 @@ public class MainController {
     @PostMapping("/get-save-provision")
     public ResponseEntity<String> sendSaveProvision(@RequestBody RequestDTO requestDTO) {
         return saveProvisionService.sendSaveProvision(requestDTO.getContractNumber(), requestDTO.getProvisionNumber(), requestDTO.getProvisionDate(),
-                requestDTO.getNibbd());
+                requestDTO.getNibbd(), requestDTO.getEngine_number(), requestDTO.getBody_number(), requestDTO.getYear(), requestDTO.getState_number(),
+                requestDTO.getModel(), requestDTO.getChassis_number(), requestDTO.getColor(), requestDTO.getDoc_seria_number(), requestDTO.getVin_number());
     }
 
     @PostMapping("/get-save-schedule")

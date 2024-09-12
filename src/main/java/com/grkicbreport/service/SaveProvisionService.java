@@ -48,7 +48,9 @@ public class SaveProvisionService {
     }
 
     public saveProvisionDTO createProvision(String contractNumber, String provisionNumber,
-                                            LocalDate provisionDate, String nibbd) {
+                                            LocalDate provisionDate, String nibbd, String engineNumber, String bodyNumber,
+                                            String year, String stateNumber, String model, String chassisNumber, String color,
+                                            String docSeriaNumber, String vinNumber) {
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         Optional<Zalog> zalogList = zalogRepository.findByNumdog(contractNumber);
@@ -178,6 +180,15 @@ public class SaveProvisionService {
                         vehicle.setEstimate_inn("300469626");
                         vehicle.setEstimate_name("KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI");
                         vehicle.setEstimate_date(kredit.getDatadog().format(formatter));
+                        vehicle.setEngine_number(engineNumber);
+                        vehicle.setBody_number(bodyNumber);
+                        vehicle.setYear(year);
+                        vehicle.setModel(model);
+                        vehicle.setState_number(stateNumber);
+                        vehicle.setChassis_number(chassisNumber);
+                        vehicle.setColor(color);
+                        vehicle.setDoc_seria_number(docSeriaNumber);
+                        vehicle.setVin_number(vinNumber);
 
                         vehicleArrayList.add(vehicle);
                         provisionsDTO.setVehicles(vehicleArrayList);
@@ -207,8 +218,11 @@ public class SaveProvisionService {
     }
 
     public ResponseEntity<String> sendSaveProvision(String contractNumber, String provisionNumber,
-                                                    LocalDate provisionDate, String nibbd) {
-        saveProvisionDTO dto = createProvision(contractNumber, provisionNumber, provisionDate, nibbd);
+                                                    LocalDate provisionDate, String nibbd, String engineNumber, String bodyNumber,
+                                                    String year, String stateNumber, String model, String chassisNumber, String color,
+                                                    String docSeriaNumber, String vinNumber) {
+        saveProvisionDTO dto = createProvision(contractNumber, provisionNumber, provisionDate, nibbd,
+                engineNumber, bodyNumber, year, stateNumber, model, chassisNumber, color, docSeriaNumber, vinNumber);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
