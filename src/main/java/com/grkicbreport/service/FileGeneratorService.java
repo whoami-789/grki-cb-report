@@ -55,7 +55,7 @@ public class FileGeneratorService {
 
     // Генерация имени файла на основе даты и других параметров
     public String generateFilename(String date, String TTT) {
-        String N = "A"; // Константа, идентификатор файла от АС кредитной организации
+        String N = "N"; // Константа, идентификатор файла от АС кредитной организации
         String BBBBB = "06005"; // Код кредитной организации
 
         // Генерируем следующий номер рейса (RR)
@@ -414,7 +414,7 @@ public class FileGeneratorService {
     // Метод для генерации имени архива в формате NBBBBBRR.YMD
     private String generateZipFileName(String dateString) {
         // N = Константа (например, 'N')
-        String N = "A";
+        String N = "N";
         // BBBBB = Код кредитной организации (например, '12345')
         String BBBBB = "06005";
         // RR = Номер рейса (например, '01')
