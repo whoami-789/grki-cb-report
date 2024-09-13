@@ -68,13 +68,13 @@ public class SaveClaimService {
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
-            creditorDTO.setType("02");
-            creditorDTO.setCode("06005");
+            creditorDTO.setType("03");
+            creditorDTO.setCode("07105");
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
@@ -98,7 +98,7 @@ public class SaveClaimService {
             BorrowerDTO borrowerDTO = new BorrowerDTO();
             borrowerDTO.setResident("1");
             borrowerDTO.setPinfl(azolikFiz.getKodPension().replaceAll("\\s", ""));
-            borrowerDTO.setInn(azolikFiz.getInn().replaceAll("\\s", ""));
+            borrowerDTO.setInn(null);
             borrowerDTO.setNibbd_code(azolikFiz.getKodchlen().replaceAll("\\s", ""));
             borrowerDTO.setSecond_name(azolikFiz.getFam().replaceAll("\\s", ""));
             borrowerDTO.setFirst_name(azolikFiz.getImya().replaceAll("\\s", ""));
@@ -147,8 +147,8 @@ public class SaveClaimService {
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
-            creditorDTO.setType("02");
-            creditorDTO.setCode("6005");
+            creditorDTO.setType("03");
+            creditorDTO.setCode("07105");
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
@@ -211,8 +211,8 @@ public class SaveClaimService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK06005");
-        headers.set("Password", "75c75fce1b53addf6c52f96c32555b12");
+        headers.set("Login", "NK07105");
+        headers.set("Password", "e85155d4dd787588eced85e4e646a293");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Включить null значения в JSON

@@ -20,8 +20,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -66,14 +64,13 @@ public class SaveContractService {
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
-            creditorDTO.setType("02");
-            creditorDTO.setCode("06005");
+            creditorDTO.setType("03");
+            creditorDTO.setCode("07105");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-//            claimDTO.setClaim_guid("0");
             claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
             String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
@@ -84,7 +81,7 @@ public class SaveContractService {
             decisionDTO.setDecide("03");
             decisionDTO.setNumber(decisionNumber); // вручную
             decisionDTO.setDate(decisionDate.format(formatter)); // вручную
-            decisionDTO.setDecide_chief("Тухтаева Манзура Мизробовна");
+            decisionDTO.setDecide_chief("Фозилов Акмаль Равшанович");
             decisionDTO.setBorrower_link("0");
             dto.setDecision(decisionDTO);
 
@@ -98,23 +95,20 @@ public class SaveContractService {
             contractDTO.setDate_end(maxDats.format(formatter));
             contractDTO.setCurrency("000");
             contractDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
+            contractDTO.setDiscont_comissions("0");
             PercentDTO percentDTO = new PercentDTO();
             percentDTO.setPercent_type("101");
             percentDTO.setPercent_total(String.valueOf(kredit.getProsent()));
             percentDTO.setBorrower_percent(String.valueOf(kredit.getProsent()));
-            percentDTO.setOverdue_percent(String.valueOf(kredit.getProcpeni()));
+            percentDTO.setOverdue_percent("0");
             contractDTO.setPercent(percentDTO);
             contractDTO.setCurrency_first("000");
             contractDTO.setAmount_first("0");
-            contractDTO.setDiscont_comissions(null);
             dto.setContract(contractDTO);
-
-
 
             TargetsDTO targetsDTO = new TargetsDTO();
             targetsDTO.setType("0699");
             targetsDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
-            targetsDTO.setInfo("Ремонт дома");
             dto.getTargets().add(targetsDTO);
 
             SourcesDTO sourcesDTO = new SourcesDTO();
@@ -159,8 +153,8 @@ public class SaveContractService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK06005");
-        headers.set("Password", "75c75fce1b53addf6c52f96c32555b12");
+        headers.set("Login", "NK07105");
+        headers.set("Password", "e85155d4dd787588eced85e4e646a293");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
