@@ -90,7 +90,7 @@ public class SaveProvisionService {
             if (zalog.getKodZalog() == 1) {
                 provisionsDTO.setProvision_type("712");
             } else if (zalog.getKodZalog() == 2) {
-                provisionsDTO.setProvision_type("200");
+                provisionsDTO.setProvision_type("204");
             } else if (zalog.getKodZalog() == 3) {
                 provisionsDTO.setProvision_type("101");
             } else if (zalog.getKodZalog() == 8) {
@@ -142,7 +142,7 @@ public class SaveProvisionService {
                     ProvisionsDTO.OwnerIndividual ownerIndividual = new ProvisionsDTO.OwnerIndividual();
                     ownerIndividual.setResident_code("1");
                     ownerIndividual.setPinfl(azolikFiz.getKodPension());
-                    ownerIndividual.setBirth_date(String.valueOf(azolikFiz.getDatsRojd().format(formatter)));
+                    ownerIndividual.setBirth_date(azolikFiz.getDatsRojd().format(formatter));
                     ownerIndividual.setGender(String.valueOf(azolikFiz.getFsobst()));
                     ownerIndividual.setCountry("860");
                     ownerIndividual.setArea("06");
