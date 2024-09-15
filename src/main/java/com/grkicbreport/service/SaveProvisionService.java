@@ -76,7 +76,7 @@ public class SaveProvisionService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07104");
+            creditorDTO.setCode("07074");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -178,7 +178,7 @@ public class SaveProvisionService {
                         vehicle.setEstimate_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
                         vehicle.setCountry("860");
                         vehicle.setEstimate_inn("300469626");
-                        vehicle.setEstimate_name("Javlon Javohir Lombard");
+                        vehicle.setEstimate_name("NILUFAR ASILBEK BARAKA");
                         vehicle.setEstimate_date(kredit.getDatadog().format(formatter));
                         vehicle.setEngine_number(engineNumber);
                         vehicle.setBody_number(bodyNumber);
@@ -228,8 +228,8 @@ public class SaveProvisionService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07104");
-        headers.set("Password", "a782f7acd7bfdda728f2903c1c63423a");
+        headers.set("Login", "NK07074");
+        headers.set("Password", "c8be958b5d7cec1fc78eb37600c15934");
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
                 .setPrettyPrinting() // Enable pretty printing for better readability
