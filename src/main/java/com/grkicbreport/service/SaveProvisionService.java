@@ -76,7 +76,7 @@ public class SaveProvisionService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07104");
+            creditorDTO.setCode("07126");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -228,8 +228,8 @@ public class SaveProvisionService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07104");
-        headers.set("Password", "a782f7acd7bfdda728f2903c1c63423a");
+        headers.set("Login", "NK07126");
+        headers.set("Password", "f49f18dad195e1d510981e3cdd73e4a2");
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
                 .setPrettyPrinting() // Enable pretty printing for better readability

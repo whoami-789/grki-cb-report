@@ -65,7 +65,7 @@ public class SaveContractService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07104");
+            creditorDTO.setCode("07126");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -81,7 +81,7 @@ public class SaveContractService {
             decisionDTO.setDecide("03");
             decisionDTO.setNumber(decisionNumber); // вручную
             decisionDTO.setDate(decisionDate.format(formatter)); // вручную
-            decisionDTO.setDecide_chief("Бобоев Фарход Туйевич");
+            decisionDTO.setDecide_chief("Джабборов Нодиржон Умедович");
             decisionDTO.setBorrower_link("0");
             dto.setDecision(decisionDTO);
 
@@ -153,8 +153,8 @@ public class SaveContractService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07104");
-        headers.set("Password", "a782f7acd7bfdda728f2903c1c63423a");
+        headers.set("Login", "NK07126");
+        headers.set("Password", "f49f18dad195e1d510981e3cdd73e4a2");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
