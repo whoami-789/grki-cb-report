@@ -47,7 +47,7 @@ public class setStateToLitigationService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("06005");
+            creditorDTO.setCode("06082");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -61,7 +61,7 @@ public class setStateToLitigationService {
             litigationBasis.setDecide("03");
             litigationBasis.setDecide_number(decide_number);
             litigationBasis.setDecide_date(decide_date.format(formatter));
-            litigationBasis.setDecide_chief("Тухтаева Манзура Мизробовна");
+            litigationBasis.setDecide_chief("Хакимов Умурзок Кувватович");
             litigationBasis.setConclusion(conclusion);
             litigationBasis.setSend_date(send_date.format(formatter));
             dto.setLitigation_basis(litigationBasis);
@@ -84,8 +84,8 @@ public class setStateToLitigationService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK06005");
-        headers.set("Password", "75c75fce1b53addf6c52f96c32555b12");
+        headers.set("Login", "NK06082");
+        headers.set("Password", "0f6852b8ff393c171b5e981432e13840");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
