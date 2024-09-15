@@ -45,13 +45,13 @@ public class setStateToCloseService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07105");
+            creditorDTO.setCode("07104");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             setStateToCloseDTO.ContractDTO contract = new setStateToCloseDTO.ContractDTO();
             contract.setContract_guid(kredit.getGrkiContractId());
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
             contract.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contract);
 
@@ -70,8 +70,8 @@ public class setStateToCloseService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07105");
-        headers.set("Password", "e85155d4dd787588eced85e4e646a293");
+        headers.set("Login", "NK07104");
+        headers.set("Password", "a782f7acd7bfdda728f2903c1c63423a");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
@@ -81,7 +81,7 @@ public class setStateToCloseService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://grki-service/grci/resources/cb/saveCourtDecision";
+        String url = "http://10.95.88.48/grci/resources/cb/setStateToClose";
         return restTemplate.postForEntity(url, request, String.class);
     }
 }

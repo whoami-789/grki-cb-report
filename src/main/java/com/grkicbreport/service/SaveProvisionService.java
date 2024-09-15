@@ -76,13 +76,13 @@ public class SaveProvisionService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07105");
+            creditorDTO.setCode("07104");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             ContractDTO contractDTO = new ContractDTO();
             contractDTO.setContract_guid(kredit.getGrkiContractId());
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
             contractDTO.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contractDTO);
 
@@ -178,7 +178,7 @@ public class SaveProvisionService {
                         vehicle.setEstimate_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
                         vehicle.setCountry("860");
                         vehicle.setEstimate_inn("300469626");
-                        vehicle.setEstimate_name("KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI");
+                        vehicle.setEstimate_name("Javlon Javohir Lombard");
                         vehicle.setEstimate_date(kredit.getDatadog().format(formatter));
                         vehicle.setEngine_number(engineNumber);
                         vehicle.setBody_number(bodyNumber);
@@ -228,8 +228,8 @@ public class SaveProvisionService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07105");
-        headers.set("Password", "e85155d4dd787588eced85e4e646a293");
+        headers.set("Login", "NK07104");
+        headers.set("Password", "a782f7acd7bfdda728f2903c1c63423a");
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
                 .setPrettyPrinting() // Enable pretty printing for better readability

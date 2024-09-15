@@ -53,7 +53,7 @@ public class setStateToLitigationService {
 
             setStateToLitigationDTO.Contract contract = new setStateToLitigationDTO.Contract();
             contract.setContract_guid(kredit.getGrkiContractId());
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
             contract.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contract);
 
@@ -61,7 +61,7 @@ public class setStateToLitigationService {
             litigationBasis.setDecide("03");
             litigationBasis.setDecide_number(decide_number);
             litigationBasis.setDecide_date(decide_date.format(formatter));
-            litigationBasis.setDecide_chief("Фозилов Акмаль Равшанович");
+            litigationBasis.setDecide_chief("Бобоев Фарход Туйевич");
             litigationBasis.setConclusion(conclusion);
             litigationBasis.setSend_date(send_date.format(formatter));
             dto.setLitigation_basis(litigationBasis);
@@ -84,8 +84,8 @@ public class setStateToLitigationService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07105");
-        headers.set("Password", "e85155d4dd787588eced85e4e646a293");
+        headers.set("Login", "NK07104");
+        headers.set("Password", "a782f7acd7bfdda728f2903c1c63423a");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
@@ -95,7 +95,7 @@ public class setStateToLitigationService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://grki-service/grci/resources/cb/setStateToLitigation";
+        String url = "http://10.95.88.48/grci/resources/cb/setStateToLitigation";
         return restTemplate.postForEntity(url, request, String.class);
     }
 }
