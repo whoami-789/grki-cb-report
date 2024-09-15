@@ -95,7 +95,7 @@ public class setStateToLitigationService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://grki-service/grci/resources/cb/setStateToLitigation";
+        String url = "http://10.95.88.48/grci/resources/cb/setStateToLitigation";
         return restTemplate.postForEntity(url, request, String.class);
     }
 }
