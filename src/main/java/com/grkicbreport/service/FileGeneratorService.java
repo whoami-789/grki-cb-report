@@ -56,7 +56,7 @@ public class FileGeneratorService {
     // Генерация имени файла на основе даты и других параметров
     public String generateFilename(String date, String TTT) {
         String N = "N"; // Константа, идентификатор файла от АС кредитной организации
-        String BBBBB = "06082"; // Код кредитной организации
+        String BBBBB = "06065"; // Код кредитной организации
 
         // Генерируем следующий номер рейса (RR)
         String RR = getNextFlightNumber(date);
@@ -172,7 +172,7 @@ public class FileGeneratorService {
                     // Формируем строку для записи
                     String line008 = dateString + separator +
                             "02" + separator +
-                            "06082" + separator +
+                            "06065" + separator +
                             ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
                             extractedCode + separator +
                             record.getBal() + separator +
@@ -217,7 +217,7 @@ public class FileGeneratorService {
                         if (fiz == null) {
                             String line009 = dateString + separator +
                                     "02" + separator +
-                                    "06082" + separator +
+                                    "06065" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -230,7 +230,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "ISHONCH PLUS HAMKOR" + separator +
+                                    "G'IJDUVON MIKROMOLIYA TASHKILOTI" + separator +
                                     yur.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -246,7 +246,7 @@ public class FileGeneratorService {
                         } else {
                             String line009 = dateString + separator +
                                     "02" + separator +
-                                    "06082" + separator +
+                                    "06065" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -259,7 +259,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "ISHONCH PLUS HAMKOR" + separator +
+                                    "G'IJDUVON MIKROMOLIYA TASHKILOTI" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -310,7 +310,7 @@ public class FileGeneratorService {
                         if (fiz == null) {
                             String line009 = dateString + separator +
                                     "02" + separator +
-                                    "06082" + separator +
+                                    "06065" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -324,7 +324,7 @@ public class FileGeneratorService {
                                     dok.getLs() + separator +
                                     dok.getSums() + separator +
                                     yur.getName() + separator +
-                                    "ISHONCH PLUS HAMKOR" + separator +
+                                    "G'IJDUVON MIKROMOLIYA TASHKILOTI" + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
 
@@ -339,7 +339,7 @@ public class FileGeneratorService {
                         } else {
                             String line009 = dateString + separator +
                                     "02" + separator +
-                                    "06082" + separator +
+                                    "06065" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -352,7 +352,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "ISHONCH PLUS HAMKOR" + separator +
+                                    "G'IJDUVON MIKROMOLIYA TASHKILOTI" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -416,7 +416,7 @@ public class FileGeneratorService {
         // N = Константа (например, 'N')
         String N = "N";
         // BBBBB = Код кредитной организации (например, '12345')
-        String BBBBB = "06082";
+        String BBBBB = "06065";
         // RR = Номер рейса (например, '01')
         String RR = "01";
         // YMD = Дата в формате год-месяц-день (например, '20230909')
