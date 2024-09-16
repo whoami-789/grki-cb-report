@@ -56,7 +56,7 @@ public class FileGeneratorService {
     // Генерация имени файла на основе даты и других параметров
     public String generateFilename(String date, String TTT) {
         String N = "N"; // Константа, идентификатор файла от АС кредитной организации
-        String BBBBB = "07104"; // Код кредитной организации
+        String BBBBB = "07052"; // Код кредитной организации
 
         // Генерируем следующий номер рейса (RR)
         String RR = getNextFlightNumber(date);
@@ -172,7 +172,7 @@ public class FileGeneratorService {
                     // Формируем строку для записи
                     String line008 = dateString + separator +
                             "03" + separator +
-                            "07104" + separator +
+                            "07052" + separator +
                             ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
                             extractedCode + separator +
                             record.getBal() + separator +
@@ -217,7 +217,7 @@ public class FileGeneratorService {
                         if (fiz == null) {
                             String line009 = dateString + separator +
                                     "03" + separator +
-                                    "07104" + separator +
+                                    "07052" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -230,7 +230,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "Javlon Javohir Lombard" + separator +
+                                    "BAQOJON PLUS" + separator +
                                     yur.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -246,7 +246,7 @@ public class FileGeneratorService {
                         } else {
                             String line009 = dateString + separator +
                                     "03" + separator +
-                                    "07104" + separator +
+                                    "07052" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -259,7 +259,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "Javlon Javohir Lombard" + separator +
+                                    "BAQOJON PLUS" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -310,7 +310,7 @@ public class FileGeneratorService {
                         if (fiz == null) {
                             String line009 = dateString + separator +
                                     "03" + separator +
-                                    "07104" + separator +
+                                    "07052" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -324,7 +324,7 @@ public class FileGeneratorService {
                                     dok.getLs() + separator +
                                     dok.getSums() + separator +
                                     yur.getName() + separator +
-                                    "Javlon Javohir Lombard" + separator +
+                                    "BAQOJON PLUS" + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
 
@@ -339,7 +339,7 @@ public class FileGeneratorService {
                         } else {
                             String line009 = dateString + separator +
                                     "03" + separator +
-                                    "07104" + separator +
+                                    "07052" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -352,7 +352,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "Javlon Javohir Lombard" + separator +
+                                    "BAQOJON PLUS" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -416,7 +416,7 @@ public class FileGeneratorService {
         // N = Константа (например, 'N')
         String N = "N";
         // BBBBB = Код кредитной организации (например, '12345')
-        String BBBBB = "07104";
+        String BBBBB = "07052";
         // RR = Номер рейса (например, '01')
         String RR = "01";
         // YMD = Дата в формате год-месяц-день (например, '20230909')
