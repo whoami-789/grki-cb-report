@@ -81,7 +81,7 @@ public class setStateToCloseService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://grki-service/grci/resources/cb/saveCourtDecision";
+        String url = "http://10.95.88.48/grci/resources/cb/setStateToClose";
         return restTemplate.postForEntity(url, request, String.class);
     }
 }
