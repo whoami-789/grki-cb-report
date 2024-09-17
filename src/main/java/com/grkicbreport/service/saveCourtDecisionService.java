@@ -48,7 +48,7 @@ public class saveCourtDecisionService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07105");
+            creditorDTO.setCode("07062");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -84,8 +84,8 @@ public class saveCourtDecisionService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07105");
-        headers.set("Password", "e85155d4dd787588eced85e4e646a293");
+        headers.set("Login", "NK07062");
+        headers.set("Password", "5e48cb00c031230c8387f3a39eb02716");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output

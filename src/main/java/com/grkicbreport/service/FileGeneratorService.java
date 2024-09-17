@@ -56,7 +56,7 @@ public class FileGeneratorService {
     // Генерация имени файла на основе даты и других параметров
     public String generateFilename(String date, String TTT) {
         String N = "N"; // Константа, идентификатор файла от АС кредитной организации
-        String BBBBB = "07105"; // Код кредитной организации
+        String BBBBB = "07062"; // Код кредитной организации
 
         // Генерируем следующий номер рейса (RR)
         String RR = getNextFlightNumber(date);
@@ -172,7 +172,7 @@ public class FileGeneratorService {
                     // Формируем строку для записи
                     String line008 = dateString + separator +
                             "03" + separator +
-                            "07105" + separator +
+                            "07062" + separator +
                             ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
                             extractedCode + separator +
                             record.getBal() + separator +
@@ -217,7 +217,7 @@ public class FileGeneratorService {
                         if (fiz == null) {
                             String line009 = dateString + separator +
                                     "03" + separator +
-                                    "07105" + separator +
+                                    "07062" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -246,7 +246,7 @@ public class FileGeneratorService {
                         } else {
                             String line009 = dateString + separator +
                                     "03" + separator +
-                                    "07105" + separator +
+                                    "07062" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -310,7 +310,7 @@ public class FileGeneratorService {
                         if (fiz == null) {
                             String line009 = dateString + separator +
                                     "03" + separator +
-                                    "07105" + separator +
+                                    "07062" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -339,7 +339,7 @@ public class FileGeneratorService {
                         } else {
                             String line009 = dateString + separator +
                                     "03" + separator +
-                                    "07105" + separator +
+                                    "07062" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -416,7 +416,7 @@ public class FileGeneratorService {
         // N = Константа (например, 'N')
         String N = "N";
         // BBBBB = Код кредитной организации (например, '12345')
-        String BBBBB = "07105";
+        String BBBBB = "07062";
         // RR = Номер рейса (например, '01')
         String RR = "01";
         // YMD = Дата в формате год-месяц-день (например, '20230909')
