@@ -61,7 +61,7 @@ public class setStateToLitigationService {
             litigationBasis.setDecide("03");
             litigationBasis.setDecide_number(decide_number);
             litigationBasis.setDecide_date(decide_date.format(formatter));
-            litigationBasis.setDecide_chief("Фозилов Акмаль Равшанович");
+            litigationBasis.setDecide_chief("Asadova Yulduz Shavkatovna");
             litigationBasis.setConclusion(conclusion);
             litigationBasis.setSend_date(send_date.format(formatter));
             dto.setLitigation_basis(litigationBasis);

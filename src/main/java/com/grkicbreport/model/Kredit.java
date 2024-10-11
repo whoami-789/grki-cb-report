@@ -240,9 +240,6 @@ public class Kredit {
     @Column(name = "grki-contract-id")
     private String grkiContractId;
 
-    @Column(name = "procpeni")
-    private Long procpeni;
-
     @OneToMany(mappedBy = "kredit")
     private List<Grafik> grafiks;
 

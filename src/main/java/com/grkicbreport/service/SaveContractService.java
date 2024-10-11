@@ -81,7 +81,7 @@ public class SaveContractService {
             decisionDTO.setDecide("03");
             decisionDTO.setNumber(decisionNumber); // вручную
             decisionDTO.setDate(decisionDate.format(formatter)); // вручную
-            decisionDTO.setDecide_chief("Фозилов Акмаль Равшанович");
+            decisionDTO.setDecide_chief("Asadova Yulduz Shavkatovna");
             decisionDTO.setBorrower_link("0");
             dto.setDecision(decisionDTO);
 

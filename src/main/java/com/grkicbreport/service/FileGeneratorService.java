@@ -230,7 +230,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "BUXARA LOMBARD" + separator +
+                                    "Star Kredit Lombard MCHJ" + separator +
                                     yur.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -259,7 +259,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "BUXARA LOMBARD" + separator +
+                                    "Star Kredit Lombard MCHJ" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -324,7 +324,7 @@ public class FileGeneratorService {
                                     dok.getLs() + separator +
                                     dok.getSums() + separator +
                                     yur.getName() + separator +
-                                    "BUXARA LOMBARD" + separator +
+                                    "Star Kredit Lombard MCHJ" + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
 
@@ -352,7 +352,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "BUXARA LOMBARD" + separator +
+                                    "Star Kredit Lombard MCHJ" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
