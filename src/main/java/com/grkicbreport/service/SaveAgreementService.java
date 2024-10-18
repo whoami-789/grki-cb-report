@@ -46,7 +46,7 @@ public class SaveAgreementService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07105");
+            creditorDTO.setCode("07087");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -90,8 +90,8 @@ public class SaveAgreementService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07105");
-        headers.set("Password", "e85155d4dd787588eced85e4e646a293");
+        headers.set("Login", "NK07087");
+        headers.set("Password", "9C6985A189528A06226B22DA7CF60666");
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
                 .setPrettyPrinting() // Enable pretty printing for better readability
@@ -100,7 +100,7 @@ public class SaveAgreementService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://10.95.88.48/grci/resources/cb/saveAgreement";
+        String url = "http://10.95.88.16:8080/grci/resources/cb/saveAgreement";
         ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
         // Парсинг ответа

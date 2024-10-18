@@ -16,7 +16,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface KreditRepository extends JpaRepository<Kredit, String> {
-    Optional<Kredit> findByNumdog(String kod);
+    @Query(value = "SELECT * FROM kredit WHERE numdog = :kod", nativeQuery = true)
+    Optional<Kredit> findByNumdog(@Param("kod") String kod);
 
     @Query(value = "EXEC analiz_schet :date, :bal", nativeQuery = true)
     List<Analiz_schetDTO> callAnaliz_schet(@Param("date") Date date, @Param("bal") String bal);

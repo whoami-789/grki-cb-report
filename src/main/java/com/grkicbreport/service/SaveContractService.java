@@ -154,7 +154,7 @@ public class SaveContractService {
 
         // Добавляем заголовки login и password
         headers.set("Login", "NK07087");
-        headers.set("Password", "9c6985a189528a06226b22da7cf60666");
+        headers.set("Password", "9C6985A189528A06226B22DA7CF60666");
 
 
         Gson gson = new GsonBuilder()
@@ -165,7 +165,7 @@ public class SaveContractService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://10.95.88.48/grci/resources/cb/saveContract";
+        String url = "http://10.95.88.16:8080/grci/resources/cb/saveContract";
         ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
         // Парсинг ответа
