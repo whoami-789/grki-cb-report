@@ -56,7 +56,7 @@ public class getIdentityService {
 
         // Добавляем заголовки login и password
         headers.set("Login", "NK07105");
-        headers.set("Password", "e85155d4dd787588eced85e4e646a293");
+        headers.set("Password", "E85155D4DD787588ECED85E4E646A293");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
@@ -66,7 +66,7 @@ public class getIdentityService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://10.95.88.48/grci/resources/cb/getInformation";
+        String url = "http://10.95.88.16:8080/grci/resources/cb/getInformation";
         return restTemplate.postForEntity(url, request, String.class);
     }
 }
