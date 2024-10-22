@@ -71,7 +71,7 @@ public class setStateToCloseService {
 
         // Добавляем заголовки login и password
         headers.set("Login", "NK07052");
-        headers.set("Password", "a6eab0c3f30bc779632f132e9ab83eba");
+        headers.set("Password", "A6EAB0C3F30BC779632F132E9AB83EBA");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
@@ -81,7 +81,7 @@ public class setStateToCloseService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://10.95.88.48/grci/resources/cb/setStateToClose";
+        String url = "http://10.95.88.16:8080/grci/resources/cb/setStateToClose";
         return restTemplate.postForEntity(url, request, String.class);
     }
 }
