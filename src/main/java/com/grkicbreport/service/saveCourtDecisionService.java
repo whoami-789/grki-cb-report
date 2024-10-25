@@ -85,7 +85,7 @@ public class saveCourtDecisionService {
 
         // Добавляем заголовки login и password
         headers.set("Login", "NK07113");
-        headers.set("Password", "ad6afd6489ccf3f79f14d794650e3bd6");
+        headers.set("Password", "AD6AFD6489CCF3F79F14D794650E3BD6");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
@@ -95,7 +95,7 @@ public class saveCourtDecisionService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://10.95.88.48/grci/resources/cb/saveCourtDecision";
+        String url = "http://10.95.88.16:8080/grci/resources/cb/saveCourtDecision";
         return restTemplate.postForEntity(url, request, String.class);
     }
 }

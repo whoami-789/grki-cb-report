@@ -212,7 +212,7 @@ public class SaveClaimService {
 
         // Добавляем заголовки login и password
         headers.set("Login", "NK07113");
-        headers.set("Password", "ad6afd6489ccf3f79f14d794650e3bd6");
+        headers.set("Password", "AD6AFD6489CCF3F79F14D794650E3BD6");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Включить null значения в JSON
@@ -222,7 +222,7 @@ public class SaveClaimService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://10.95.88.48/grci/resources/cb/saveClaim";
+        String url = "http://10.95.88.16:8080/grci/resources/cb/saveClaim";
         ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
         // Парсинг ответа
