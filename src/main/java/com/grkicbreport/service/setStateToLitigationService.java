@@ -47,13 +47,13 @@ public class setStateToLitigationService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("06005");
+            creditorDTO.setCode("06051");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             setStateToLitigationDTO.Contract contract = new setStateToLitigationDTO.Contract();
             contract.setContract_guid(kredit.getGrkiContractId());
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
             contract.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contract);
 
@@ -84,8 +84,8 @@ public class setStateToLitigationService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK06005");
-        headers.set("Password", "75c75fce1b53addf6c52f96c32555b12");
+        headers.set("Login", "NK06051");
+        headers.set("Password", "2D2939B65E137251532B5D0ECBA8677B");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
@@ -95,7 +95,7 @@ public class setStateToLitigationService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://grki-service/grci/resources/cb/setStateToLitigation";
+        String url = "http://10.95.88.16:8080/grci/resources/cb/setStateToLitigation";
         return restTemplate.postForEntity(url, request, String.class);
     }
 }

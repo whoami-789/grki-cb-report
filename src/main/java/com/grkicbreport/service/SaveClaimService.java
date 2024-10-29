@@ -69,12 +69,12 @@ public class SaveClaimService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("06005");
+            creditorDTO.setCode("06051");
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
@@ -98,7 +98,6 @@ public class SaveClaimService {
             BorrowerDTO borrowerDTO = new BorrowerDTO();
             borrowerDTO.setResident("1");
             borrowerDTO.setPinfl(azolikFiz.getKodPension().replaceAll("\\s", ""));
-            borrowerDTO.setInn(azolikFiz.getInn().replaceAll("\\s", ""));
             borrowerDTO.setNibbd_code(azolikFiz.getKodchlen().replaceAll("\\s", ""));
             borrowerDTO.setSecond_name(azolikFiz.getFam().replaceAll("\\s", ""));
             borrowerDTO.setFirst_name(azolikFiz.getImya().replaceAll("\\s", ""));
@@ -211,8 +210,8 @@ public class SaveClaimService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK06005");
-        headers.set("Password", "75c75fce1b53addf6c52f96c32555b12");
+        headers.set("Login", "NK06051");
+        headers.set("Password", "2D2939B65E137251532B5D0ECBA8677B");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Включить null значения в JSON
@@ -222,7 +221,7 @@ public class SaveClaimService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://10.95.88.48/grci/resources/cb/saveClaim";
+        String url = "http://10.95.88.16:8080/grci/resources/cb/saveClaim";
         ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
         // Парсинг ответа
