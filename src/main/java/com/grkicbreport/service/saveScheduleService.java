@@ -105,7 +105,7 @@ public class saveScheduleService {
 
         // Добавляем заголовки login и password
         headers.set("Login", "NK07074");
-        headers.set("Password", "c8be958b5d7cec1fc78eb37600c15934");
+        headers.set("Password", "C8BE958B5D7CEC1FC78EB37600C15934");
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
                 .setPrettyPrinting() // Enable pretty printing for better readability
@@ -114,7 +114,7 @@ public class saveScheduleService {
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
-        String url = "http://10.95.88.48/grci/resources/cb/saveSchedule";
+        String url = "http://10.95.88.16:8080/grci/resources/cb/saveSchedule";
         return restTemplate.postForEntity(url, request, String.class);
     }
 }
