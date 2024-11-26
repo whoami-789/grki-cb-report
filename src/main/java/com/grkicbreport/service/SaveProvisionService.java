@@ -177,8 +177,8 @@ public class SaveProvisionService {
                         vehicle.setPledge_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
                         vehicle.setEstimate_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
                         vehicle.setCountry("860");
-                        vehicle.setEstimate_inn("300469626");
-                        vehicle.setEstimate_name("KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI");
+                        vehicle.setEstimate_inn("304904453");
+                        vehicle.setEstimate_name("BUXORO DARVOZASI INVEST MIKROKREDIT TASHKILOTI");
                         vehicle.setEstimate_date(kredit.getDatadog().format(formatter));
                         vehicle.setEngine_number(engineNumber);
                         vehicle.setBody_number(bodyNumber);

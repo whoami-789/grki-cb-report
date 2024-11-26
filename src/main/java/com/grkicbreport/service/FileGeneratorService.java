@@ -27,7 +27,7 @@ public class FileGeneratorService {
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
     private final String[] balValues = {"12401", "12405", "12409", "12499", "12501", "14801", "14899", "15701"};
-    private static final String FOLDER_PATH = "C:/Users/user/Desktop/GRKI"; // Укажите здесь вашу папку
+    private static final String FOLDER_PATH = "C:/Users/Intel/Desktop/GRKI"; // Укажите здесь вашу папку
 
 
     @Autowired
@@ -230,7 +230,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                    "BUXORO DARVOZASI INVEST MIKROKREDIT TASHKILOTI" + separator +
                                     yur.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -259,7 +259,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "BUXORO DARVOZASI" + separator +
+                                    "BUXORO DARVOZASI INVEST MIKROKREDIT TASHKILOTI" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -324,7 +324,7 @@ public class FileGeneratorService {
                                     dok.getLs() + separator +
                                     dok.getSums() + separator +
                                     yur.getName() + separator +
-                                    "BUXORO DARVOZASI" + separator +
+                                    "BUXORO DARVOZASI INVEST MIKROKREDIT TASHKILOTI" + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
 
@@ -352,7 +352,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "BUXORO DARVOZASI" + separator +
+                                    "BUXORO DARVOZASI INVEST MIKROKREDIT TASHKILOTI" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
