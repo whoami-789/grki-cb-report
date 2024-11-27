@@ -27,7 +27,7 @@ public class FileGeneratorService {
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
     private final String[] balValues = {"12401", "12405", "12409", "12499", "12501", "14801", "14899", "15701"};
-    private static final String FOLDER_PATH = "C:/Users/intel/Desktop/GRKI"; // Укажите здесь вашу папку
+    private static final String FOLDER_PATH = "C:/Users/User/Desktop/GRKI"; // Укажите здесь вашу папку
 
 
     @Autowired
