@@ -89,13 +89,13 @@ public class SaveContractService {
             contractDTO.setLoan_type("10");
             contractDTO.setIssue_mode("02");
             contractDTO.setLoan_line(Loan_line);
-            contractDTO.setAsset_quality(String.valueOf(kredit.getKlass()));
+            contractDTO.setAsset_quality("1");
             contractDTO.setNumber(kredit.getNumdog().replaceAll("\\s", ""));
             contractDTO.setDate_begin(kredit.getDatadog().format(formatter));
             contractDTO.setDate_end(maxDats.format(formatter));
             contractDTO.setCurrency("000");
             contractDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
-            contractDTO.setDiscont_comissions("0");
+            contractDTO.setDiscont_comissions(null);
             PercentDTO percentDTO = new PercentDTO();
             percentDTO.setPercent_type("101");
             percentDTO.setPercent_total(String.valueOf(kredit.getProsent()));
@@ -109,6 +109,7 @@ public class SaveContractService {
             TargetsDTO targetsDTO = new TargetsDTO();
             targetsDTO.setType("0699");
             targetsDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
+            targetsDTO.setInfo("На бумажном носителе");
             dto.getTargets().add(targetsDTO);
 
             SourcesDTO sourcesDTO = new SourcesDTO();
