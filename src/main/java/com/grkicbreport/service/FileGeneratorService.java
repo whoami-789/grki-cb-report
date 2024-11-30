@@ -12,6 +12,8 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -415,12 +417,29 @@ public class FileGeneratorService {
     private String generateZipFileName(String dateString) {
         // N = Константа (например, 'N')
         String N = "N";
-        // BBBBB = Код кредитной организации (например, '12345')
+        // BBBBB = Код кредитной организации (например, '06005')
         String BBBBB = "06005";
         // RR = Номер рейса (например, '01')
         String RR = "01";
-        // YMD = Дата в формате год-месяц-день (например, '20230909')
-        String YMD = dateString;
+
+        // Преобразование даты из строки в LocalDate
+        LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        // Y = Год, преобразованный в буквенный формат (A = 2010, B = 2011, ...)
+        char Y = (char) ('A' + (date.getYear() - 2010));
+
+        // M = Месяц, преобразованный в буквенно-числовой формат (1–9, A = 10, B = 11, C = 12)
+        String M = date.getMonthValue() <= 9
+                ? String.valueOf(date.getMonthValue()) // 1-9 остаются числами
+                : String.valueOf((char) ('A' + date.getMonthValue() - 10)); // 10 = A, 11 = B, 12 = C
+
+        // D = День, преобразованный в буквенно-числовой формат (1–9, A = 10, ..., V = 31)
+        String D = date.getDayOfMonth() <= 9
+                ? String.valueOf(date.getDayOfMonth()) // 1-9 остаются числами
+                : String.valueOf((char) ('A' + date.getDayOfMonth() - 10)); // 10 = A, ..., 31 = V
+
+        // YMD = Собираем Y, M и D
+        String YMD = "" + Y + M + D;
 
         return N + BBBBB + RR + "." + YMD;
     }
