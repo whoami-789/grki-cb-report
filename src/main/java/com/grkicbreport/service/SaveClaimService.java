@@ -69,7 +69,7 @@ public class SaveClaimService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07104");
+            creditorDTO.setCode("07074");
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
