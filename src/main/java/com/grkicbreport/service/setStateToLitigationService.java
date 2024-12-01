@@ -47,7 +47,7 @@ public class setStateToLitigationService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07087");
+            creditorDTO.setCode("07128");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -61,7 +61,7 @@ public class setStateToLitigationService {
             litigationBasis.setDecide("03");
             litigationBasis.setDecide_number(decide_number);
             litigationBasis.setDecide_date(decide_date.format(formatter));
-            litigationBasis.setDecide_chief("Фозилов Акмаль Равшанович");
+            litigationBasis.setDecide_chief("Щарипов Кудрат Исматович");
             litigationBasis.setConclusion(conclusion);
             litigationBasis.setSend_date(send_date.format(formatter));
             dto.setLitigation_basis(litigationBasis);
@@ -84,8 +84,8 @@ public class setStateToLitigationService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07087");
-        headers.set("Password", "9C6985A189528A06226B22DA7CF60666");
+        headers.set("Login", "NK07128");
+        headers.set("Password", "B184C7620C142B2EBD6932F4F29E55A9");
 
 
         Gson gson = new GsonBuilder()

@@ -69,7 +69,7 @@ public class SaveClaimService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07087");
+            creditorDTO.setCode("07128");
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
@@ -148,7 +148,7 @@ public class SaveClaimService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07087");
+            creditorDTO.setCode("07128");
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
@@ -211,8 +211,8 @@ public class SaveClaimService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07087");
-        headers.set("Password", "9C6985A189528A06226B22DA7CF60666");
+        headers.set("Login", "NK07128");
+        headers.set("Password", "B184C7620C142B2EBD6932F4F29E55A9");
 
 
         Gson gson = new GsonBuilder()

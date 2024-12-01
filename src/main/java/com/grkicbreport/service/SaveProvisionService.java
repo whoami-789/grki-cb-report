@@ -76,7 +76,7 @@ public class SaveProvisionService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07087");
+            creditorDTO.setCode("07128");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -170,28 +170,6 @@ public class SaveProvisionService {
 
                         collateralList.add(collateral);
                         provisionsDTO.setCollateral(collateralList);
-                    } else if (zalog.getKodZalog() == 2) {
-                        List<ProvisionsDTO.Vehicle> vehicleArrayList = new ArrayList<>();
-                        ProvisionsDTO.Vehicle vehicle = new ProvisionsDTO.Vehicle();
-                        vehicle.setProvision_id(cleanedNumdog.replaceAll("\\s", "")); // Replace with actual data
-                        vehicle.setPledge_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
-                        vehicle.setEstimate_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
-                        vehicle.setCountry("860");
-                        vehicle.setEstimate_inn("300469626");
-                        vehicle.setEstimate_name("KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI");
-                        vehicle.setEstimate_date(kredit.getDatadog().format(formatter));
-                        vehicle.setEngine_number(engineNumber);
-                        vehicle.setBody_number(bodyNumber);
-                        vehicle.setYear(year);
-                        vehicle.setModel(model);
-                        vehicle.setState_number(stateNumber);
-                        vehicle.setChassis_number(chassisNumber);
-                        vehicle.setColor(color);
-                        vehicle.setDoc_seria_number(docSeriaNumber);
-                        vehicle.setVin_number(vinNumber);
-
-                        vehicleArrayList.add(vehicle);
-                        provisionsDTO.setVehicles(vehicleArrayList);
                     }
 
                 }
@@ -228,8 +206,8 @@ public class SaveProvisionService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07087");
-        headers.set("Password", "9C6985A189528A06226B22DA7CF60666");
+        headers.set("Login", "NK07128");
+        headers.set("Password", "B184C7620C142B2EBD6932F4F29E55A9");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output

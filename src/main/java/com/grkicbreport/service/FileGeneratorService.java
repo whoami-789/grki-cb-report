@@ -10,8 +10,13 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -56,7 +61,7 @@ public class FileGeneratorService {
     // Генерация имени файла на основе даты и других параметров
     public String generateFilename(String date, String TTT) {
         String N = "N"; // Константа, идентификатор файла от АС кредитной организации
-        String BBBBB = "07087"; // Код кредитной организации
+        String BBBBB = "07128"; // Код кредитной организации
 
         // Генерируем следующий номер рейса (RR)
         String RR = getNextFlightNumber(date);
@@ -172,7 +177,7 @@ public class FileGeneratorService {
                     // Формируем строку для записи
                     String line008 = dateString + separator +
                             "03" + separator +
-                            "07087" + separator +
+                            "07128" + separator +
                             ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
                             extractedCode + separator +
                             record.getBal() + separator +
@@ -217,7 +222,7 @@ public class FileGeneratorService {
                         if (fiz == null) {
                             String line009 = dateString + separator +
                                     "03" + separator +
-                                    "07087" + separator +
+                                    "07128" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -230,7 +235,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "AMIRA INVEST LOMBARD TASHKILOTI" + separator +
+                                    "Swift Lombard Credit" + separator +
                                     yur.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -246,7 +251,7 @@ public class FileGeneratorService {
                         } else {
                             String line009 = dateString + separator +
                                     "03" + separator +
-                                    "07087" + separator +
+                                    "07128" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -259,7 +264,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "AMIRA INVEST LOMBARD TASHKILOTI" + separator +
+                                    "Swift Lombard Credit" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -310,7 +315,7 @@ public class FileGeneratorService {
                         if (fiz == null) {
                             String line009 = dateString + separator +
                                     "03" + separator +
-                                    "07087" + separator +
+                                    "07128" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -324,7 +329,7 @@ public class FileGeneratorService {
                                     dok.getLs() + separator +
                                     dok.getSums() + separator +
                                     yur.getName() + separator +
-                                    "AMIRA INVEST LOMBARD TASHKILOTI" + separator +
+                                    "Swift Lombard Credit" + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
 
@@ -339,7 +344,7 @@ public class FileGeneratorService {
                         } else {
                             String line009 = dateString + separator +
                                     "03" + separator +
-                                    "07087" + separator +
+                                    "07128" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -352,7 +357,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "AMIRA INVEST LOMBARD TASHKILOTI" + separator +
+                                    "Swift Lombard Credit" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -393,6 +398,7 @@ public class FileGeneratorService {
         // Архивирование файлов
         String zipFileName = generateZipFileName(dateString); // Генерируем имя архива
         String zipFilePath = FOLDER_PATH + "/" + zipFileName + ".zip";
+        String zipFilePathWithoutExtension = FOLDER_PATH + "/" + zipFileName; // Архив без расширения
 
         try (FileOutputStream fos = new FileOutputStream(zipFilePath);
              ZipOutputStream zipOut = new ZipOutputStream(fos)) {
@@ -408,19 +414,45 @@ public class FileGeneratorService {
             return "Ошибка при создании архива: " + e.getMessage();
         }
 
-        return "Файлы созданы и заархивированы: " + zipFilePath;
+// Создаем копию архива без расширения
+        try {
+            Files.copy(Paths.get(zipFilePath), Paths.get(zipFilePathWithoutExtension), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Ошибка при создании копии архива без расширения: " + e.getMessage();
+        }
+
+        return "Файлы созданы и заархивированы: " + zipFilePath + " и " + zipFilePathWithoutExtension;
+
     }
 
     // Метод для генерации имени архива в формате NBBBBBRR.YMD
     private String generateZipFileName(String dateString) {
         // N = Константа (например, 'N')
         String N = "N";
-        // BBBBB = Код кредитной организации (например, '12345')
-        String BBBBB = "07087";
+        // BBBBB = Код кредитной организации (например, '06005')
+        String BBBBB = "07128";
         // RR = Номер рейса (например, '01')
         String RR = "01";
-        // YMD = Дата в формате год-месяц-день (например, '20230909')
-        String YMD = dateString;
+
+        // Преобразование даты из строки в LocalDate
+        LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        // Y = Год, преобразованный в буквенный формат (A = 2010, B = 2011, ...)
+        char Y = (char) ('A' + (date.getYear() - 2010));
+
+        // M = Месяц, преобразованный в буквенно-числовой формат (1–9, A = 10, B = 11, C = 12)
+        String M = date.getMonthValue() <= 9
+                ? String.valueOf(date.getMonthValue()) // 1-9 остаются числами
+                : String.valueOf((char) ('A' + date.getMonthValue() - 10)); // 10 = A, 11 = B, 12 = C
+
+        // D = День, преобразованный в буквенно-числовой формат (1–9, A = 10, ..., V = 31)
+        String D = date.getDayOfMonth() <= 9
+                ? String.valueOf(date.getDayOfMonth()) // 1-9 остаются числами
+                : String.valueOf((char) ('A' + date.getDayOfMonth() - 10)); // 10 = A, ..., 31 = V
+
+        // YMD = Собираем Y, M и D
+        String YMD = "" + Y + M + D;
 
         return N + BBBBB + RR + "." + YMD;
     }
