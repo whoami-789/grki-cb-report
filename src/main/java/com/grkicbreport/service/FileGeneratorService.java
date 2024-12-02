@@ -126,8 +126,7 @@ public class FileGeneratorService {
         String fileName009 = FOLDER_PATH + "/" + generateFilename(dateString, "009");
 
         // Создание и запись в файл с расширением .008
-        try {
-            BufferedWriter writer008 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName008), "windows-1251"));
+        try (BufferedWriter writer008 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName008), "windows-1251"))) {
             // Итерация по всем значениям bal
             for (String bal : balValues) {
                 // Получаем сырые данные в виде List<String>
@@ -190,11 +189,13 @@ public class FileGeneratorService {
                     writer008.write(line008);
                     logger.info("Записана строка в .008 файл: " + line008);
                 }
+                logger.info("008 done");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.info("Ошибка при создании файла .008: " + e);
             return "Ошибка при создании файла .008: " + e.getMessage();
         }
+
 
         // Создание и запись в файл с расширением .009
         try {
@@ -373,9 +374,6 @@ public class FileGeneratorService {
                         }
                     }
                 });
-
-
-
             }
 
         } catch (IOException e) {
@@ -426,7 +424,6 @@ public class FileGeneratorService {
 
     }
 
-    // Метод для генерации имени архива в формате NBBBBBRR.YMD
     // Метод для генерации имени архива в формате NBBBBBRR.YMD
     private String generateZipFileName(String dateString) {
         // N = Константа (например, 'N')
