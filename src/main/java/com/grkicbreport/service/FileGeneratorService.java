@@ -10,8 +10,13 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -27,7 +32,7 @@ public class FileGeneratorService {
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
     private final String[] balValues = {"12401", "12405", "12409", "12499", "12501", "14801", "14899", "15701"};
-    private static final String FOLDER_PATH = "C:/Users/user/Desktop/GRKI"; // Укажите здесь вашу папку
+    private static final String FOLDER_PATH = "C:/Users/Gijduvon MK/Desktop/GRKI"; // Укажите здесь вашу папку
 
 
     @Autowired
@@ -393,6 +398,7 @@ public class FileGeneratorService {
         // Архивирование файлов
         String zipFileName = generateZipFileName(dateString); // Генерируем имя архива
         String zipFilePath = FOLDER_PATH + "/" + zipFileName + ".zip";
+        String zipFilePathWithoutExtension = FOLDER_PATH + "/" + zipFileName; // Архив без расширения
 
         try (FileOutputStream fos = new FileOutputStream(zipFilePath);
              ZipOutputStream zipOut = new ZipOutputStream(fos)) {
@@ -408,7 +414,16 @@ public class FileGeneratorService {
             return "Ошибка при создании архива: " + e.getMessage();
         }
 
-        return "Файлы созданы и заархивированы: " + zipFilePath;
+// Создаем копию архива без расширения
+        try {
+            Files.copy(Paths.get(zipFilePath), Paths.get(zipFilePathWithoutExtension), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Ошибка при создании копии архива без расширения: " + e.getMessage();
+        }
+
+        return "Файлы созданы и заархивированы: " + zipFilePath + " и " + zipFilePathWithoutExtension;
+
     }
 
     // Метод для генерации имени архива в формате NBBBBBRR.YMD
@@ -419,9 +434,33 @@ public class FileGeneratorService {
         String BBBBB = "06065";
         // RR = Номер рейса (например, '01')
         String RR = "01";
-        // YMD = Дата в формате год-месяц-день (например, '20230909')
-        String YMD = dateString;
 
+        // Преобразование даты из строки в LocalDate
+        LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        // Y = Год, преобразованный в буквенный формат (A = 2010, B = 2011, ..., Z = 2035)
+        char Y = (char) ('A' + (date.getYear() - 2010));
+
+        // M = Месяц, преобразованный в буквенно-числовой формат (1–9, A = 10, B = 11, C = 12)
+        String M;
+        if (date.getMonthValue() <= 9) {
+            M = String.valueOf(date.getMonthValue()); // Месяц в числовом формате (1–9)
+        } else {
+            M = String.valueOf((char) ('A' + date.getMonthValue() - 10)); // A = 10, B = 11, C = 12
+        }
+
+        // D = День, преобразованный в буквенно-числовой формат (1–9, A = 10, ..., V = 31)
+        String D;
+        if (date.getDayOfMonth() <= 9) {
+            D = String.valueOf(date.getDayOfMonth()); // День в числовом формате (1–9)
+        } else {
+            D = String.valueOf((char) ('A' + date.getDayOfMonth() - 10)); // A = 10, ..., V = 31
+        }
+
+        // YMD = Собираем Y, M и D
+        String YMD = "" + Y + M + D;
+
+        // Финальное имя архива
         return N + BBBBB + RR + "." + YMD;
     }
 
