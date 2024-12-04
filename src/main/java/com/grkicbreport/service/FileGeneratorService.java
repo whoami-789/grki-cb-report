@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -64,7 +67,7 @@ public class FileGeneratorService {
         String RR = getNextFlightNumber(date);
 
         // Формируем название файла
-        return N + BBBBB + RR + "." + TTT;
+        return N + BBBBB + "." + TTT;
     }
 
     private List<Analiz_schetDTO> convertToDTO(List<String> rawData) {
@@ -110,7 +113,9 @@ public class FileGeneratorService {
 
         // Преобразуем даты в нужный формат yyyyMMdd
         SimpleDateFormat outputSdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat outputSdfReverse = new SimpleDateFormat("ddMMyyyy");
         String dateString = outputSdf.format(currentDate);
+        String dateStringReverse = outputSdfReverse.format(currentDate);
         String previousDateString = outputSdf.format(previousDay);
 
         File folder = new File(FOLDER_PATH);
@@ -171,21 +176,26 @@ public class FileGeneratorService {
                             .findFirst()
                             .orElse(BigDecimal.ZERO);
 
-                    // Формируем строку для записи
-                    String line008 = dateString + separator +
-                            "02" + separator +
-                            "06005" + separator +
-                            ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
-                            extractedCode + separator +
-                            record.getBal() + separator +
-                            previousDayDeb + separator +
-                            debitSum + separator +
-                            kreditSum + separator +
-                            record.getDeb() + "\n";
+                    if (!(getGRKIId == null)) {
+                        String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-K\\\\]", "").trim();
 
-                    // Записываем строку в файл с расширением .008
-                    writer008.write(line008);
-                    logger.info("Записана строка в .008 файл: " + line008);
+
+                        // Формируем строку для записи
+                        String line008 = dateStringReverse + separator +
+                                "02" + separator +
+                                "06005" + separator +
+                                ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
+                                cleanedNumdog + separator +
+                                record.getBal() + separator +
+                                previousDayDeb + separator +
+                                debitSum + separator +
+                                kreditSum + separator +
+                                record.getDeb() + "\n";
+
+                        // Записываем строку в файл с расширением .008
+                        writer008.write(line008);
+                        logger.info("Записана строка в .008 файл: " + line008);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -217,7 +227,7 @@ public class FileGeneratorService {
                     if (dok.getNazn().startsWith("Выдача")) {
 
                         if (fiz == null) {
-                            String line009 = dateString + separator +
+                            String line009 = dateStringReverse + separator +
                                     "02" + separator +
                                     "06005" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
@@ -246,7 +256,7 @@ public class FileGeneratorService {
                             }
                             logger.info("Записана строка в .009 файл: " + line009);
                         } else {
-                            String line009 = dateString + separator +
+                            String line009 = dateStringReverse + separator +
                                     "02" + separator +
                                     "06005" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
@@ -310,7 +320,7 @@ public class FileGeneratorService {
                         }
 
                         if (fiz == null) {
-                            String line009 = dateString + separator +
+                            String line009 = dateStringReverse + separator +
                                     "02" + separator +
                                     "06005" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
@@ -339,7 +349,7 @@ public class FileGeneratorService {
                             }
                             System.out.println("Записана строка в .009 файл: " + line009);
                         } else {
-                            String line009 = dateString + separator +
+                            String line009 = dateStringReverse + separator +
                                     "02" + separator +
                                     "06005" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
@@ -392,9 +402,9 @@ public class FileGeneratorService {
             logger.info(errorMessage.toString());
         }
 
-        // Архивирование файлов
         String zipFileName = generateZipFileName(dateString); // Генерируем имя архива
         String zipFilePath = FOLDER_PATH + "/" + zipFileName + ".zip";
+        String zipFilePathWithoutExtension = FOLDER_PATH + "/" + zipFileName; // Архив без расширения
 
         try (FileOutputStream fos = new FileOutputStream(zipFilePath);
              ZipOutputStream zipOut = new ZipOutputStream(fos)) {
@@ -410,8 +420,18 @@ public class FileGeneratorService {
             return "Ошибка при создании архива: " + e.getMessage();
         }
 
-        return "Файлы созданы и заархивированы: " + zipFilePath;
+// Создаем копию архива без расширения
+        try {
+            Files.copy(Paths.get(zipFilePath), Paths.get(zipFilePathWithoutExtension), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Ошибка при создании копии архива без расширения: " + e.getMessage();
+        }
+
+        return "Файлы созданы и заархивированы: " + zipFilePath + " и " + zipFilePathWithoutExtension;
+
     }
+
 
     // Метод для генерации имени архива в формате NBBBBBRR.YMD
     private String generateZipFileName(String dateString) {
