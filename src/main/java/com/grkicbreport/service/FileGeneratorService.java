@@ -187,10 +187,10 @@ public class FileGeneratorService {
                                 ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
                                 cleanedNumdog + separator +
                                 record.getBal() + separator +
-                                previousDayDeb + separator +
-                                debitSum + separator +
-                                kreditSum + separator +
-                                record.getDeb() + "\n";
+                                previousDayDeb.intValue() + separator +
+                                debitSum.intValue() + separator +
+                                kreditSum.intValue() + separator +
+                                record.getDeb().intValue() + "\n";
 
                         // Записываем строку в файл с расширением .008
                         writer008.write(line008);
