@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -75,7 +76,7 @@ public class SaveContractService {
             ClaimDTO claimDTO = new ClaimDTO();
 //            claimDTO.setClaim_guid("0");
             claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setClaim(claimDTO);
@@ -187,9 +188,12 @@ public class SaveContractService {
             if (kreditOptional.isPresent()) {
                 Kredit kredit = kreditOptional.get();
 
-                // Сохранить claim_guid в поле grkiClaimId
-                kreditRepository.updateGrkiContractId(claimGuid, kredit.getNumdog());
-
+                if (Objects.equals(kredit.getGrkiContractId(), "") || kredit.getGrkiContractId() == null) {
+                    // Сохранить claim_guid в поле grkiClaimId
+                    kreditRepository.updateGrkiContractId(claimGuid, kredit.getNumdog());
+                } else {
+                    logger.info("Поле ContractId уже заполнено, обновление не требуется.");
+                }
             } else {
                 System.out.println("Кредит с таким номером договора не найден");
             }

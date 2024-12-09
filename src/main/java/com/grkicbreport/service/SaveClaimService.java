@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -74,7 +75,7 @@ public class SaveClaimService {
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
@@ -154,7 +155,7 @@ public class SaveClaimService {
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaim_guid("");
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K/\\\\]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
@@ -237,9 +238,12 @@ public class SaveClaimService {
 
             if (kreditOptional.isPresent()) {
                 Kredit kredit = kreditOptional.get();
-
-                // Сохранить claim_guid в поле grkiClaimId
-                kreditRepository.updateGrkiClaimId(claimGuid, kredit.getNumdog());
+                if (Objects.equals(kredit.getGrkiClaimId(), "") || kredit.getGrkiClaimId() == null) {
+                    // Сохранить claim_guid в поле grkiClaimId
+                    kreditRepository.updateGrkiClaimId(claimGuid, kredit.getNumdog());
+                } else {
+                    logger.info("Поле ClaimId уже заполнено, обновление не требуется.");
+                }
             } else {
                 System.out.println("Кредит с таким номером договора не найден");
             }
