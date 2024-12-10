@@ -11,10 +11,7 @@ import com.grkicbreport.repository.AzolikYurRepository;
 import com.grkicbreport.repository.GrafikRepository;
 import com.grkicbreport.repository.KreditRepository;
 import com.grkicbreport.response.Response;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -152,55 +149,74 @@ public class SaveContractService {
         }
     }
 
-    public ResponseEntity<String> sendSaveContract(String contractNumber, String Loan_line,
+    public ResponseEntity<String> sendSaveContract(String contractNumber, String loanLine,
                                                    String decisionNumber, LocalDate decisionDate) {
-        saveContractDTO dto = createContract(contractNumber, Loan_line, decisionNumber, decisionDate);
+        saveContractDTO dto = createContract(contractNumber, loanLine, decisionNumber, decisionDate);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // Добавляем заголовки login и password
         headers.set("Login", "NK06005");
         headers.set("Password", "75C75FCE1B53ADDF6C52F96C32555B12");
 
         Gson gson = new GsonBuilder()
-                .serializeNulls() // Include null values in the JSON output
-                .setPrettyPrinting() // Enable pretty printing for better readability
+                .serializeNulls()
+                .setPrettyPrinting()
                 .create();
         String formattedJson = gson.toJson(dto);
 
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
-
         String url = "http://10.95.88.16:8080/grci/resources/cb/saveContract";
         ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
-        // Парсинг ответа
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             Response responseBody = gson.fromJson(response.getBody(), Response.class);
-            System.out.println(responseBody);
+            logger.info(String.valueOf(responseBody));
 
-            // Извлечение claim_guid
-            String claimGuid = responseBody.getAnswer().getIdentity().getContract_guid();
-
+            String success = responseBody.getResult().getSuccess();
             Optional<Kredit> kreditOptional = kreditRepository.findByNumdog(contractNumber);
-
 
             if (kreditOptional.isPresent()) {
                 Kredit kredit = kreditOptional.get();
 
-                if (Objects.equals(kredit.getGrkiContractId(), "") || kredit.getGrkiContractId() == null) {
-                    // Сохранить claim_guid в поле grkiClaimId
-                    kreditRepository.updateGrkiContractId(claimGuid, kredit.getNumdog());
-                } else {
-                    logger.info("Поле ContractId уже заполнено, обновление не требуется.");
+                if ("1".equals(success)) {
+                    // Успешный результат — сохраняем в базу
+                    String contractGuid = responseBody.getAnswer().getIdentity().getContract_guid();
+
+                    if (Objects.equals(kredit.getGrkiContractId(), "") || kredit.getGrkiContractId() == null) {
+                        kreditRepository.updateGrkiContractId(contractGuid, kredit.getNumdog());
+                        logger.info("Contract_guid сохранён в базе.");
+                        return ResponseEntity.ok("Данные успешно сохранены в базу.");
+                    } else {
+                        logger.info("Поле ContractId уже заполнено, обновление не требуется.");
+                        return ResponseEntity.status(HttpStatus.OK)
+                                .body("Contract_guid уже существует, обновление не выполнено.");
+                    }
+                } else if ("0".equals(success)) {
+                    // Если код успеха равен 0, проверяем наличие ошибки 24023
+                    boolean isDuplicateError = responseBody.getAnswer().getErrors().stream()
+                            .anyMatch(error -> "24029 ".equals(error.getCode()));
+
+                    if (isDuplicateError) {
+                        String sendInfoUrl = "http://localhost:5051/api/grki/send-save-info?id=" + kredit.getNumdog() + "&type=2";
+                        restTemplate.getForEntity(sendInfoUrl, String.class);
+                        logger.info("Отправлен запрос на: " + sendInfoUrl);
+                        return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body("Контракт с указанным номером кредитной организации уже существует. Дополнительный запрос выполнен.");
+                    }
                 }
             } else {
-                System.out.println("Кредит с таким номером договора не найден");
+                logger.warning("Кредит с таким номером договора не найден.");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Кредит с таким номером договора не найден.");
             }
         } else {
-            System.out.println("Ошибка при выполнении запроса");
+            logger.warning("Ошибка при выполнении запроса к внешнему сервису.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Ошибка при выполнении запроса к внешнему сервису.");
         }
 
-        return response;
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Неизвестная ошибка при обработке запроса.");
     }
+
 }

@@ -6,22 +6,26 @@ import com.grkicbreport.dto.CreditorDTO;
 import com.grkicbreport.dto.getInformationDTO;
 import com.grkicbreport.dto.saveContract.saveContractDTO;
 import com.grkicbreport.dto.saveSchedule.saveScheduleDTO;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import com.grkicbreport.model.Kredit;
+import com.grkicbreport.repository.KreditRepository;
+import com.grkicbreport.response.Response;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @Service
 public class getIdentityService {
     private final RestTemplate restTemplate;
     private static final Logger logger = Logger.getLogger(SaveContractService.class.getName());
+    private final KreditRepository kreditRepository;
 
-    public getIdentityService(RestTemplate restTemplate) {
+    public getIdentityService(RestTemplate restTemplate, KreditRepository kreditRepository) {
         this.restTemplate = restTemplate;
+        this.kreditRepository = kreditRepository;
     }
 
     public getInformationDTO createDTO(String id, String type) {
@@ -29,6 +33,7 @@ public class getIdentityService {
             // Создаем и заполняем DTO
             getInformationDTO dto = new getInformationDTO();
 
+            String cleanedNumdog = id.replaceAll("[-KК/\\\\]", "");
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
@@ -39,7 +44,7 @@ public class getIdentityService {
 
             getInformationDTO.IdentityDTO identityDTO = new getInformationDTO.IdentityDTO();
             identityDTO.setIdentity_type(type);
-            identityDTO.setIdentity_id(id);
+            identityDTO.setIdentity_id(cleanedNumdog);
             dto.setIdentity(identityDTO);
 
             return dto;
@@ -67,6 +72,67 @@ public class getIdentityService {
         HttpEntity<String> request = new HttpEntity<>(formattedJson, headers);
 
         String url = "http://10.95.88.16:8080/grci/resources/cb/getInformation";
-        return restTemplate.postForEntity(url, request, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            // Парсим ответ
+            Response responseBody = gson.fromJson(response.getBody(), Response.class);
+            logger.info("Ответ от внешнего сервиса: " + responseBody);
+
+            String success = responseBody.getResult().getSuccess();
+
+            if ("1".equals(success)) {
+                // Успех, обработка данных
+                Optional<Kredit> kreditOptional = kreditRepository.findByNumdog(id);
+
+                if (kreditOptional.isPresent()) {
+                    Kredit kredit = kreditOptional.get();
+                    String claimGuid = responseBody.getAnswer().getIdentity().getClaim_guid();
+                    String contractGuid = responseBody.getAnswer().getIdentity().getContract_guid();
+
+                    if ("1".equals(type)) {
+                        // Сохраняем claim_guid в grkiClaimId
+                        if (Objects.equals(kredit.getGrkiClaimId(), "") || kredit.getGrkiClaimId() == null) {
+                            kreditRepository.updateGrkiClaimId(claimGuid, kredit.getNumdog());
+                            logger.info("Claim_guid сохранён в базе.");
+                            return ResponseEntity.ok("Claim_guid успешно сохранён.");
+                        } else {
+                            logger.info("Поле ClaimId уже заполнено, обновление не требуется.");
+                            return ResponseEntity.status(HttpStatus.OK)
+                                    .body("Claim_guid уже существует, обновление не выполнено.");
+                        }
+                    } else if ("2".equals(type)) {
+                        // Сохраняем contract_guid в grkiContractId
+                        if (Objects.equals(kredit.getGrkiContractId(), "") || kredit.getGrkiContractId() == null) {
+                            kreditRepository.updateGrkiContractId(contractGuid, kredit.getNumdog());
+                            logger.info("Contract_guid сохранён в базе.");
+                            return ResponseEntity.ok("Contract_guid успешно сохранён.");
+                        } else {
+                            logger.info("Поле ContractId уже заполнено, обновление не требуется.");
+                            return ResponseEntity.status(HttpStatus.OK)
+                                    .body("Contract_guid уже существует, обновление не выполнено.");
+                        }
+                    } else {
+                        logger.warning("Неизвестный тип операции: " + type);
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body("Неверный параметр type.");
+                    }
+                } else {
+                    logger.warning("Кредит с таким номером договора не найден.");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body("Кредит с таким номером договора не найден.");
+                }
+            } else {
+                logger.warning("Ответ сервиса не содержит успешного статуса.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Не удалось обработать запрос, статус success != 1.");
+            }
+        } else {
+            logger.warning("Ошибка при выполнении запроса к внешнему сервису.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Ошибка при выполнении запроса к внешнему сервису.");
+        }
     }
+
+
 }
