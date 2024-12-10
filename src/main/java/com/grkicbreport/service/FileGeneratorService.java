@@ -67,7 +67,7 @@ public class FileGeneratorService {
         String RR = getNextFlightNumber(date);
 
         // Формируем название файла
-        return N + BBBBB + RR + "." + TTT;
+        return N + BBBBB + "." + TTT;
     }
 
     private List<Analiz_schetDTO> convertToDTO(List<String> rawData) {
@@ -173,23 +173,24 @@ public class FileGeneratorService {
                             .map(Analiz_schetDTO::getDeb)
                             .findFirst()
                             .orElse(BigDecimal.ZERO);
+                    if (!(getGRKIId.getGrkiContractId() == null) || !(getGRKIId.getGrkiContractId().isEmpty())) {
 
                     // Формируем строку для записи
                     String line008 = dateString + separator +
                             "03" + separator +
                             "07104" + separator +
-                            ((getGRKIId != null && getGRKIId.getGrkiClaimId() != null) ? getGRKIId.getGrkiClaimId() : "0") + separator +
+                            ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
                             extractedCode + separator +
                             record.getBal() + separator +
-                            previousDayDeb + separator +
-                            debitSum + separator +
-                            kreditSum + separator +
-                            record.getDeb() + "\n";
+                            previousDayDeb.intValue() + separator +
+                            debitSum.intValue() + separator +
+                            kreditSum.intValue() + separator +
+                            record.getDeb().intValue() + "\n";
 
                     // Записываем строку в файл с расширением .008
                     writer008.write(line008);
                     logger.info("Записана строка в .008 файл: " + line008);
-                }
+                }}
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -220,65 +221,68 @@ public class FileGeneratorService {
                     if (dok.getNazn().startsWith("Выдача")) {
 
                         if (fiz == null) {
-                            String line009 = dateString + separator +
-                                    "03" + separator +
-                                    "07104" + separator +
-                                    ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
-                                    extractedCode + separator +
-                                    dok.getKod() + separator +
-                                    "0103" + separator +
-                                    "1" + separator +
-                                    "3" + separator +
-                                    dok.getNumdok() + separator +
-                                    "119" + separator +
-                                    dok.getLs() + separator +
-                                    "119" + separator +
-                                    dok.getLscor() + separator +
-                                    dok.getSums() + separator +
-                                    "Javlon Javohir Lombard" + separator +
-                                    yur.getName() + separator +
-                                    dok.getLs().substring(0, 5) + separator +
-                                    dok.getNazn();
+                            if (!(kredit.getGrkiContractId() == null) || !(kredit.getGrkiContractId().isEmpty())) {
+                                String line009 = dateString + separator +
+                                        "03" + separator +
+                                        "07104" + separator +
+                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                        extractedCode + separator +
+                                        dok.getKod() + separator +
+                                        "0103" + separator +
+                                        "1" + separator +
+                                        "3" + separator +
+                                        dok.getNumdok() + separator +
+                                        "119" + separator +
+                                        dok.getLs() + separator +
+                                        "119" + separator +
+                                        dok.getLscor() + separator +
+                                        dok.getSums().intValue() + separator +
+                                        "Javlon Javohir Lombard" + separator +
+                                        yur.getName() + separator +
+                                        dok.getLs().substring(0, 5) + separator +
+                                        dok.getNazn();
 
 
-                            // Записываем строку в файл с расширением .009
-                            try {
-                                writer009.write(line009);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                                // Записываем строку в файл с расширением .009
+                                try {
+                                    writer009.write(line009);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                logger.info("Записана строка в .009 файл: " + line009);
+                            }} else {
+                            if (!(kredit.getGrkiContractId() == null) || !(kredit.getGrkiContractId().isEmpty())) {
+
+                                String line009 = dateString + separator +
+                                        "03" + separator +
+                                        "07104" + separator +
+                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                        extractedCode + separator +
+                                        dok.getKod() + separator +
+                                        "0103" + separator +
+                                        "1" + separator +
+                                        "3" + separator +
+                                        dok.getNumdok() + separator +
+                                        "119" + separator +
+                                        dok.getLs() + separator +
+                                        "119" + separator +
+                                        dok.getLscor() + separator +
+                                        dok.getSums().intValue() + separator +
+                                        "Javlon Javohir Lombard" + separator +
+                                        fiz.getName() + separator +
+                                        dok.getLs().substring(0, 5) + separator +
+                                        dok.getNazn();
+
+
+                                // Записываем строку в файл с расширением .009
+                                try {
+                                    writer009.write(line009);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                logger.info("Записана строка в .009 файл: " + line009);
                             }
-                            logger.info("Записана строка в .009 файл: " + line009);
-                        } else {
-                            String line009 = dateString + separator +
-                                    "03" + separator +
-                                    "07104" + separator +
-                                    ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
-                                    extractedCode + separator +
-                                    dok.getKod() + separator +
-                                    "0103" + separator +
-                                    "1" + separator +
-                                    "3" + separator +
-                                    dok.getNumdok() + separator +
-                                    "119" + separator +
-                                    dok.getLs() + separator +
-                                    "119" + separator +
-                                    dok.getLscor() + separator +
-                                    dok.getSums() + separator +
-                                    "Javlon Javohir Lombard" + separator +
-                                    fiz.getName() + separator +
-                                    dok.getLs().substring(0, 5) + separator +
-                                    dok.getNazn();
-
-
-                            // Записываем строку в файл с расширением .009
-                            try {
-                                writer009.write(line009);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                            logger.info("Записана строка в .009 файл: " + line009);
-                        }
-                    } else if (dok.getNazn().startsWith("Погашение")) {
+                        }} else if (dok.getNazn().startsWith("Погашение")) {
 
                         String nalCard = "";
                         String typeOption = "";
@@ -313,64 +317,67 @@ public class FileGeneratorService {
                         }
 
                         if (fiz == null) {
-                            String line009 = dateString + separator +
-                                    "03" + separator +
-                                    "07104" + separator +
-                                    ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
-                                    extractedCode + separator +
-                                    dok.getKod() + separator +
-                                    typeOption + separator +
-                                    nalCard + separator +
-                                    "3" + separator +
-                                    dok.getNumdok() + separator +
-                                    "119" + separator +
-                                    dok.getLscor() + separator +
-                                    "119" + separator +
-                                    dok.getLs() + separator +
-                                    dok.getSums() + separator +
-                                    yur.getName() + separator +
-                                    "Javlon Javohir Lombard" + separator +
-                                    dok.getLs().substring(0, 5) + separator +
-                                    dok.getNazn();
+                            if (!(kredit.getGrkiContractId() == null) || !(kredit.getGrkiContractId().isEmpty())) {
+                                String line009 = dateString + separator +
+                                        "03" + separator +
+                                        "07104" + separator +
+                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                        extractedCode + separator +
+                                        dok.getKod() + separator +
+                                        typeOption + separator +
+                                        nalCard + separator +
+                                        "3" + separator +
+                                        dok.getNumdok() + separator +
+                                        "119" + separator +
+                                        dok.getLscor() + separator +
+                                        "119" + separator +
+                                        dok.getLs() + separator +
+                                        dok.getSums() + separator +
+                                        yur.getName() + separator +
+                                        "Javlon Javohir Lombard" + separator +
+                                        dok.getLs().substring(0, 5) + separator +
+                                        dok.getNazn();
 
 
-                            // Записываем строку в файл с расширением .009
-                            try {
-                                writer009.write(line009);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                            System.out.println("Записана строка в .009 файл: " + line009);
-                        } else {
-                            String line009 = dateString + separator +
-                                    "03" + separator +
-                                    "07104" + separator +
-                                    ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
-                                    extractedCode + separator +
-                                    dok.getKod() + separator +
-                                    typeOption + separator +
-                                    nalCard + separator +
-                                    "3" + separator +
-                                    dok.getNumdok() + separator +
-                                    "119" + separator +
-                                    dok.getLs() + separator +
-                                    "119" + separator +
-                                    dok.getLscor() + separator +
-                                    dok.getSums() + separator +
-                                    "Javlon Javohir Lombard" + separator +
-                                    fiz.getName() + separator +
-                                    dok.getLs().substring(0, 5) + separator +
-                                    dok.getNazn();
+                                // Записываем строку в файл с расширением .009
+                                try {
+                                    writer009.write(line009);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                System.out.println("Записана строка в .009 файл: " + line009);
+                            } } else {
+                            if (!(kredit.getGrkiContractId() == null) || !(kredit.getGrkiContractId().isEmpty())) {
+
+                                String line009 = dateString + separator +
+                                        "03" + separator +
+                                        "07104" + separator +
+                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
+                                        extractedCode + separator +
+                                        dok.getKod() + separator +
+                                        typeOption + separator +
+                                        nalCard + separator +
+                                        "3" + separator +
+                                        dok.getNumdok() + separator +
+                                        "119" + separator +
+                                        dok.getLs() + separator +
+                                        "119" + separator +
+                                        dok.getLscor() + separator +
+                                        dok.getSums().intValue() + separator +
+                                        "Javlon Javohir Lombard" + separator +
+                                        fiz.getName() + separator +
+                                        dok.getLs().substring(0, 5) + separator +
+                                        dok.getNazn();
 
 
-                            // Записываем строку в файл с расширением .009
-                            try {
-                                writer009.write(line009);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                            System.out.println("Записана строка в .009 файл: " + line009);
-                        }
+                                // Записываем строку в файл с расширением .009
+                                try {
+                                    writer009.write(line009);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                System.out.println("Записана строка в .009 файл: " + line009);
+                            }}
                     }
                 });
 
