@@ -1,5 +1,6 @@
 package com.grkicbreport.controller;
 
+import com.grkicbreport.dto.KreditDTO;
 import com.grkicbreport.dto.RequestDTO;
 import com.grkicbreport.dto.saveClaim.saveClaimDTO;
 import com.grkicbreport.dto.setStateToClose.setStateToCloseDTO;
@@ -81,8 +82,8 @@ public class MainController {
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<Kredit>> getCreditsByStatus(@PathVariable("status") Byte status) {
-        List<Kredit> credits = kreditService.findCreditsByStatus(status);
+    public ResponseEntity<List<KreditDTO>> getCreditsByStatus(@PathVariable("status") Byte status) {
+        List<KreditDTO> credits = kreditService.findCreditsByStatus(status);
         if (credits.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Collections.emptyList());
