@@ -170,7 +170,7 @@ public class SaveContractService {
 
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             Response responseBody = gson.fromJson(response.getBody(), Response.class);
-            logger.info(String.valueOf(responseBody));
+            logger.info("Ответ от сервера: " + gson.toJson(responseBody));
 
             String success = responseBody.getResult().getSuccess();
             Optional<Kredit> kreditOptional = kreditRepository.findByNumdog(contractNumber);
@@ -185,38 +185,39 @@ public class SaveContractService {
                     if (Objects.equals(kredit.getGrkiContractId(), "") || kredit.getGrkiContractId() == null) {
                         kreditRepository.updateGrkiContractId(contractGuid, kredit.getNumdog());
                         logger.info("Contract_guid сохранён в базе.");
-                        return ResponseEntity.ok("Данные успешно сохранены в базу.");
+                        return ResponseEntity.ok("Данные успешно сохранены в базу. Ответ: " + gson.toJson(responseBody));
                     } else {
                         logger.info("Поле ContractId уже заполнено, обновление не требуется.");
                         return ResponseEntity.status(HttpStatus.OK)
-                                .body("Contract_guid уже существует, обновление не выполнено.");
+                                .body("Contract_guid уже существует, обновление не выполнено. Ответ: " + gson.toJson(responseBody));
                     }
                 } else if ("0".equals(success)) {
                     // Если код успеха равен 0, проверяем наличие ошибки 24023
                     boolean isDuplicateError = responseBody.getAnswer().getErrors().stream()
-                            .anyMatch(error -> "24029 ".equals(error.getCode()));
+                            .anyMatch(error -> "24029".equals(error.getCode()));
 
                     if (isDuplicateError) {
                         String sendInfoUrl = "http://localhost:5051/api/grki/send-save-info?id=" + kredit.getNumdog() + "&type=2";
                         restTemplate.getForEntity(sendInfoUrl, String.class);
                         logger.info("Отправлен запрос на: " + sendInfoUrl);
                         return ResponseEntity.status(HttpStatus.CONFLICT)
-                                .body("Контракт с указанным номером кредитной организации уже существует. Дополнительный запрос выполнен.");
+                                .body("Контракт с указанным номером кредитной организации уже существует. Дополнительный запрос выполнен. Ответ: " + gson.toJson(responseBody));
                     }
                 }
             } else {
                 logger.warning("Кредит с таким номером договора не найден.");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Кредит с таким номером договора не найден.");
+                        .body("Кредит с таким номером договора не найден. Ответ: " + gson.toJson(responseBody));
             }
         } else {
             logger.warning("Ошибка при выполнении запроса к внешнему сервису.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Ошибка при выполнении запроса к внешнему сервису.");
+                    .body("Ошибка при выполнении запроса к внешнему сервису. Ответ: " + gson.toJson(response.getBody()));
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Неизвестная ошибка при обработке запроса.");
     }
+
 
 }

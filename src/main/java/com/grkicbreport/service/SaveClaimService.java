@@ -226,7 +226,8 @@ public class SaveClaimService {
         // Парсинг ответа
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             Response responseBody = gson.fromJson(response.getBody(), Response.class);
-            logger.info(String.valueOf(responseBody));
+            String responseJson = gson.toJson(responseBody); // Форматируем ответ в красивый JSON
+            logger.info("Ответ от сервера: " + responseJson);
 
             String success = responseBody.getResult().getSuccess();
 
@@ -245,7 +246,7 @@ public class SaveClaimService {
                         restTemplate.getForEntity(sendInfoUrl, String.class);
                         logger.info("Отправлен запрос на: " + sendInfoUrl);
                         return ResponseEntity.status(HttpStatus.CONFLICT)
-                                .body("Заявка с указанным номером кредитной организации уже существует. Дополнительный запрос выполнен.");
+                                .body("Заявка с указанным номером кредитной организации уже существует. Дополнительный запрос выполнен. Ответ: " + responseJson);
                     }
                 } else if ("1".equals(success)) {
                     // Успешный результат — сохраняем в базу
@@ -254,22 +255,22 @@ public class SaveClaimService {
                     if (Objects.equals(kredit.getGrkiClaimId(), "") || kredit.getGrkiClaimId() == null) {
                         kreditRepository.updateGrkiClaimId(claimGuid, kredit.getNumdog());
                         logger.info("Claim_guid сохранён в базе.");
-                        return ResponseEntity.ok("Данные успешно сохранены в базу.");
+                        return ResponseEntity.ok("Данные успешно сохранены в базу. Ответ: " + responseJson);
                     } else {
                         logger.info("Поле ClaimId уже заполнено, обновление не требуется.");
                         return ResponseEntity.status(HttpStatus.OK)
-                                .body("Claim_guid уже существует, обновление не выполнено.");
+                                .body("Claim_guid уже существует, обновление не выполнено. Ответ: " + responseJson);
                     }
                 }
             } else {
                 logger.warning("Кредит с таким номером договора не найден.");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Кредит с таким номером договора не найден.");
+                        .body("Кредит с таким номером договора не найден. Ответ: " + gson.toJson(responseBody));
             }
         } else {
             logger.warning("Ошибка при выполнении запроса к внешнему сервису.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Ошибка при выполнении запроса к внешнему сервису.");
+                    .body("Ошибка при выполнении запроса к внешнему сервису. Ответ: " + response.getBody());
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

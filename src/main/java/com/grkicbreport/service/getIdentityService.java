@@ -44,7 +44,7 @@ public class getIdentityService {
 
             getInformationDTO.IdentityDTO identityDTO = new getInformationDTO.IdentityDTO();
             identityDTO.setIdentity_type(type);
-            identityDTO.setIdentity_id(cleanedNumdog);
+            identityDTO.setIdentity_id(cleanedNumdog.replaceAll(" ", ""));
             dto.setIdentity(identityDTO);
 
             return dto;

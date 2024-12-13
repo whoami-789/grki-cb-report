@@ -190,7 +190,7 @@ public class FileGeneratorService {
                                 previousDayDeb.intValue() + separator +
                                 debitSum.intValue() + separator +
                                 kreditSum.intValue() + separator +
-                                record.getDeb().intValue() + "\n";
+                                record.getDeb().intValue() + separator + "\n";
 
                         // Записываем строку в файл с расширением .008
                         writer008.write(line008);

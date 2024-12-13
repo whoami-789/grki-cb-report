@@ -39,6 +39,9 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     @Query("UPDATE Kredit k SET k.grkiContractId = :grkiContractId WHERE k.numdog = :numdog")
     void updateGrkiContractId(@Param("grkiContractId") String grkiContractId, @Param("numdog") String numdog);
 
+    List<Kredit> findByStatus(Byte status);
 
+    @Query("SELECT k FROM Kredit k WHERE k.status = :status")
+    List<Kredit> findCreditsByStatus(@Param("status") int status);
 
 }
