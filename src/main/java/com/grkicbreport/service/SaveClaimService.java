@@ -66,8 +66,8 @@ public class SaveClaimService {
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
-            creditorDTO.setType("02");
-            creditorDTO.setCode("06005");
+            creditorDTO.setType("03");
+            creditorDTO.setCode("07113");
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
@@ -145,8 +145,8 @@ public class SaveClaimService {
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
-            creditorDTO.setType("02");
-            creditorDTO.setCode("6005");
+            creditorDTO.setType("03");
+            creditorDTO.setCode("07113");
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
@@ -209,8 +209,8 @@ public class SaveClaimService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK06005");
-        headers.set("Password", "75C75FCE1B53ADDF6C52F96C32555B12");
+        headers.set("Login", "NK07113");
+        headers.set("Password", "AD6AFD6489CCF3F79F14D794650E3BD6");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Включить null значения в JSON

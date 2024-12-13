@@ -57,8 +57,8 @@ public class saveScheduleService {
             dto.setSave_mode("1");
 
             CreditorDTO creditorDTO = new CreditorDTO();
-            creditorDTO.setType("02");
-            creditorDTO.setCode("06005");
+            creditorDTO.setType("03");
+            creditorDTO.setCode("07113");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -104,8 +104,8 @@ public class saveScheduleService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK06005");
-        headers.set("Password", "75C75FCE1B53ADDF6C52F96C32555B12");
+        headers.set("Login", "NK07113");
+        headers.set("Password", "AD6AFD6489CCF3F79F14D794650E3BD6");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output

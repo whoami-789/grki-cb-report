@@ -64,8 +64,8 @@ public class SaveContractService {
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
-            creditorDTO.setType("02");
-            creditorDTO.setCode("06005");
+            creditorDTO.setType("03");
+            creditorDTO.setCode("07113");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -82,7 +82,7 @@ public class SaveContractService {
             decisionDTO.setDecide("03");
             decisionDTO.setNumber(decisionNumber); // вручную
             decisionDTO.setDate(decisionDate.format(formatter)); // вручную
-            decisionDTO.setDecide_chief("Тухтаева Манзура Мизробовна");
+            decisionDTO.setDecide_chief("Asadova Yulduz Shavkatovna");
             decisionDTO.setBorrower_link("0");
             dto.setDecision(decisionDTO);
 
@@ -100,8 +100,8 @@ public class SaveContractService {
             percentDTO.setPercent_type("101");
             percentDTO.setPercent_total(String.valueOf(kredit.getProsent()));
             percentDTO.setBorrower_percent(String.valueOf(kredit.getProsent()));
-            percentDTO.setOverdue_percent(String.valueOf(kredit.getProcpeni()));
             contractDTO.setPercent(percentDTO);
+            percentDTO.setOverdue_percent("0");
             contractDTO.setCurrency_first("000");
             contractDTO.setAmount_first("0");
             contractDTO.setDiscont_comissions(null);
@@ -155,8 +155,8 @@ public class SaveContractService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Login", "NK06005");
-        headers.set("Password", "75C75FCE1B53ADDF6C52F96C32555B12");
+        headers.set("Login", "NK07113");
+        headers.set("Password", "AD6AFD6489CCF3F79F14D794650E3BD6");
 
         Gson gson = new GsonBuilder()
                 .serializeNulls()

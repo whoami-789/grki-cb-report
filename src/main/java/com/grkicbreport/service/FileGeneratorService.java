@@ -61,7 +61,7 @@ public class FileGeneratorService {
     // Генерация имени файла на основе даты и других параметров
     public String generateFilename(String date, String TTT) {
         String N = "N"; // Константа, идентификатор файла от АС кредитной организации
-        String BBBBB = "06005"; // Код кредитной организации
+        String BBBBB = "07113"; // Код кредитной организации
 
         // Генерируем следующий номер рейса (RR)
         String RR = getNextFlightNumber(date);
@@ -182,8 +182,8 @@ public class FileGeneratorService {
 
                         // Формируем строку для записи
                         String line008 = dateStringReverse + separator +
-                                "02" + separator +
-                                "06005" + separator +
+                                "03" + separator +
+                                "07113" + separator +
                                 ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
                                 cleanedNumdog + separator +
                                 record.getBal() + separator +
@@ -228,8 +228,8 @@ public class FileGeneratorService {
 
                         if (fiz == null) {
                             String line009 = dateStringReverse + separator +
-                                    "02" + separator +
-                                    "06005" + separator +
+                                    "03" + separator +
+                                    "07113" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -242,7 +242,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                    "Star Kredit Lombard MCHJ" + separator +
                                     yur.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -257,8 +257,8 @@ public class FileGeneratorService {
                             logger.info("Записана строка в .009 файл: " + line009);
                         } else {
                             String line009 = dateStringReverse + separator +
-                                    "02" + separator +
-                                    "06005" + separator +
+                                    "03" + separator +
+                                    "07113" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -271,7 +271,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                    "Star Kredit Lombard MCHJ" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -321,8 +321,8 @@ public class FileGeneratorService {
 
                         if (fiz == null) {
                             String line009 = dateStringReverse + separator +
-                                    "02" + separator +
-                                    "06005" + separator +
+                                    "03" + separator +
+                                    "07113" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -336,7 +336,7 @@ public class FileGeneratorService {
                                     dok.getLs() + separator +
                                     dok.getSums() + separator +
                                     yur.getName() + separator +
-                                    "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                    "Star Kredit Lombard MCHJ" + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
 
@@ -350,8 +350,8 @@ public class FileGeneratorService {
                             System.out.println("Записана строка в .009 файл: " + line009);
                         } else {
                             String line009 = dateStringReverse + separator +
-                                    "02" + separator +
-                                    "06005" + separator +
+                                    "03" + separator +
+                                    "07113" + separator +
                                     ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod() + separator +
@@ -364,7 +364,7 @@ public class FileGeneratorService {
                                     "119" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
+                                    "Star Kredit Lombard MCHJ" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -438,7 +438,7 @@ public class FileGeneratorService {
         // N = Константа (например, 'N')
         String N = "N";
         // BBBBB = Код кредитной организации (например, '06005')
-        String BBBBB = "06005";
+        String BBBBB = "07113";
         // RR = Номер рейса (например, '01')
         String RR = "01";
 
