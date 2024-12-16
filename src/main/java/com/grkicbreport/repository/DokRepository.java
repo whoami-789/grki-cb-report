@@ -1,7 +1,6 @@
 package com.grkicbreport.repository;
 
 import com.grkicbreport.model.Dok;
-import com.grkicbreport.model.Dokument;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
