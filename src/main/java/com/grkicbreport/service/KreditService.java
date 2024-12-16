@@ -17,8 +17,8 @@ public class KreditService {
         this.kreditRepository = kreditRepository;
     }
 
-    public List<KreditDTO> findCreditsByStatus(Byte status) {
-        List<Kredit> kredits = kreditRepository.findByStatus(status);
+    public List<KreditDTO> findCreditsByStatus() {
+        List<Kredit> kredits = kreditRepository.findByDatsZakrIsNull();
         return kredits.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());

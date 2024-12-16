@@ -5,15 +5,12 @@ import com.grkicbreport.model.Kredit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface KreditRepository extends JpaRepository<Kredit, String> {
     Optional<Kredit> findByNumdog(String kod);
@@ -39,7 +36,7 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     @Query("UPDATE Kredit k SET k.grkiContractId = :grkiContractId WHERE k.numdog = :numdog")
     void updateGrkiContractId(@Param("grkiContractId") String grkiContractId, @Param("numdog") String numdog);
 
-    List<Kredit> findByStatus(Byte status);
+    List<Kredit> findByDatsZakrIsNull();
 
     @Query("SELECT k FROM Kredit k WHERE k.status = :status")
     List<Kredit> findCreditsByStatus(@Param("status") int status);

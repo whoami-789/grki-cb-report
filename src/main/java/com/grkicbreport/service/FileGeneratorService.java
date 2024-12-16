@@ -159,14 +159,17 @@ public class FileGeneratorService {
                     Kredit getGRKIId = kredit.orElse(null);
 
                     // Получаем данные о кредите и дебите
-                    List<Dokument> ls = dokumRepository.getDokumentByLs(record.getBal());
-                    List<Dokument> lscor = dokumRepository.getDokumentByLscor(record.getBal());
+                    List<Dok> ls = dokRepository.getDokumentByLsAndDats(record.getBal(), LocalDate.parse(date));
+                    List<Dok> lscor = dokRepository.getDokumentByLscorAndDats(record.getBal(), LocalDate.parse(date));
 
                     // Если данных нет, заполняем нулями
-                    Dokument lsKredit = ls.isEmpty() ? null : ls.get(0);
-                    Dokument lsDebit = lscor.isEmpty() ? null : lscor.get(0);
+                    Dok lsKredit = ls.isEmpty() ? null : ls.get(0);
+                    Dok lsDebit = lscor.isEmpty() ? null : lscor.get(0);
 
-                    BigDecimal debitSum = (lsDebit != null && lsDebit.getSums() != null) ? lsDebit.getSums() : BigDecimal.ZERO;
+                    BigDecimal debitSum = lscor.isEmpty() ? BigDecimal.ZERO : lscor.stream()
+                            .map(Dok::getSums) // Получаем поле `sums` из каждого объекта
+                            .filter(Objects::nonNull) // Убираем возможные null значения
+                            .reduce(BigDecimal.ZERO, BigDecimal::add); // Суммируем все значения
                     BigDecimal kreditSum = (lsKredit != null && lsKredit.getSums() != null) ? lsKredit.getSums() : BigDecimal.ZERO;
 
                     // Находим значение дебета за предыдущий день
@@ -176,25 +179,28 @@ public class FileGeneratorService {
                             .findFirst()
                             .orElse(BigDecimal.ZERO);
 
-                    if (!(getGRKIId == null)) {
-                        String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-K\\\\]", "").trim();
+                    if (!(record.getBal().startsWith("12499") || record.getBal().startsWith("12507"))) {
+                        if (!(getGRKIId == null)) {
+                            String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-K\\\\]", "").trim();
 
 
-                        // Формируем строку для записи
-                        String line008 = dateStringReverse + separator +
-                                "02" + separator +
-                                "06005" + separator +
-                                ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
-                                cleanedNumdog + separator +
-                                record.getBal() + separator +
-                                previousDayDeb.intValue() + separator +
-                                debitSum.intValue() + separator +
-                                kreditSum.intValue() + separator +
-                                record.getDeb().intValue() + separator + "\n";
+                            // Формируем строку для записи
+                            String line008 = dateStringReverse + separator +
+                                    "02" + separator +
+                                    "06005" + separator +
+                                    ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
+                                    cleanedNumdog + separator +
+                                    record.getBal() + separator +
+                                    previousDayDeb.intValue() + separator +
+                                    debitSum.intValue() + separator +
+                                    kreditSum.intValue() + separator +
+                                    record.getDeb().intValue() + separator + "\n";
 
-                        // Записываем строку в файл с расширением .008
-                        writer008.write(line008);
-                        logger.info("Записана строка в .008 файл: " + line008);
+                            // Записываем строку в файл с расширением .008
+                            writer008.write(line008);
+                            writer008.flush();
+                            logger.info("Записана строка в .008 файл: " + line008);
+                        }
                     }
                 }
             }
@@ -266,9 +272,9 @@ public class FileGeneratorService {
                                     "1" + separator +
                                     "3" + separator +
                                     dok.getNumdok() + separator +
-                                    "119" + separator +
+                                    "06005" + separator +
                                     dok.getLs() + separator +
-                                    "119" + separator +
+                                    "06005" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
                                     "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
@@ -380,7 +386,6 @@ public class FileGeneratorService {
                         }
                     }
                 });
-
 
 
             }

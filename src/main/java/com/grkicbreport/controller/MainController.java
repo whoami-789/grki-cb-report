@@ -81,9 +81,9 @@ public class MainController {
         return getIdentityService.sendSaveInfo(id, type);
     }
 
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<KreditDTO>> getCreditsByStatus(@PathVariable("status") Byte status) {
-        List<KreditDTO> credits = kreditService.findCreditsByStatus(status);
+    @GetMapping("/status")
+    public ResponseEntity<List<KreditDTO>> getCreditsByStatus() {
+        List<KreditDTO> credits = kreditService.findCreditsByStatus();
         if (credits.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Collections.emptyList());
