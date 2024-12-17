@@ -236,16 +236,16 @@ public class FileGeneratorService {
                             String line009 = dateStringReverse + separator +
                                     "02" + separator +
                                     "06005" + separator +
-                                    ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
+                                    ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
                                     extractedCode + separator +
-                                    dok.getKod() + separator +
+                                    dok.getKod().intValue() + separator +
                                     "0103" + separator +
                                     "1" + separator +
                                     "3" + separator +
                                     dok.getNumdok() + separator +
-                                    "119" + separator +
+                                    "06005" + separator +
                                     dok.getLs() + separator +
-                                    "119" + separator +
+                                    "06005" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
                                     "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
@@ -257,6 +257,7 @@ public class FileGeneratorService {
                             // Записываем строку в файл с расширением .009
                             try {
                                 writer009.write(line009);
+                                writer009.flush();
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -265,9 +266,9 @@ public class FileGeneratorService {
                             String line009 = dateStringReverse + separator +
                                     "02" + separator +
                                     "06005" + separator +
-                                    ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
+                                    ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
                                     extractedCode + separator +
-                                    dok.getKod() + separator +
+                                    dok.getKod().intValue() + separator +
                                     "0103" + separator +
                                     "1" + separator +
                                     "3" + separator +
@@ -276,7 +277,7 @@ public class FileGeneratorService {
                                     dok.getLs() + separator +
                                     "06005" + separator +
                                     dok.getLscor() + separator +
-                                    dok.getSums() + separator +
+                                    dok.getSums().intValue() + separator +
                                     "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
@@ -286,6 +287,7 @@ public class FileGeneratorService {
                             // Записываем строку в файл с расширением .009
                             try {
                                 writer009.write(line009);
+                                writer009.flush();
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -329,18 +331,18 @@ public class FileGeneratorService {
                             String line009 = dateStringReverse + separator +
                                     "02" + separator +
                                     "06005" + separator +
-                                    ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
+                                    ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
                                     extractedCode + separator +
-                                    dok.getKod() + separator +
+                                    dok.getKod().intValue() + separator +
                                     typeOption + separator +
                                     nalCard + separator +
                                     "3" + separator +
                                     dok.getNumdok() + separator +
-                                    "119" + separator +
+                                    "06005" + separator +
                                     dok.getLscor() + separator +
-                                    "119" + separator +
+                                    "06005" + separator +
                                     dok.getLs() + separator +
-                                    dok.getSums() + separator +
+                                    dok.getSums().intValue() + separator +
                                     yur.getName() + separator +
                                     "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
                                     dok.getLs().substring(0, 5) + separator +
@@ -350,6 +352,7 @@ public class FileGeneratorService {
                             // Записываем строку в файл с расширением .009
                             try {
                                 writer009.write(line009);
+                                writer009.flush();
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
@@ -358,16 +361,16 @@ public class FileGeneratorService {
                             String line009 = dateStringReverse + separator +
                                     "02" + separator +
                                     "06005" + separator +
-                                    ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
+                                    ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
                                     extractedCode + separator +
-                                    dok.getKod() + separator +
+                                    dok.getKod().intValue() + separator +
                                     typeOption + separator +
                                     nalCard + separator +
                                     "3" + separator +
                                     dok.getNumdok() + separator +
-                                    "119" + separator +
+                                    "06005" + separator +
                                     dok.getLs() + separator +
-                                    "119" + separator +
+                                    "06005" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
                                     "KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI" + separator +
@@ -379,6 +382,7 @@ public class FileGeneratorService {
                             // Записываем строку в файл с расширением .009
                             try {
                                 writer009.write(line009);
+                                writer009.flush();
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
