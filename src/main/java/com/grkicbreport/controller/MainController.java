@@ -1,13 +1,14 @@
 package com.grkicbreport.controller;
 
+import com.grkicbreport.dto.KreditDTO;
 import com.grkicbreport.dto.RequestDTO;
-import com.grkicbreport.dto.saveClaim.saveClaimDTO;
-import com.grkicbreport.dto.setStateToClose.setStateToCloseDTO;
 import com.grkicbreport.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/grki")
@@ -22,8 +23,10 @@ public class MainController {
     private final setStateToCloseService setStateToCloseService;
     private final FileGeneratorService fileGeneratorService;
     private final getIdentityService getIdentityService;
+    private final KreditService kreditService;
 
-    public MainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveAgreementService saveAgreementService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService, com.grkicbreport.service.getIdentityService getIdentityService) {
+
+    public MainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveAgreementService saveAgreementService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService, com.grkicbreport.service.getIdentityService getIdentityService, KreditService kreditService) {
         this.saveClaimService = saveClaimService;
         this.saveContractService = saveContractService;
         this.saveAgreementService = saveAgreementService;
@@ -34,6 +37,7 @@ public class MainController {
         this.setStateToCloseService = setStateToCloseService;
         this.fileGeneratorService = fileGeneratorService;
         this.getIdentityService = getIdentityService;
+        this.kreditService = kreditService;
     }
 
     @PostMapping("/get-save-claim")
@@ -93,5 +97,15 @@ public class MainController {
             @RequestParam String id,
             @RequestParam String type) {
         return getIdentityService.sendSaveInfo(id, type);
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<List<KreditDTO>> getCreditsByStatus() {
+        List<KreditDTO> credits = kreditService.findCreditsByStatus();
+        if (credits.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.emptyList());
+        }
+        return ResponseEntity.ok(credits);
     }
 }

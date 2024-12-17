@@ -11,10 +11,7 @@ import com.grkicbreport.repository.AzolikFizRepository;
 import com.grkicbreport.repository.AzolikYurRepository;
 import com.grkicbreport.repository.KreditRepository;
 import com.grkicbreport.response.Response;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -154,7 +152,7 @@ public class SaveClaimService {
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaim_guid("");
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
@@ -228,27 +226,57 @@ public class SaveClaimService {
         // Парсинг ответа
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             Response responseBody = gson.fromJson(response.getBody(), Response.class);
-            logger.info(String.valueOf(responseBody));
-            // Извлечение claim_guid
-            String claimGuid = responseBody.getAnswer().getIdentity().getClaim_guid();
+            String responseJson = gson.toJson(responseBody); // Форматируем ответ в красивый JSON
+            logger.info("Ответ от сервера: " + responseJson);
+
+            String success = responseBody.getResult().getSuccess();
 
             Optional<Kredit> kreditOptional = kreditRepository.findByNumdog(contractNumber);
-
 
             if (kreditOptional.isPresent()) {
                 Kredit kredit = kreditOptional.get();
 
-                // Сохранить claim_guid в поле grkiClaimId
-                kreditRepository.updateGrkiClaimId(claimGuid, kredit.getNumdog());
+                if ("0".equals(success)) {
+                    // Проверяем наличие ошибок с кодом 24023
+                    boolean isDuplicateError = responseBody.getAnswer().getErrors().stream()
+                            .anyMatch(error -> "24023".equals(error.getCode()));
+
+                    if (isDuplicateError) {
+                        String sendInfoUrl = "http://localhost:5051/api/grki/send-save-info?id=" + kredit.getNumdog() + "&type=1";
+                        restTemplate.getForEntity(sendInfoUrl, String.class);
+                        logger.info("Отправлен запрос на: " + sendInfoUrl);
+                        return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body("Заявка с указанным номером кредитной организации уже существует. Дополнительный запрос выполнен. Ответ: " + responseJson);
+                    }
+                } else if ("1".equals(success)) {
+                    // Успешный результат — сохраняем в базу
+                    String claimGuid = responseBody.getAnswer().getIdentity().getClaim_guid();
+
+                    if (Objects.equals(kredit.getGrkiClaimId(), "") || kredit.getGrkiClaimId() == null) {
+                        kreditRepository.updateGrkiClaimId(claimGuid, kredit.getNumdog());
+                        logger.info("Claim_guid сохранён в базе.");
+                        return ResponseEntity.ok("Данные успешно сохранены в базу. Ответ: " + responseJson);
+                    } else {
+                        logger.info("Поле ClaimId уже заполнено, обновление не требуется.");
+                        return ResponseEntity.status(HttpStatus.OK)
+                                .body("Claim_guid уже существует, обновление не выполнено. Ответ: " + responseJson);
+                    }
+                }
             } else {
-                System.out.println("Кредит с таким номером договора не найден");
+                logger.warning("Кредит с таким номером договора не найден.");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Кредит с таким номером договора не найден. Ответ: " + gson.toJson(responseBody));
             }
         } else {
-            System.out.println("Ошибка при выполнении запроса");
+            logger.warning("Ошибка при выполнении запроса к внешнему сервису.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Ошибка при выполнении запроса к внешнему сервису. Ответ: " + response.getBody());
         }
 
-        return response;
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Неизвестная ошибка при обработке запроса.");
     }
+
 
 
 }

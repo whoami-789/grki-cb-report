@@ -40,5 +40,6 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     void updateGrkiContractId(@Param("grkiContractId") String grkiContractId, @Param("numdog") String numdog);
 
 
-
+    List<Kredit> findByStatus(Byte status);
+    List<Kredit> findByDatsZakrIsNull();
 }

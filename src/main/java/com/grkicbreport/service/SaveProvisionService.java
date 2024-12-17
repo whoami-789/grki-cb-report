@@ -82,7 +82,7 @@ public class SaveProvisionService {
 
             ContractDTO contractDTO = new ContractDTO();
             contractDTO.setContract_guid(kredit.getGrkiContractId());
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
             contractDTO.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contractDTO);
 

@@ -62,6 +62,9 @@ public class FileGeneratorService {
     public String generateFilename(String date, String TTT) {
         String N = "N"; // Константа, идентификатор файла от АС кредитной организации
         String BBBBB = "07062"; // Код кредитной организации
+        // Генерируем следующий номер рейса (RR)
+        String RR = getNextFlightNumber(date);
+
         // Формируем название файла
         return N + BBBBB + "." + TTT;
     }
@@ -109,7 +112,9 @@ public class FileGeneratorService {
 
         // Преобразуем даты в нужный формат yyyyMMdd
         SimpleDateFormat outputSdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat outputSdfReverse = new SimpleDateFormat("ddMMyyyy");
         String dateString = outputSdf.format(currentDate);
+        String dateStringReverse = outputSdfReverse.format(currentDate);
         String previousDateString = outputSdf.format(previousDay);
 
         File folder = new File(FOLDER_PATH);
@@ -153,14 +158,17 @@ public class FileGeneratorService {
                     Kredit getGRKIId = kredit.orElse(null);
 
                     // Получаем данные о кредите и дебите
-                    List<Dokument> ls = dokumRepository.getDokumentByLs(record.getBal());
-                    List<Dokument> lscor = dokumRepository.getDokumentByLscor(record.getBal());
+                    List<Dok> ls = dokRepository.getDokumentByLsAndDats(record.getBal(), LocalDate.parse(date));
+                    List<Dok> lscor = dokRepository.getDokumentByLscorAndDats(record.getBal(), LocalDate.parse(date));
 
                     // Если данных нет, заполняем нулями
-                    Dokument lsKredit = ls.isEmpty() ? null : ls.get(0);
-                    Dokument lsDebit = lscor.isEmpty() ? null : lscor.get(0);
+                    Dok lsKredit = ls.isEmpty() ? null : ls.get(0);
+                    Dok lsDebit = lscor.isEmpty() ? null : lscor.get(0);
 
-                    BigDecimal debitSum = (lsDebit != null && lsDebit.getSums() != null) ? lsDebit.getSums() : BigDecimal.ZERO;
+                    BigDecimal debitSum = lscor.isEmpty() ? BigDecimal.ZERO : lscor.stream()
+                            .map(Dok::getSums) // Получаем поле `sums` из каждого объекта
+                            .filter(Objects::nonNull) // Убираем возможные null значения
+                            .reduce(BigDecimal.ZERO, BigDecimal::add); // Суммируем все значения
                     BigDecimal kreditSum = (lsKredit != null && lsKredit.getSums() != null) ? lsKredit.getSums() : BigDecimal.ZERO;
 
                     // Находим значение дебета за предыдущий день
@@ -170,22 +178,28 @@ public class FileGeneratorService {
                             .findFirst()
                             .orElse(BigDecimal.ZERO);
 
-                    if (!(getGRKIId.getGrkiContractId() == null) || !(getGRKIId.getGrkiContractId().isEmpty())) {
-                        // Формируем строку для записи
-                        String line008 = dateString + separator +
-                                "03" + separator +
-                                "07062" + separator +
-                                ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
-                                extractedCode + separator +
-                                record.getBal() + separator +
-                                previousDayDeb.intValue() + separator +
-                                debitSum.intValue() + separator +
-                                kreditSum.intValue() + separator +
-                                record.getDeb().intValue() + "\n";
+                    if (!(record.getBal().startsWith("12499") || record.getBal().startsWith("12507"))) {
+                        if (!(getGRKIId == null)) {
+                            String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-K\\\\]", "").trim();
 
-                        // Записываем строку в файл с расширением .008
-                        writer008.write(line008);
-                        logger.info("Записана строка в .008 файл: " + line008);
+
+                            // Формируем строку для записи
+                            String line008 = dateStringReverse + separator +
+                                    "03" + separator +
+                                    "07062" + separator +
+                                    ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
+                                    cleanedNumdog + separator +
+                                    record.getBal() + separator +
+                                    previousDayDeb.intValue() + separator +
+                                    debitSum.intValue() + separator +
+                                    kreditSum.intValue() + separator +
+                                    record.getDeb().intValue() + separator + "\n";
+
+                            // Записываем строку в файл с расширением .008
+                            writer008.write(line008);
+                            writer008.flush();
+                            logger.info("Записана строка в .008 файл: " + line008);
+                        }
                     }
                 }
             }
@@ -218,68 +232,65 @@ public class FileGeneratorService {
                     if (dok.getNazn().startsWith("Выдача")) {
 
                         if (fiz == null) {
-                            if (!(kredit.getGrkiContractId() == null) || !(kredit.getGrkiContractId().isEmpty())) {
-                                String line009 = dateString + separator +
-                                        "03" + separator +
-                                        "07062" + separator +
-                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
-                                        extractedCode + separator +
-                                        dok.getKod() + separator +
-                                        "0103" + separator +
-                                        "1" + separator +
-                                        "3" + separator +
-                                        dok.getNumdok() + separator +
-                                        "119" + separator +
-                                        dok.getLs() + separator +
-                                        "119" + separator +
-                                        dok.getLscor() + separator +
-                                        dok.getSums().intValue() + separator +
-                                        "BILUR TONG" + separator +
-                                        yur.getName() + separator +
-                                        dok.getLs().substring(0, 5) + separator +
-                                        dok.getNazn();
+                            String line009 = dateStringReverse + separator +
+                                    "03" + separator +
+                                    "07062" + separator +
+                                    ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                    extractedCode + separator +
+                                    dok.getKod().intValue() + separator +
+                                    "0103" + separator +
+                                    "1" + separator +
+                                    "3" + separator +
+                                    dok.getNumdok() + separator +
+                                    "06005" + separator +
+                                    dok.getLs() + separator +
+                                    "06005" + separator +
+                                    dok.getLscor() + separator +
+                                    dok.getSums() + separator +
+                                    "BILUR TONG" + separator +
+                                    yur.getName() + separator +
+                                    dok.getLs().substring(0, 5) + separator +
+                                    dok.getNazn();
 
 
-                                // Записываем строку в файл с расширением .009
-                                try {
-                                    writer009.write(line009);
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                logger.info("Записана строка в .009 файл: " + line009);
+                            // Записываем строку в файл с расширением .009
+                            try {
+                                writer009.write(line009);
+                                writer009.flush();
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
                             }
+                            logger.info("Записана строка в .009 файл: " + line009);
                         } else {
-                            if (!(kredit.getGrkiContractId() == null) || !(kredit.getGrkiContractId().isEmpty())) {
-
-                                String line009 = dateString + separator +
-                                        "03" + separator +
-                                        "07062" + separator +
-                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
-                                        extractedCode + separator +
-                                        dok.getKod() + separator +
-                                        "0103" + separator +
-                                        "1" + separator +
-                                        "3" + separator +
-                                        dok.getNumdok() + separator +
-                                        "119" + separator +
-                                        dok.getLs() + separator +
-                                        "119" + separator +
-                                        dok.getLscor() + separator +
-                                        dok.getSums().intValue() + separator +
-                                        "BILUR TONG" + separator +
-                                        fiz.getName() + separator +
-                                        dok.getLs().substring(0, 5) + separator +
-                                        dok.getNazn();
+                            String line009 = dateStringReverse + separator +
+                                    "03" + separator +
+                                    "07062" + separator +
+                                    ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                    extractedCode + separator +
+                                    dok.getKod().intValue() + separator +
+                                    "0103" + separator +
+                                    "1" + separator +
+                                    "3" + separator +
+                                    dok.getNumdok() + separator +
+                                    "06005" + separator +
+                                    dok.getLs() + separator +
+                                    "06005" + separator +
+                                    dok.getLscor() + separator +
+                                    dok.getSums().intValue() + separator +
+                                    "BILUR TONG" + separator +
+                                    fiz.getName() + separator +
+                                    dok.getLs().substring(0, 5) + separator +
+                                    dok.getNazn();
 
 
-                                // Записываем строку в файл с расширением .009
-                                try {
-                                    writer009.write(line009);
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                logger.info("Записана строка в .009 файл: " + line009);
+                            // Записываем строку в файл с расширением .009
+                            try {
+                                writer009.write(line009);
+                                writer009.flush();
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
                             }
+                            logger.info("Записана строка в .009 файл: " + line009);
                         }
                     } else if (dok.getNazn().startsWith("Погашение")) {
 
@@ -316,68 +327,65 @@ public class FileGeneratorService {
                         }
 
                         if (fiz == null) {
-                            if (!(kredit.getGrkiContractId() == null) || !(kredit.getGrkiContractId().isEmpty())) {
-
-                                String line009 = dateString + separator +
-                                        "03" + separator +
-                                        "07062" + separator +
-                                        ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
-                                        extractedCode + separator +
-                                        dok.getKod() + separator +
-                                        typeOption + separator +
-                                        nalCard + separator +
-                                        "3" + separator +
-                                        dok.getNumdok() + separator +
-                                        "119" + separator +
-                                        dok.getLscor() + separator +
-                                        "119" + separator +
-                                        dok.getLs() + separator +
-                                        dok.getSums() + separator +
-                                        yur.getName() + separator +
-                                        "BILUR TONG" + separator +
-                                        dok.getLs().substring(0, 5) + separator +
-                                        dok.getNazn();
+                            String line009 = dateStringReverse + separator +
+                                    "03" + separator +
+                                    "07062" + separator +
+                                    ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                    extractedCode + separator +
+                                    dok.getKod().intValue() + separator +
+                                    typeOption + separator +
+                                    nalCard + separator +
+                                    "3" + separator +
+                                    dok.getNumdok() + separator +
+                                    "06005" + separator +
+                                    dok.getLscor() + separator +
+                                    "06005" + separator +
+                                    dok.getLs() + separator +
+                                    dok.getSums().intValue() + separator +
+                                    yur.getName() + separator +
+                                    "BILUR TONG" + separator +
+                                    dok.getLs().substring(0, 5) + separator +
+                                    dok.getNazn();
 
 
-                                // Записываем строку в файл с расширением .009
-                                try {
-                                    writer009.write(line009);
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                System.out.println("Записана строка в .009 файл: " + line009);
+                            // Записываем строку в файл с расширением .009
+                            try {
+                                writer009.write(line009);
+                                writer009.flush();
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
                             }
+                            System.out.println("Записана строка в .009 файл: " + line009);
                         } else {
-                            if (!(kredit.getGrkiContractId() == null) || !(kredit.getGrkiContractId().isEmpty())) {
-                                String line009 = dateString + separator +
-                                        "03" + separator +
-                                        "07062" + separator +
-                                        ((kredit != null && kredit.getGrkiClaimId() != null) ? kredit.getGrkiClaimId() : "0") + separator +
-                                        extractedCode + separator +
-                                        dok.getKod() + separator +
-                                        typeOption + separator +
-                                        nalCard + separator +
-                                        "3" + separator +
-                                        dok.getNumdok() + separator +
-                                        "119" + separator +
-                                        dok.getLs() + separator +
-                                        "119" + separator +
-                                        dok.getLscor() + separator +
-                                        dok.getSums() + separator +
-                                        "BILUR TONG" + separator +
-                                        fiz.getName() + separator +
-                                        dok.getLs().substring(0, 5) + separator +
-                                        dok.getNazn();
+                            String line009 = dateStringReverse + separator +
+                                    "03" + separator +
+                                    "07062" + separator +
+                                    ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                    extractedCode + separator +
+                                    dok.getKod().intValue() + separator +
+                                    typeOption + separator +
+                                    nalCard + separator +
+                                    "3" + separator +
+                                    dok.getNumdok() + separator +
+                                    "06005" + separator +
+                                    dok.getLs() + separator +
+                                    "06005" + separator +
+                                    dok.getLscor() + separator +
+                                    dok.getSums() + separator +
+                                    "BILUR TONG" + separator +
+                                    fiz.getName() + separator +
+                                    dok.getLs().substring(0, 5) + separator +
+                                    dok.getNazn();
 
 
-                                // Записываем строку в файл с расширением .009
-                                try {
-                                    writer009.write(line009);
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                System.out.println("Записана строка в .009 файл: " + line009);
+                            // Записываем строку в файл с расширением .009
+                            try {
+                                writer009.write(line009);
+                                writer009.flush();
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
                             }
+                            System.out.println("Записана строка в .009 файл: " + line009);
                         }
                     }
                 });
@@ -435,9 +443,10 @@ public class FileGeneratorService {
 
     // Метод для генерации имени архива в формате NBBBBBRR.YMD
     private String generateZipFileName(String dateString) {
+        // N = Константа (например, 'N')
         String N = "N";
-        // BBBBB = Код кредитной организации (например, '12345')
-        String BBBBB = "07062";
+        // BBBBB = Код кредитной организации (например, '06005')
+        String BBBBB = "07062"; // Код кредитной организации
         // RR = Номер рейса (например, '01')
         String RR = "01";
 
