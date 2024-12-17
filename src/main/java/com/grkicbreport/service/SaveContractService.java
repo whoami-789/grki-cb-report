@@ -39,8 +39,7 @@ public class SaveContractService {
         this.restTemplate = restTemplate;
     }
 
-    public saveContractDTO createContract(String contractNumber, String Loan_line,
-                                          String decisionNumber, LocalDate decisionDate) {
+    public saveContractDTO createContract(String contractNumber) {
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         LocalDate maxDats = grafikRepository.findMaxDatsByNumdog(contractNumber);
         System.out.println("Максимальная дата: " + maxDats);
@@ -63,30 +62,30 @@ public class SaveContractService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07062");
+            creditorDTO.setCode("07104");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setClaim(claimDTO);
 
             DecisionDTO decisionDTO = new DecisionDTO();
             decisionDTO.setDecide("03");
-            decisionDTO.setNumber(decisionNumber); // вручную
-            decisionDTO.setDate(decisionDate.format(formatter)); // вручную
-            decisionDTO.setDecide_chief("Фозилов Акмаль Равшанович");
+            decisionDTO.setNumber(cleanedNumdog); // вручную
+            decisionDTO.setDate(kredit.getDatadog().format(formatter)); // вручную
+            decisionDTO.setDecide_chief("Бобоев Фарход Туйевич");
             decisionDTO.setBorrower_link("0");
             dto.setDecision(decisionDTO);
 
             ContractDTO contractDTO = new ContractDTO();
             contractDTO.setLoan_type("10");
             contractDTO.setIssue_mode("02");
-            contractDTO.setLoan_line(Loan_line);
+            contractDTO.setLoan_line("02");
             contractDTO.setAsset_quality("1");
             contractDTO.setNumber(kredit.getNumdog().replaceAll("\\s", ""));
             contractDTO.setDate_begin(kredit.getDatadog().format(formatter));
@@ -144,16 +143,16 @@ public class SaveContractService {
         }
     }
 
-    public ResponseEntity<String> sendSaveContract(String contractNumber, String Loan_line,
-                                                   String decisionNumber, LocalDate decisionDate) {
-        saveContractDTO dto = createContract(contractNumber, Loan_line, decisionNumber, decisionDate);
+    public ResponseEntity<String> sendSaveContract(String contractNumber) {
+        saveContractDTO dto = createContract(contractNumber);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07062");
-        headers.set("Password", "5E48CB00C031230C8387F3A39EB02716");
+        headers.set("Login", "NK07104");
+        headers.set("Password", "A782F7ACD7BFDDA728F2903C1C63423A");
+
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output

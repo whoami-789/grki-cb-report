@@ -47,11 +47,7 @@ public class SaveProvisionService {
         this.azolikYurRepository = azolikYurRepository;
     }
 
-    public saveProvisionDTO createProvision(String contractNumber, String provisionNumber,
-                                            LocalDate provisionDate, String nibbd, String engineNumber, String bodyNumber,
-                                            String year, String stateNumber, String model, String chassisNumber, String color,
-                                            String docSeriaNumber, String vinNumber) {
-
+    public saveProvisionDTO createProvision(String contractNumber) {
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         Optional<Zalog> zalogList = zalogRepository.findByNumdog(contractNumber);
 
@@ -76,13 +72,13 @@ public class SaveProvisionService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07062");
+            creditorDTO.setCode("07104");
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             ContractDTO contractDTO = new ContractDTO();
             contractDTO.setContract_guid(kredit.getGrkiContractId());
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
             contractDTO.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contractDTO);
 
@@ -99,8 +95,8 @@ public class SaveProvisionService {
             provisionsDTO.setCurrency("000");
             provisionsDTO.setAmount(String.valueOf(zalog.getSums().intValue()));
             provisionsDTO.setProvision_source("02");
-            provisionsDTO.setNumber(provisionNumber);
-            provisionsDTO.setDate(provisionDate.format(formatter));
+            provisionsDTO.setNumber(cleanedNumdog);
+            provisionsDTO.setDate(kredit.getDatadog().format(formatter));
             if (zalog.getKodZalog() == 1) {
                 provisionsDTO.setName("Ювелирные изделия");
             } else if (zalog.getKodZalog() == 2) {
@@ -120,7 +116,6 @@ public class SaveProvisionService {
                     ProvisionsDTO.OwnerLegal ownerLegal = new ProvisionsDTO.OwnerLegal();
                     ownerLegal.setResident_code("1");
                     ownerLegal.setResident_inn(azolikYur1.getInn());
-                    ownerLegal.setNibbd_code(nibbd);
                     ownerLegal.setName(azolikYur1.getName());
                     ownerLegal.setCountry("860");
                     ownerLegal.setArea("06");
@@ -165,33 +160,9 @@ public class SaveProvisionService {
                         collateral.setProvision_id(cleanedNumdog.replaceAll("\\s", "")); // Replace with actual data
                         collateral.setPledge_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
                         collateral.setObject_name("Ювелирные изделия"); // Replace with actual data
-                        collateral.setObject_area("06"); // Replace with actual data
-                        collateral.setObject_region("030"); // Replace with actual data
 
                         collateralList.add(collateral);
                         provisionsDTO.setCollateral(collateralList);
-                    } else if (zalog.getKodZalog() == 2) {
-                        List<ProvisionsDTO.Vehicle> vehicleArrayList = new ArrayList<>();
-                        ProvisionsDTO.Vehicle vehicle = new ProvisionsDTO.Vehicle();
-                        vehicle.setProvision_id(cleanedNumdog.replaceAll("\\s", "")); // Replace with actual data
-                        vehicle.setPledge_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
-                        vehicle.setEstimate_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
-                        vehicle.setCountry("860");
-                        vehicle.setEstimate_inn("300469626");
-                        vehicle.setEstimate_name("KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI");
-                        vehicle.setEstimate_date(kredit.getDatadog().format(formatter));
-                        vehicle.setEngine_number(engineNumber);
-                        vehicle.setBody_number(bodyNumber);
-                        vehicle.setYear(year);
-                        vehicle.setModel(model);
-                        vehicle.setState_number(stateNumber);
-                        vehicle.setChassis_number(chassisNumber);
-                        vehicle.setColor(color);
-                        vehicle.setDoc_seria_number(docSeriaNumber);
-                        vehicle.setVin_number(vinNumber);
-
-                        vehicleArrayList.add(vehicle);
-                        provisionsDTO.setVehicles(vehicleArrayList);
                     }
 
                 }
@@ -217,19 +188,16 @@ public class SaveProvisionService {
         }
     }
 
-    public ResponseEntity<String> sendSaveProvision(String contractNumber, String provisionNumber,
-                                                    LocalDate provisionDate, String nibbd, String engineNumber, String bodyNumber,
-                                                    String year, String stateNumber, String model, String chassisNumber, String color,
-                                                    String docSeriaNumber, String vinNumber) {
-        saveProvisionDTO dto = createProvision(contractNumber, provisionNumber, provisionDate, nibbd,
-                engineNumber, bodyNumber, year, stateNumber, model, chassisNumber, color, docSeriaNumber, vinNumber);
+    public ResponseEntity<String> sendSaveProvision(String contractNumber) {
+        saveProvisionDTO dto = createProvision(contractNumber);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07062");
-        headers.set("Password", "5E48CB00C031230C8387F3A39EB02716");
+        headers.set("Login", "NK07104");
+        headers.set("Password", "A782F7ACD7BFDDA728F2903C1C63423A");
+
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
                 .setPrettyPrinting() // Enable pretty printing for better readability

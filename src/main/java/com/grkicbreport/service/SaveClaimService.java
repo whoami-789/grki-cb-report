@@ -67,12 +67,12 @@ public class SaveClaimService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07062");
+            creditorDTO.setCode("07104");
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            String cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
@@ -146,7 +146,7 @@ public class SaveClaimService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07105");
+            creditorDTO.setCode("07104");
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
@@ -209,8 +209,9 @@ public class SaveClaimService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07062");
-        headers.set("Password", "5E48CB00C031230C8387F3A39EB02716");
+        headers.set("Login", "NK07104");
+        headers.set("Password", "A782F7ACD7BFDDA728F2903C1C63423A");
+
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Включить null значения в JSON

@@ -32,7 +32,7 @@ public class FileGeneratorService {
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
     private final String[] balValues = {"12401", "12405", "12409", "12499", "12501", "14801", "14899", "15701"};
-    private static final String FOLDER_PATH = "C:/Users/user/Desktop/GRKI"; // Укажите здесь вашу папку
+    private static final String FOLDER_PATH = "C:/Users/Javlon Javohir/Desktop/GRKI"; // Укажите здесь вашу папку
 
 
     @Autowired
@@ -61,7 +61,7 @@ public class FileGeneratorService {
     // Генерация имени файла на основе даты и других параметров
     public String generateFilename(String date, String TTT) {
         String N = "N"; // Константа, идентификатор файла от АС кредитной организации
-        String BBBBB = "07062"; // Код кредитной организации
+        String BBBBB = "07104"; // Код кредитной организации
         // Генерируем следующий номер рейса (RR)
         String RR = getNextFlightNumber(date);
 
@@ -180,13 +180,12 @@ public class FileGeneratorService {
 
                     if (!(record.getBal().startsWith("12499") || record.getBal().startsWith("12507"))) {
                         if (!(getGRKIId == null)) {
-                            String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-K\\\\]", "").trim();
-
+                            String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-KК/\\\\.]", "").trim();
 
                             // Формируем строку для записи
                             String line008 = dateStringReverse + separator +
                                     "03" + separator +
-                                    "07062" + separator +
+                                    "07104" + separator +
                                     ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
                                     cleanedNumdog + separator +
                                     record.getBal() + separator +
@@ -234,7 +233,7 @@ public class FileGeneratorService {
                         if (fiz == null) {
                             String line009 = dateStringReverse + separator +
                                     "03" + separator +
-                                    "07062" + separator +
+                                    "07104" + separator +
                                     ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod().intValue() + separator +
@@ -247,7 +246,7 @@ public class FileGeneratorService {
                                     "06005" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "BILUR TONG" + separator +
+                                    "Javlon Javohir Lombard" + separator +
                                     yur.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -264,7 +263,7 @@ public class FileGeneratorService {
                         } else {
                             String line009 = dateStringReverse + separator +
                                     "03" + separator +
-                                    "07062" + separator +
+                                    "07104" + separator +
                                     ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod().intValue() + separator +
@@ -277,7 +276,7 @@ public class FileGeneratorService {
                                     "06005" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums().intValue() + separator +
-                                    "BILUR TONG" + separator +
+                                    "Javlon Javohir Lombard" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -329,7 +328,7 @@ public class FileGeneratorService {
                         if (fiz == null) {
                             String line009 = dateStringReverse + separator +
                                     "03" + separator +
-                                    "07062" + separator +
+                                    "07104" + separator +
                                     ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod().intValue() + separator +
@@ -343,7 +342,7 @@ public class FileGeneratorService {
                                     dok.getLs() + separator +
                                     dok.getSums().intValue() + separator +
                                     yur.getName() + separator +
-                                    "BILUR TONG" + separator +
+                                    "Javlon Javohir Lombard" + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
 
@@ -359,7 +358,7 @@ public class FileGeneratorService {
                         } else {
                             String line009 = dateStringReverse + separator +
                                     "03" + separator +
-                                    "07062" + separator +
+                                    "07104" + separator +
                                     ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
                                     extractedCode + separator +
                                     dok.getKod().intValue() + separator +
@@ -372,7 +371,7 @@ public class FileGeneratorService {
                                     "06005" + separator +
                                     dok.getLscor() + separator +
                                     dok.getSums() + separator +
-                                    "BILUR TONG" + separator +
+                                    "Javlon Javohir Lombard" + separator +
                                     fiz.getName() + separator +
                                     dok.getLs().substring(0, 5) + separator +
                                     dok.getNazn();
@@ -446,7 +445,7 @@ public class FileGeneratorService {
         // N = Константа (например, 'N')
         String N = "N";
         // BBBBB = Код кредитной организации (например, '06005')
-        String BBBBB = "07062"; // Код кредитной организации
+        String BBBBB = "07104"; // Код кредитной организации
         // RR = Номер рейса (например, '01')
         String RR = "01";
 
