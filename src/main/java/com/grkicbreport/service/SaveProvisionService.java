@@ -2,14 +2,12 @@ package com.grkicbreport.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.grkicbreport.components.InformHelper;
 import com.grkicbreport.dto.CreditorDTO;
 import com.grkicbreport.dto.saveProvision.ContractDTO;
 import com.grkicbreport.dto.saveProvision.ProvisionsDTO;
 import com.grkicbreport.dto.saveProvision.saveProvisionDTO;
-import com.grkicbreport.model.AzolikFiz;
-import com.grkicbreport.model.AzolikYur;
-import com.grkicbreport.model.Kredit;
-import com.grkicbreport.model.Zalog;
+import com.grkicbreport.model.*;
 import com.grkicbreport.repository.AzolikFizRepository;
 import com.grkicbreport.repository.AzolikYurRepository;
 import com.grkicbreport.repository.KreditRepository;
@@ -37,19 +35,22 @@ public class SaveProvisionService {
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
     private static final Logger logger = Logger.getLogger(SaveProvisionService.class.getName());
+    private final InformHelper informHelper;
 
 
-    public SaveProvisionService(RestTemplate restTemplate, KreditRepository kreditRepository, ZalogRepository zalogRepository, AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository) {
+    public SaveProvisionService(RestTemplate restTemplate, KreditRepository kreditRepository, ZalogRepository zalogRepository, AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository, InformHelper informHelper) {
         this.restTemplate = restTemplate;
         this.kreditRepository = kreditRepository;
         this.zalogRepository = zalogRepository;
         this.azolikFizRepository = azolikFizRepository;
         this.azolikYurRepository = azolikYurRepository;
+        this.informHelper = informHelper;
     }
 
     public saveProvisionDTO createProvision(String contractNumber) {
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         Optional<Zalog> zalogList = zalogRepository.findByNumdog(contractNumber);
+        Inform inform = informHelper.fetchSingleRow();
 
         if (kreditList.isEmpty()) {
             throw new IllegalArgumentException("Кредит с таким номером не найден.");
@@ -72,7 +73,7 @@ public class SaveProvisionService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07104");
+            creditorDTO.setCode(inform.getNumks());
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -190,13 +191,14 @@ public class SaveProvisionService {
 
     public ResponseEntity<String> sendSaveProvision(String contractNumber) {
         saveProvisionDTO dto = createProvision(contractNumber);
+        Inform inform = informHelper.fetchSingleRow();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07104");
-        headers.set("Password", "A782F7ACD7BFDDA728F2903C1C63423A");
+        headers.set("Login", "NK" + inform.getNumks());
+        headers.set("Password", inform.getGrki_password());
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output

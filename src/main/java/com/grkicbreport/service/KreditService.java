@@ -18,8 +18,7 @@ public class KreditService {
     }
 
     public List<KreditDTO> findCreditsByStatus() {
-        List<Kredit> kredits = kreditRepository.dats_zakr();
-        System.out.println(kredits);
+        List<Kredit> kredits = kreditRepository.findByDatsZakrIsNull();
         return kredits.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());

@@ -36,10 +36,7 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     @Query("UPDATE Kredit k SET k.grkiContractId = :grkiContractId WHERE k.numdog = :numdog")
     void updateGrkiContractId(@Param("grkiContractId") String grkiContractId, @Param("numdog") String numdog);
 
-
     List<Kredit> findByStatus(Byte status);
-    @Query(value = "select * from kredit where dats_zakr is null or (([grki-claim-id] is null or[grki-contract-id] is null) and " +
-            "([grki-claim-id] like '' or [grki-contract-id] like ''))", nativeQuery = true)
-    List<Kredit> dats_zakr();
+    List<Kredit> findByDatsZakrIsNull();
 
 }

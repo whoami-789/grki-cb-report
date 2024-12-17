@@ -15,7 +15,6 @@ import java.util.List;
 public class MainController {
     private final SaveClaimService saveClaimService;
     private final SaveContractService saveContractService;
-    private final SaveAgreementService saveAgreementService;
     private final SaveProvisionService saveProvisionService;
     private final saveScheduleService saveScheduleService;
     private final setStateToLitigationService setStateToLitigationService;
@@ -26,10 +25,9 @@ public class MainController {
     private final KreditService kreditService;
 
 
-    public MainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveAgreementService saveAgreementService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService, com.grkicbreport.service.getIdentityService getIdentityService, KreditService kreditService) {
+    public MainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService, com.grkicbreport.service.getIdentityService getIdentityService, KreditService kreditService) {
         this.saveClaimService = saveClaimService;
         this.saveContractService = saveContractService;
-        this.saveAgreementService = saveAgreementService;
         this.saveProvisionService = saveProvisionService;
         this.saveScheduleService = saveScheduleService;
         this.setStateToLitigationService = setStateToLitigationService;
@@ -48,13 +46,6 @@ public class MainController {
     @PostMapping("/get-save-contract")
     public ResponseEntity<String> sendSaveContract(@RequestBody RequestDTO requestDTO) {
         return saveContractService.sendSaveContract(requestDTO.getContractNumber());
-    }
-
-    @PostMapping("/get-save-agreement")
-    public ResponseEntity<String> sendSaveAgreement(@RequestBody RequestDTO requestDTO) {
-        return saveAgreementService.sendSaveAgreement(requestDTO.getContractNumber(), requestDTO.getAgreement_id(), requestDTO.getAgreement_number(),
-                requestDTO.getAgreement_date_begin(), requestDTO.getAgreement_date_end(), requestDTO.getAgreement_subject_type(),
-                requestDTO.getAgreement_inn_pinfl(), requestDTO.getAgreement_name(), requestDTO.getAgreement_amount());
     }
 
     @PostMapping("/get-save-provision")

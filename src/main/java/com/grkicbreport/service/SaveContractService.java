@@ -2,9 +2,11 @@ package com.grkicbreport.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.grkicbreport.components.InformHelper;
 import com.grkicbreport.dto.CreditorDTO;
 import com.grkicbreport.dto.saveContract.*;
 import com.grkicbreport.model.Grafik;
+import com.grkicbreport.model.Inform;
 import com.grkicbreport.model.Kredit;
 import com.grkicbreport.repository.AzolikFizRepository;
 import com.grkicbreport.repository.AzolikYurRepository;
@@ -30,19 +32,22 @@ public class SaveContractService {
     private final GrafikRepository grafikRepository;
     private final RestTemplate restTemplate;
     private static final Logger logger = Logger.getLogger(SaveContractService.class.getName());
+    private final InformHelper informHelper;
 
-    public SaveContractService(AzolikYurRepository azolikYurRepository, AzolikFizRepository azolikFizRepository, KreditRepository kreditRepository, GrafikRepository grafikRepository, RestTemplate restTemplate) {
+    public SaveContractService(AzolikYurRepository azolikYurRepository, AzolikFizRepository azolikFizRepository, KreditRepository kreditRepository, GrafikRepository grafikRepository, RestTemplate restTemplate, InformHelper informHelper) {
         this.azolikYurRepository = azolikYurRepository;
         this.azolikFizRepository = azolikFizRepository;
         this.kreditRepository = kreditRepository;
         this.grafikRepository = grafikRepository;
         this.restTemplate = restTemplate;
+        this.informHelper = informHelper;
     }
 
     public saveContractDTO createContract(String contractNumber) {
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         LocalDate maxDats = grafikRepository.findMaxDatsByNumdog(contractNumber);
         System.out.println("Максимальная дата: " + maxDats);
+        Inform inform = informHelper.fetchSingleRow();
 
 
         if (kreditList.isEmpty()) {
@@ -62,7 +67,7 @@ public class SaveContractService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
-            creditorDTO.setCode("07104");
+            creditorDTO.setCode(inform.getNumks());
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -78,7 +83,7 @@ public class SaveContractService {
             decisionDTO.setDecide("03");
             decisionDTO.setNumber(cleanedNumdog); // вручную
             decisionDTO.setDate(kredit.getDatadog().format(formatter)); // вручную
-            decisionDTO.setDecide_chief("Бобоев Фарход Туйевич");
+            decisionDTO.setDecide_chief(inform.getFioDirektor());
             decisionDTO.setBorrower_link("0");
             dto.setDecision(decisionDTO);
 
@@ -148,10 +153,11 @@ public class SaveContractService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        Inform inform = informHelper.fetchSingleRow();
 
         // Добавляем заголовки login и password
-        headers.set("Login", "NK07104");
-        headers.set("Password", "A782F7ACD7BFDDA728F2903C1C63423A");
+        headers.set("Login", "NK" + inform.getNumks());
+        headers.set("Password", inform.getGrki_password());
 
 
         Gson gson = new GsonBuilder()
