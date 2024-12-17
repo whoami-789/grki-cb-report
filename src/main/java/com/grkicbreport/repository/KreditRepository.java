@@ -5,15 +5,12 @@ import com.grkicbreport.model.Kredit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface KreditRepository extends JpaRepository<Kredit, String> {
     Optional<Kredit> findByNumdog(String kod);
@@ -41,5 +38,8 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
 
 
     List<Kredit> findByStatus(Byte status);
-    List<Kredit> findByDatsZakrIsNull();
+    @Query(value = "select * from kredit where dats_zakr is null or (([grki-claim-id] is null or[grki-contract-id] is null) and " +
+            "([grki-claim-id] like '' or [grki-contract-id] like ''))", nativeQuery = true)
+    List<Kredit> dats_zakr();
+
 }
