@@ -18,15 +18,17 @@ public class KreditService {
     }
 
     public List<KreditDTO> findCreditsByStatus() {
-        List<Kredit> kredits = kreditRepository.findByDatsZakrIsNull();
+        List<Kredit> kredits = kreditRepository.findAll();
         return kredits.stream()
                 .map(this::convertToDTO)
+                .filter(a -> a.getDats_zakr() == null)
                 .collect(Collectors.toList());
     }
 
     private KreditDTO convertToDTO(Kredit kredit) {
         KreditDTO dto = new KreditDTO();
         dto.setKod(kredit.getKod());
+        dto.setDats_zakr(kredit.getDatsZakr());
         dto.setNumdog(kredit.getNumdog());
         dto.setDatadog(kredit.getDatadog());
         dto.setSumma(kredit.getSumma());
