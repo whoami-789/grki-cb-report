@@ -56,6 +56,8 @@ public class setStateToCloseService {
 
             setStateToCloseDTO.ContractDTO contract = new setStateToCloseDTO.ContractDTO();
             contract.setContract_guid(kredit.getGrkiContractId());
+
+
             String cleanedNumdog = "";
             if (kredit.getNumdog().contains("/2024")) {
                 cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");

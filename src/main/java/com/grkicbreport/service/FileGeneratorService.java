@@ -184,6 +184,8 @@ public class FileGeneratorService {
 
                     if (!(record.getBal().startsWith("12499") || record.getBal().startsWith("12507"))) {
                         if (!(getGRKIId == null)) {
+
+
                             String cleanedNumdog = "";
                             if (getGRKIId.getNumdog().contains("/2024")) {
                                 cleanedNumdog = getGRKIId.getNumdog().replaceAll("^([0-9]+).*", "$1").trim();
@@ -237,6 +239,8 @@ public class FileGeneratorService {
                     AzolikFiz fiz = azolikFiz.orElse(null);
                     AzolikYur yur = azolikYur.orElse(null);
                     String cleanedNumdog = "";
+
+
                     if (extractedCode.contains("/2024")) {
                         cleanedNumdog = extractedCode.replaceAll("^([0-9]+).*", "$1");
                     } else {

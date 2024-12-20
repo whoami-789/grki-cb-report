@@ -78,6 +78,8 @@ public class SaveContractService {
             ClaimDTO claimDTO = new ClaimDTO();
 //            claimDTO.setClaim_guid("0");
             claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
+
+
             String cleanedNumdog = "";
             if (kredit.getNumdog().contains("/2024")) {
                 cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
