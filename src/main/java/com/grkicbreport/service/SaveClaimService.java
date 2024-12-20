@@ -2,10 +2,12 @@ package com.grkicbreport.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.grkicbreport.components.InformHelper;
 import com.grkicbreport.dto.CreditorDTO;
 import com.grkicbreport.dto.saveClaim.*;
 import com.grkicbreport.model.AzolikFiz;
 import com.grkicbreport.model.AzolikYur;
+import com.grkicbreport.model.Inform;
 import com.grkicbreport.model.Kredit;
 import com.grkicbreport.repository.AzolikFizRepository;
 import com.grkicbreport.repository.AzolikYurRepository;
@@ -31,14 +33,16 @@ public class SaveClaimService {
     private final KreditRepository kreditRepository;
     private final RestTemplate restTemplate;
     private static final Logger logger = Logger.getLogger(SaveClaimService.class.getName());
+    private final InformHelper informHelper;
 
 
 
-    public SaveClaimService(AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository, KreditRepository kreditRepository, RestTemplate restTemplate) {
+    public SaveClaimService(AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository, KreditRepository kreditRepository, RestTemplate restTemplate, InformHelper informHelper) {
         this.azolikFizRepository = azolikFizRepository;
         this.azolikYurRepository = azolikYurRepository;
         this.kreditRepository = kreditRepository;
         this.restTemplate = restTemplate;
+        this.informHelper = informHelper;
     }
 
 
@@ -46,6 +50,7 @@ public class SaveClaimService {
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
 
+        Inform inform = informHelper.fetchSingleRow();
 
         if (kreditList.isEmpty()) {
             throw new IllegalArgumentException("Кредит с таким номером не найден.");
@@ -67,7 +72,7 @@ public class SaveClaimService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("06005");
+            creditorDTO.setCode(inform.getNumks());
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
@@ -146,7 +151,7 @@ public class SaveClaimService {
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("6005");
+            creditorDTO.setCode(inform.getNumks());
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
@@ -204,13 +209,14 @@ public class SaveClaimService {
 
     public ResponseEntity<String> sendSaveClaim(String contractNumber) {
         saveClaimDTO dto = createClaim(contractNumber);
+        Inform inform = informHelper.fetchSingleRow();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Добавляем заголовки login и password
-        headers.set("Login", "NK06005");
-        headers.set("Password", "75C75FCE1B53ADDF6C52F96C32555B12");
+
+        headers.set("Login", "NK" + inform.getNumks());
+        headers.set("Password", inform.getGrki_password());
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Включить null значения в JSON

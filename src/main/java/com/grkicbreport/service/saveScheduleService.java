@@ -2,9 +2,11 @@ package com.grkicbreport.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.grkicbreport.components.InformHelper;
 import com.grkicbreport.dto.CreditorDTO;
 import com.grkicbreport.dto.saveSchedule.saveScheduleDTO;
 import com.grkicbreport.model.Grafik;
+import com.grkicbreport.model.Inform;
 import com.grkicbreport.model.Kredit;
 import com.grkicbreport.repository.GrafikRepository;
 import com.grkicbreport.repository.KreditRepository;
@@ -29,11 +31,13 @@ public class saveScheduleService {
     private final KreditRepository kreditRepository;
     private final GrafikRepository grafikRepository;
     private static final Logger logger = Logger.getLogger(saveScheduleService.class.getName());
+    private final InformHelper informHelper;
 
-    public saveScheduleService(RestTemplate restTemplate, KreditRepository kreditRepository, GrafikRepository grafikRepository) {
+    public saveScheduleService(RestTemplate restTemplate, KreditRepository kreditRepository, GrafikRepository grafikRepository, InformHelper informHelper) {
         this.restTemplate = restTemplate;
         this.kreditRepository = kreditRepository;
         this.grafikRepository = grafikRepository;
+        this.informHelper = informHelper;
     }
 
     public saveScheduleDTO createSchedule(String contractNumber) {
@@ -48,6 +52,7 @@ public class saveScheduleService {
             throw new IllegalArgumentException("График с таким номером не найден.");
         }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        Inform inform = informHelper.fetchSingleRow();
 
         Kredit kredit = kreditList.get();
 
@@ -58,7 +63,7 @@ public class saveScheduleService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("06005");
+            creditorDTO.setCode(inform.getNumks());
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -103,9 +108,11 @@ public class saveScheduleService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
+        Inform inform = informHelper.fetchSingleRow();
+
         // Добавляем заголовки login и password
-        headers.set("Login", "NK06005");
-        headers.set("Password", "75C75FCE1B53ADDF6C52F96C32555B12");
+        headers.set("Login", "NK" + inform.getNumks());
+        headers.set("Password", inform.getGrki_password());
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output

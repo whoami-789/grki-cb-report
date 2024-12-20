@@ -2,9 +2,11 @@ package com.grkicbreport.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.grkicbreport.components.InformHelper;
 import com.grkicbreport.dto.CreditorDTO;
 import com.grkicbreport.dto.saveCourtDecision.saveCourtDecisionDTO;
 import com.grkicbreport.dto.setStateToLitigation.setStateToLitigationDTO;
+import com.grkicbreport.model.Inform;
 import com.grkicbreport.model.Kredit;
 import com.grkicbreport.repository.KreditRepository;
 import org.springframework.http.HttpEntity;
@@ -22,10 +24,12 @@ import java.util.Optional;
 public class saveCourtDecisionService {
     private final RestTemplate restTemplate;
     private final KreditRepository kreditRepository;
+    private final InformHelper informHelper;
 
-    public saveCourtDecisionService(RestTemplate restTemplate, KreditRepository kreditRepository) {
+    public saveCourtDecisionService(RestTemplate restTemplate, KreditRepository kreditRepository, InformHelper informHelper) {
         this.restTemplate = restTemplate;
         this.kreditRepository = kreditRepository;
+        this.informHelper = informHelper;
     }
 
     public saveCourtDecisionDTO createCourtDecide(String contractNumber, String type,
@@ -40,6 +44,7 @@ public class saveCourtDecisionService {
 
 
         Kredit kredit = kreditList.get();
+        Inform inform = informHelper.fetchSingleRow();
 
         try {
             saveCourtDecisionDTO dto = new saveCourtDecisionDTO();
@@ -48,7 +53,7 @@ public class saveCourtDecisionService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("06005");
+            creditorDTO.setCode(inform.getNumks());
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -83,9 +88,11 @@ public class saveCourtDecisionService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
+        Inform inform = informHelper.fetchSingleRow();
+
         // Добавляем заголовки login и password
-        headers.set("Login", "NK06005");
-        headers.set("Password", "75C75FCE1B53ADDF6C52F96C32555B12");
+        headers.set("Login", "NK" + inform.getNumks());
+        headers.set("Password", inform.getGrki_password());
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output

@@ -74,6 +74,23 @@ public class MainController {
         return saveScheduleService.sendSaveSchedule(requestDTO.getContractNumber());
     }
 
+    @PostMapping("/get-setStateToLitigation")
+    public ResponseEntity<String> setStateToLitigation(@RequestBody RequestDTO requestDTO) {
+        return setStateToLitigationService.sendSetStateToLitigation(requestDTO.getContractNumber(), requestDTO.getDecide_number(),
+                requestDTO.getDecide_date(), requestDTO.getConclusion(), requestDTO.getSend_date());
+    }
+
+    @PostMapping("/get-saveCourtDecision")
+    public ResponseEntity<String> saveCourtDecision(@RequestBody RequestDTO requestDTO) {
+        return saveCourtDecisionService.sendSaveCourtDecision(requestDTO.getContractNumber(), requestDTO.getType(),
+                requestDTO.getNumber(), requestDTO.getDate());
+    }
+
+    @PostMapping("/get-setStateToClose")
+    public ResponseEntity<String> setStateToClose(@RequestBody RequestDTO requestDTO) {
+        return setStateToCloseService.sendSetStateToClose(requestDTO.getContractNumber());
+    }
+
     @GetMapping("/send-save-info")
     public ResponseEntity<String> sendSaveInfo(
             @RequestParam String id,

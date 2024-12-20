@@ -2,14 +2,12 @@ package com.grkicbreport.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.grkicbreport.components.InformHelper;
 import com.grkicbreport.dto.CreditorDTO;
 import com.grkicbreport.dto.saveProvision.ContractDTO;
 import com.grkicbreport.dto.saveProvision.ProvisionsDTO;
 import com.grkicbreport.dto.saveProvision.saveProvisionDTO;
-import com.grkicbreport.model.AzolikFiz;
-import com.grkicbreport.model.AzolikYur;
-import com.grkicbreport.model.Kredit;
-import com.grkicbreport.model.Zalog;
+import com.grkicbreport.model.*;
 import com.grkicbreport.repository.AzolikFizRepository;
 import com.grkicbreport.repository.AzolikYurRepository;
 import com.grkicbreport.repository.KreditRepository;
@@ -37,14 +35,16 @@ public class SaveProvisionService {
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
     private static final Logger logger = Logger.getLogger(SaveProvisionService.class.getName());
+    private final InformHelper informHelper;
 
 
-    public SaveProvisionService(RestTemplate restTemplate, KreditRepository kreditRepository, ZalogRepository zalogRepository, AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository) {
+    public SaveProvisionService(RestTemplate restTemplate, KreditRepository kreditRepository, ZalogRepository zalogRepository, AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository, InformHelper informHelper) {
         this.restTemplate = restTemplate;
         this.kreditRepository = kreditRepository;
         this.zalogRepository = zalogRepository;
         this.azolikFizRepository = azolikFizRepository;
         this.azolikYurRepository = azolikYurRepository;
+        this.informHelper = informHelper;
     }
 
     public saveProvisionDTO createProvision(String contractNumber, String provisionNumber,
@@ -54,6 +54,7 @@ public class SaveProvisionService {
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         Optional<Zalog> zalogList = zalogRepository.findByNumdog(contractNumber);
+        Inform inform = informHelper.fetchSingleRow();
 
         if (kreditList.isEmpty()) {
             throw new IllegalArgumentException("Кредит с таким номером не найден.");
@@ -76,7 +77,7 @@ public class SaveProvisionService {
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
-            creditorDTO.setCode("06005");
+            creditorDTO.setCode(inform.getNumks());
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
@@ -175,8 +176,8 @@ public class SaveProvisionService {
                         vehicle.setPledge_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
                         vehicle.setEstimate_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
                         vehicle.setCountry("860");
-                        vehicle.setEstimate_inn("300469626");
-                        vehicle.setEstimate_name("KAFOLATLI SARMOYA MIKROMOLIYA TASHKILOTI");
+                        vehicle.setEstimate_inn(inform.getInn());
+                        vehicle.setEstimate_name(inform.getName());
                         vehicle.setEstimate_date(kredit.getDatadog().format(formatter));
                         vehicle.setEngine_number(engineNumber);
                         vehicle.setBody_number(bodyNumber);
@@ -225,9 +226,11 @@ public class SaveProvisionService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
+        Inform inform = informHelper.fetchSingleRow();
+
         // Добавляем заголовки login и password
-        headers.set("Login", "NK06005");
-        headers.set("Password", "75C75FCE1B53ADDF6C52F96C32555B12");
+        headers.set("Login", "NK" + inform.getNumks());
+        headers.set("Password", inform.getGrki_password());
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output
