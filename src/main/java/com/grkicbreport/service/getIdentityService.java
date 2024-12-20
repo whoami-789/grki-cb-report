@@ -39,8 +39,12 @@ public class getIdentityService {
             // Создаем и заполняем DTO
             getInformationDTO dto = new getInformationDTO();
 
-            String cleanedNumdog = id.replaceAll("[-KК/\\\\]", "");
-
+            String cleanedNumdog = "";
+            if (id.contains("/2024")) {
+                cleanedNumdog = id.replaceAll("^([0-9]+).*", "$1");
+            } else {
+                cleanedNumdog = id.replaceAll("[-KК/\\\\.]", "");
+            }
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
