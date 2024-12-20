@@ -77,8 +77,12 @@ public class SaveClaimService {
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
-            claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
+            String cleanedNumdog = "";
+            if (kredit.getNumdog().contains("/2024")) {
+                cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
+            } else {
+                cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
+            }            claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
             claimDTO.setDate(LocalDate.now().format(formatter));
@@ -101,7 +105,6 @@ public class SaveClaimService {
             BorrowerDTO borrowerDTO = new BorrowerDTO();
             borrowerDTO.setResident("1");
             borrowerDTO.setPinfl(azolikFiz.getKodPension().replaceAll("\\s", ""));
-            borrowerDTO.setInn(azolikFiz.getInn().replaceAll("\\s", ""));
             borrowerDTO.setNibbd_code(azolikFiz.getKodchlen().replaceAll("\\s", ""));
             borrowerDTO.setSecond_name(azolikFiz.getFam().replaceAll("\\s", ""));
             borrowerDTO.setFirst_name(azolikFiz.getImya().replaceAll("\\s", ""));

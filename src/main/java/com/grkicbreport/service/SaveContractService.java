@@ -208,7 +208,7 @@ public class SaveContractService {
                 } else if ("0".equals(success)) {
                     // Если код успеха равен 0, проверяем наличие ошибки 24023
                     boolean isDuplicateError = responseBody.getAnswer().getErrors().stream()
-                            .anyMatch(error -> "24029".equals(error.getCode()));
+                            .anyMatch(error -> "24029".equals(error.getCode()) || "24033".equals(error.getCode())|| "24039".equals(error.getCode()));
 
                     if (isDuplicateError) {
                         String sendInfoUrl = "http://localhost:5051/api/grki/send-save-info?id=" + kredit.getNumdog() + "&type=2";
