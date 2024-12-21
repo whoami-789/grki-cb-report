@@ -74,12 +74,8 @@ public class SaveContractService {
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
-            String cleanedNumdog = "";
-            if (kredit.getNumdog().contains("/2024")) {
-                cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
-            } else {
-                cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
-            }
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
+
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setClaim(claimDTO);

@@ -35,7 +35,7 @@ public class FileGeneratorService {
     private final AzolikYurRepository azolikYurRepository;
     private final InformHelper informHelper;
     private final String[] balValues = {"12401", "12405", "12409", "12499", "12501", "14801", "14899", "15701"};
-    private static final String FOLDER_PATH = "C:/Users/Nilufar Asilbek/Desktop/GRKI"; // Укажите здесь вашу папку
+    private static final String FOLDER_PATH = "C:/Users/Comford invest/Desktop/GRKI"; // Укажите здесь вашу папку
 
 
     @Autowired
@@ -184,7 +184,7 @@ public class FileGeneratorService {
 
                     if (!(record.getBal().startsWith("12499") || record.getBal().startsWith("12507"))) {
                         if (!(getGRKIId == null)) {
-                            String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-KК/\\\\]", "").trim();
+                            String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-KК/\\\\.]", "");
 
 
                             // Формируем строку для записи
@@ -232,7 +232,7 @@ public class FileGeneratorService {
 
                     AzolikFiz fiz = azolikFiz.orElse(null);
                     AzolikYur yur = azolikYur.orElse(null);
-                    String cleanedNumdog = extractedCode.replaceAll("[-KК/\\\\]", "").trim();
+                    String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
 
                     String lsKod = "";
 
