@@ -11,6 +11,7 @@ public class KreditDTO {
     private BigDecimal summa;
     private String grkiClaimId;
     private String grkiContractId;
+    private LocalDate dats_zakr;
 
     public KreditDTO() {
     }
@@ -39,6 +40,10 @@ public class KreditDTO {
         return this.grkiContractId;
     }
 
+    public LocalDate getDats_zakr() {
+        return this.dats_zakr;
+    }
+
     public void setKod(String kod) {
         this.kod = kod;
     }
@@ -61,6 +66,10 @@ public class KreditDTO {
 
     public void setGrkiContractId(String grkiContractId) {
         this.grkiContractId = grkiContractId;
+    }
+
+    public void setDats_zakr(LocalDate dats_zakr) {
+        this.dats_zakr = dats_zakr;
     }
 
     public boolean equals(final Object o) {
@@ -88,6 +97,9 @@ public class KreditDTO {
         final Object other$grkiContractId = other.getGrkiContractId();
         if (this$grkiContractId == null ? other$grkiContractId != null : !this$grkiContractId.equals(other$grkiContractId))
             return false;
+        final Object this$dats_zakr = this.getDats_zakr();
+        final Object other$dats_zakr = other.getDats_zakr();
+        if (this$dats_zakr == null ? other$dats_zakr != null : !this$dats_zakr.equals(other$dats_zakr)) return false;
         return true;
     }
 
@@ -110,10 +122,12 @@ public class KreditDTO {
         result = result * PRIME + ($grkiClaimId == null ? 43 : $grkiClaimId.hashCode());
         final Object $grkiContractId = this.getGrkiContractId();
         result = result * PRIME + ($grkiContractId == null ? 43 : $grkiContractId.hashCode());
+        final Object $dats_zakr = this.getDats_zakr();
+        result = result * PRIME + ($dats_zakr == null ? 43 : $dats_zakr.hashCode());
         return result;
     }
 
     public String toString() {
-        return "KreditDTO(kod=" + this.getKod() + ", numdog=" + this.getNumdog() + ", datadog=" + this.getDatadog() + ", summa=" + this.getSumma() + ", grkiClaimId=" + this.getGrkiClaimId() + ", grkiContractId=" + this.getGrkiContractId() + ")";
+        return "KreditDTO(kod=" + this.getKod() + ", numdog=" + this.getNumdog() + ", datadog=" + this.getDatadog() + ", summa=" + this.getSumma() + ", grkiClaimId=" + this.getGrkiClaimId() + ", grkiContractId=" + this.getGrkiContractId() + ", dats_zakr=" + this.getDats_zakr() + ")";
     }
 }
