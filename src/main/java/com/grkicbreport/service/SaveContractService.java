@@ -74,7 +74,12 @@ public class SaveContractService {
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
+            String cleanedNumdog = "";
+            if (kredit.getNumdog().contains("/2024")) {
+                cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
+            } else {
+                cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
+            }
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setClaim(claimDTO);
@@ -198,7 +203,7 @@ public class SaveContractService {
                 } else if ("0".equals(success)) {
                     // Если код успеха равен 0, проверяем наличие ошибки 24023
                     boolean isDuplicateError = responseBody.getAnswer().getErrors().stream()
-                            .anyMatch(error -> "24029".equals(error.getCode()));
+                            .anyMatch(error -> "24029".equals(error.getCode()) || "24033".equals(error.getCode())|| "24039".equals(error.getCode()));
 
                     if (isDuplicateError) {
                         String sendInfoUrl = "http://localhost:5051/api/grki/send-save-info?id=" + kredit.getNumdog() + "&type=2";

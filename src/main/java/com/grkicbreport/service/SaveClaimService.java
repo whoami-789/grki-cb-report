@@ -36,7 +36,6 @@ public class SaveClaimService {
     private final InformHelper informHelper;
 
 
-
     public SaveClaimService(AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository, KreditRepository kreditRepository, RestTemplate restTemplate, InformHelper informHelper) {
         this.azolikFizRepository = azolikFizRepository;
         this.azolikYurRepository = azolikYurRepository;
@@ -77,7 +76,12 @@ public class SaveClaimService {
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
+            String cleanedNumdog = "";
+            if (kredit.getNumdog().contains("/2024")) {
+                cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
+            } else {
+                cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
+            }
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
@@ -283,7 +287,6 @@ public class SaveClaimService {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Неизвестная ошибка при обработке запроса.");
     }
-
 
 
 }
