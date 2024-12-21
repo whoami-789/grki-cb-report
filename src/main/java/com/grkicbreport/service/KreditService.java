@@ -3,6 +3,9 @@ package com.grkicbreport.service;
 import com.grkicbreport.dto.KreditDTO;
 import com.grkicbreport.model.Kredit;
 import com.grkicbreport.repository.KreditRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,11 +20,20 @@ public class KreditService {
         this.kreditRepository = kreditRepository;
     }
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public List<KreditDTO> findCreditsByStatus() {
-        List<Kredit> kredits = kreditRepository.findAll();
+        // Выполняем нативный SQL-запрос
+        String sql = "SELECT * FROM kredit WHERE dats_zakr IS NULL";
+        Query query = entityManager.createNativeQuery(sql, Kredit.class);
+
+        // Приводим результат к списку объектов Kredit
+        List<Kredit> kredits = query.getResultList();
+
+        // Конвертируем в DTO
         return kredits.stream()
                 .map(this::convertToDTO)
-                .filter(a -> a.getDats_zakr() == null)
                 .collect(Collectors.toList());
     }
 
