@@ -7,7 +7,7 @@ public class CodeExtractor {
 
     public static String extractCode(String input) {
         // Регулярное выражение для поиска чисел с необязательной буквой К или K после №
-        String regex = "№\\s*(\\d+[КK]?)";
+        String regex = "№\\s*(\\d+[КK]?(?:/\\d+)?)";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
 
@@ -18,3 +18,4 @@ public class CodeExtractor {
         return null; // Код не найден
     }
 }
+

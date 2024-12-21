@@ -184,7 +184,7 @@ public class FileGeneratorService {
 
                     if (!(record.getBal().startsWith("12499") || record.getBal().startsWith("12507"))) {
                         if (!(getGRKIId == null)) {
-                            String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-KК/\\\\]", "").trim();
+                            String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-KК/\\\\.]", "");
 
 
                             // Формируем строку для записи
@@ -232,7 +232,8 @@ public class FileGeneratorService {
 
                     AzolikFiz fiz = azolikFiz.orElse(null);
                     AzolikYur yur = azolikYur.orElse(null);
-                    String cleanedNumdog = extractedCode.replaceAll("[-KК/\\\\]", "").trim();
+                    String cleanedNumdog = extractedCode.replaceAll("[-KК/\\\\.]", "");
+
 
                     String lsKod = "";
 

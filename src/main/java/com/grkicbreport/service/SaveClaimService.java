@@ -76,12 +76,8 @@ public class SaveClaimService {
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            String cleanedNumdog = "";
-            if (kredit.getNumdog().contains("/2024")) {
-                cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
-            } else {
-                cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
-            }
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[КK/]", "");
+
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
@@ -161,12 +157,9 @@ public class SaveClaimService {
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaim_guid("");
-            String cleanedNumdog = "";
-            if (kredit.getNumdog().contains("/2024")) {
-                cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
-            } else {
-                cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
-            }
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[КK/]", "");
+            System.out.println("Обработанный номер: " + cleanedNumdog);
+
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");

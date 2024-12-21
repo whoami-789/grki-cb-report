@@ -58,12 +58,8 @@ public class setStateToLitigationService {
 
             setStateToLitigationDTO.Contract contract = new setStateToLitigationDTO.Contract();
             contract.setContract_guid(kredit.getGrkiContractId());
-            String cleanedNumdog = "";
-            if (kredit.getNumdog().contains("/2024")) {
-                cleanedNumdog = kredit.getNumdog().replaceAll("^([0-9]+).*", "$1");
-            } else {
-                cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
-            }
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[КK/]", "");
+
             contract.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contract);
 
