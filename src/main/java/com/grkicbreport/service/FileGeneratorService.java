@@ -184,7 +184,7 @@ public class FileGeneratorService {
                             .orElse(BigDecimal.ZERO);
 
                     if (!(record.getBal().startsWith("12499") || record.getBal().startsWith("12507"))) {
-                        if (getGRKIId != null && !((getGRKIId.getGrkiContractId() == null) || (getGRKIId.getGrkiContractId() == "0") || (getGRKIId.getGrkiContractId().isEmpty()))) {
+                        if (getGRKIId != null && getGRKIId.getGrkiContractId() != null) {
                             String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-KК/\\\\]", "").trim();
 
 
@@ -205,6 +205,7 @@ public class FileGeneratorService {
                             writer008.flush();
                             logger.info("Записана строка в .008 файл: " + line008);
                         }
+
                     }
                 }
             }
@@ -361,7 +362,7 @@ public class FileGeneratorService {
                                     (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10509") ||
                                             (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101") ||
                                                     (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101")))))))) {
-                        if (!((kredit.getGrkiContractId() == null) || (kredit.getGrkiContractId() == "0") || (kredit.getGrkiContractId().isEmpty()))) {
+                        if (kredit.getGrkiContractId() != null) {
 
                             if (dok.getNazn().startsWith("Выдача")) {
 
@@ -531,6 +532,7 @@ public class FileGeneratorService {
                             }
                         }
                     }
+
                 });
 
 
