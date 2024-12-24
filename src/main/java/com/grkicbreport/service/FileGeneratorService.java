@@ -173,7 +173,10 @@ public class FileGeneratorService {
                             .map(Dok::getSums) // Получаем поле `sums` из каждого объекта
                             .filter(Objects::nonNull) // Убираем возможные null значения
                             .reduce(BigDecimal.ZERO, BigDecimal::add); // Суммируем все значения
-                    BigDecimal kreditSum = (lsKredit != null && lsKredit.getSums() != null) ? lsKredit.getSums() : BigDecimal.ZERO;
+                    BigDecimal kreditSum = ls.isEmpty() ? BigDecimal.ZERO : ls.stream()
+                            .map(Dok::getSums) // Получаем поле `sums` из каждого объекта
+                            .filter(Objects::nonNull) // Убираем возможные null значения
+                            .reduce(BigDecimal.ZERO, BigDecimal::add); // Суммируем все значения
 
                     // Находим значение дебета за предыдущий день
                     BigDecimal previousDayDeb = previousDataList.stream()
