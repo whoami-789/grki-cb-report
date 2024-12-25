@@ -35,7 +35,7 @@ public class FileGeneratorService {
     private final AzolikYurRepository azolikYurRepository;
     private final InformHelper informHelper;
     private final String[] balValues = {"12401", "12405", "12409", "12499", "12501", "14801", "14899", "15701"};
-    private static final String FOLDER_PATH = "C:/Users/Javlon Javohir/Desktop/GRKI"; // Укажите здесь вашу папку
+    private static final String FOLDER_PATH = "C:/Users/user/Desktop/GRKI"; // Укажите здесь вашу папку
 
 
     @Autowired
@@ -191,7 +191,7 @@ public class FileGeneratorService {
                             String line008 = dateStringReverse + separator +
                                     "03" + separator +
                                     inform.getNumks() + separator +
-                                    ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
+                                    ((getGRKIId != null && getGRKIId.getGrkiContractId().replaceAll(" ", "") != null) ? getGRKIId.getGrkiContractId().replaceAll(" ", "") : "0") + separator +
                                     cleanedNumdog + separator +
                                     record.getBal() + separator +
                                     previousDayDeb.intValue() + separator +
@@ -367,7 +367,7 @@ public class FileGeneratorService {
                                 String line009 = dateStringReverse + separator +
                                         "03" + separator +
                                         inform.getNumks() + separator +
-                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                        ((kredit != null && kredit.getGrkiContractId().replaceAll(" ", "") != null) ? kredit.getGrkiContractId().replaceAll(" ", "") : "0") + separator +
                                         cleanedNumdog + separator +
                                         dok.getKod().intValue() + separator +
                                         "0103" + separator +
@@ -398,7 +398,7 @@ public class FileGeneratorService {
                                 String line009 = dateStringReverse + separator +
                                         "03" + separator +
                                         inform.getNumks() + separator +
-                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                        ((kredit != null && kredit.getGrkiContractId().replaceAll(" ", "") != null) ? kredit.getGrkiContractId().replaceAll(" ", "") : "0") + separator +
                                         cleanedNumdog + separator +
                                         dok.getKod().intValue() + separator +
                                         "0103" + separator +
@@ -468,7 +468,7 @@ public class FileGeneratorService {
                                 String line009 = dateStringReverse + separator +
                                         "03" + separator +
                                         inform.getNumks() + separator +
-                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                        ((kredit != null && kredit.getGrkiContractId().replaceAll(" ", "") != null) ? kredit.getGrkiContractId().replaceAll(" ", "") : "0") + separator +
                                         cleanedNumdog + separator +
                                         dok.getKod().intValue() + separator +
                                         typeOption + separator +
@@ -498,7 +498,7 @@ public class FileGeneratorService {
                                 String line009 = dateStringReverse + separator +
                                         "03" + separator +
                                         inform.getNumks() + separator +
-                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                        ((kredit != null && kredit.getGrkiContractId().replaceAll(" ", "") != null) ? kredit.getGrkiContractId().replaceAll(" ", "") : "0") + separator +
                                         cleanedNumdog + separator +
                                         dok.getKod().intValue() + separator +
                                         typeOption + separator +
