@@ -183,7 +183,7 @@ public class FileGeneratorService {
                             .orElse(BigDecimal.ZERO);
 
                     if (!(record.getBal().startsWith("12499") || record.getBal().startsWith("12507"))) {
-                        if (!(getGRKIId == null)) {
+                        if (!(getGRKIId == null) && getGRKIId.getGrkiContractId() != null) {
                             String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-KК/\\\\.]", "");
 
 
@@ -191,8 +191,8 @@ public class FileGeneratorService {
                             String line008 = dateStringReverse + separator +
                                     "03" + separator +
                                     inform.getNumks() + separator +
-                                    ((getGRKIId != null && getGRKIId.getGrkiContractId().replaceAll(" ", "") != null) ? getGRKIId.getGrkiContractId().replaceAll(" ", "") : "0") + separator +
-                                    cleanedNumdog + separator +
+                                    ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
+                                    cleanedNumdog.replaceAll(" ", "") + separator +
                                     record.getBal() + separator +
                                     previousDayDeb.intValue() + separator +
                                     debitSum.intValue() + separator +
@@ -367,8 +367,8 @@ public class FileGeneratorService {
                                 String line009 = dateStringReverse + separator +
                                         "03" + separator +
                                         inform.getNumks() + separator +
-                                        ((kredit != null && kredit.getGrkiContractId().replaceAll(" ", "") != null) ? kredit.getGrkiContractId().replaceAll(" ", "") : "0") + separator +
-                                        cleanedNumdog + separator +
+                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                        cleanedNumdog.replaceAll(" ", "") + separator +
                                         dok.getKod().intValue() + separator +
                                         "0103" + separator +
                                         "1" + separator +
@@ -398,8 +398,8 @@ public class FileGeneratorService {
                                 String line009 = dateStringReverse + separator +
                                         "03" + separator +
                                         inform.getNumks() + separator +
-                                        ((kredit != null && kredit.getGrkiContractId().replaceAll(" ", "") != null) ? kredit.getGrkiContractId().replaceAll(" ", "") : "0") + separator +
-                                        cleanedNumdog + separator +
+                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                        cleanedNumdog.replaceAll(" ", "") + separator +
                                         dok.getKod().intValue() + separator +
                                         "0103" + separator +
                                         "1" + separator +
@@ -468,8 +468,8 @@ public class FileGeneratorService {
                                 String line009 = dateStringReverse + separator +
                                         "03" + separator +
                                         inform.getNumks() + separator +
-                                        ((kredit != null && kredit.getGrkiContractId().replaceAll(" ", "") != null) ? kredit.getGrkiContractId().replaceAll(" ", "") : "0") + separator +
-                                        cleanedNumdog + separator +
+                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                        cleanedNumdog.replaceAll(" ", "") + separator +
                                         dok.getKod().intValue() + separator +
                                         typeOption + separator +
                                         nalCard + separator +
@@ -498,8 +498,8 @@ public class FileGeneratorService {
                                 String line009 = dateStringReverse + separator +
                                         "03" + separator +
                                         inform.getNumks() + separator +
-                                        ((kredit != null && kredit.getGrkiContractId().replaceAll(" ", "") != null) ? kredit.getGrkiContractId().replaceAll(" ", "") : "0") + separator +
-                                        cleanedNumdog + separator +
+                                        ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
+                                        cleanedNumdog.replaceAll(" ", "") + separator +
                                         dok.getKod().intValue() + separator +
                                         typeOption + separator +
                                         nalCard + separator +
