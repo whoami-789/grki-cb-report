@@ -157,7 +157,6 @@ public class FileGeneratorService {
                         System.err.println("Код не найден для " + record.getNamer());
                         continue;
                     }
-
                     extractedCode = extractedCode.replaceFirst("^№\\s*", "");
 
                     // Проверяем наличие записи в таблице Kredit
