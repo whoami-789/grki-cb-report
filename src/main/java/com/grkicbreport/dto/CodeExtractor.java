@@ -7,7 +7,7 @@ public class CodeExtractor {
 
     public static String extractCode(String input) {
         // Регулярное выражение для поиска кода в строке
-        String regex = "\\b\\d+\\b"; // Находит последовательности цифр, окруженные границами слова
+        String regex = "\\d+[A-Za-zА-Яа-я]+/\\d{4}";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
 
