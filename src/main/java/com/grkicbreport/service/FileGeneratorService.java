@@ -170,12 +170,14 @@ public class FileGeneratorService {
                     Dok lsDebit = lscor.isEmpty() ? null : lscor.get(0);
 
                     BigDecimal debitSum = lscor.isEmpty() ? BigDecimal.ZERO : lscor.stream()
+                            .filter(a -> a.getSost() == 3)
                             .map(Dok::getSums) // Получаем поле `sums` из каждого объекта
                             .filter(Objects::nonNull) // Убираем возможные null значения
                             .reduce(BigDecimal.ZERO, BigDecimal::add); // Суммируем все значения
                     BigDecimal kreditSum = ls.isEmpty() ? BigDecimal.ZERO : ls.stream()
+                            .filter(a -> a.getSost() == 3)
                             .map(Dok::getSums) // Получаем поле `sums` из каждого объекта
-                            .filter(Objects::nonNull) // Убираем возможные null значения
+                            .filter(Objects::nonNull)// Убираем возможные null значения
                             .reduce(BigDecimal.ZERO, BigDecimal::add); // Суммируем все значения
 
                     // Находим значение дебета за предыдущий день
@@ -249,6 +251,10 @@ public class FileGeneratorService {
                     } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("14801")) {
                         lsKod = "01007";
                     } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("12501")) {
+                        lsKod = "01007";
+                    } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("16307")) {
+                        lsKod = "01007";
+                    } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("16377")) {
                         lsKod = "01007";
                     }
                     // dic 060 -> 01008
@@ -361,8 +367,7 @@ public class FileGeneratorService {
                     if (!((dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10509") ||
                             (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509") ||
                                     (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10509") ||
-                                            (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101") ||
-                                                    (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101")))))))) {
+                                                    (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101"))))))) {
                         if (dok.getNazn().startsWith("Выдача")) {
 
                             if (fiz == null) {
@@ -455,11 +460,11 @@ public class FileGeneratorService {
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0403";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509")) {
-                                typeOption = "0400";
+                                typeOption = "0401";
                             } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0419";
                             } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
-                                typeOption = "0400";
+                                typeOption = "0401";
                             } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0407";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
