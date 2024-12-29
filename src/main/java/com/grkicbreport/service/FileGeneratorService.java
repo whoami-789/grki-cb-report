@@ -178,12 +178,16 @@ public class FileGeneratorService {
                     BigDecimal kreditSum = (lsKredit != null && lsKredit.getSums() != null) ? lsKredit.getSums() : BigDecimal.ZERO;
 
                     // Находим значение дебета за предыдущий день
-                    String finalExtractedCode = extractedCode;
+                    String finalExtractedCode = extractedCode.trim();
                     BigDecimal previousDayDeb = previousDataList.stream()
-                            .filter(prevRecord -> finalExtractedCode.equals(CodeExtractor.extractCode(prevRecord.getNamer())))
+                            .filter(prevRecord -> finalExtractedCode.equals(
+                                    CodeExtractor.extractCode(prevRecord.getNamer()).replace("№ ", "").trim()))
                             .map(Analiz_schetDTO::getDeb)
                             .findFirst()
                             .orElse(BigDecimal.ZERO);
+
+
+
 
                     if (!(record.getBal().startsWith("12499") || record.getBal().startsWith("12507"))) {
                         if (getGRKIId != null && getGRKIId.getGrkiContractId() != null) {
@@ -229,13 +233,17 @@ public class FileGeneratorService {
                     System.err.println("Код не найден для " + dok.getNazn());
                     continue;
                 }
+
+                extractedCode = extractedCode.replaceFirst("^№\\s*", "");
+
+                String finalExtractedCode = extractedCode;
                 kreditRepository.findByNumdog(extractedCode).ifPresent(kredit -> {
                     Optional<AzolikFiz> azolikFiz = azolikFizRepository.findByKodchlen(kredit.getKod());
                     Optional<AzolikYur> azolikYur = azolikYurRepository.findByKodchlen(kredit.getKod());
 
                     AzolikFiz fiz = azolikFiz.orElse(null);
                     AzolikYur yur = azolikYur.orElse(null);
-                    String cleanedNumdog = extractedCode.replaceAll("[-KК/\\\\]", "").trim();
+                    String cleanedNumdog = finalExtractedCode.replaceAll("[-KК/\\\\]", "").trim();
 
                     String lsKod = "";
 
