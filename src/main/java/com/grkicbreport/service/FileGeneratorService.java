@@ -356,6 +356,8 @@ public class FileGeneratorService {
                         lsKod = "01019";
                     } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10509")) {
                         lsKod = "01019";
+                    } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
+                        lsKod = "01019";
                     }
                     // dic 060 -> 01020
                     else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("42001")) {
@@ -464,7 +466,7 @@ public class FileGeneratorService {
                             } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0419";
                             } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
-                                typeOption = "0401";
+                                typeOption = "0417";
                             } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0407";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
