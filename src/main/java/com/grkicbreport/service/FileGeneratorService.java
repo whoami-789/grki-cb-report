@@ -192,7 +192,7 @@ public class FileGeneratorService {
                                     "03" + separator +
                                     inform.getNumks() + separator +
                                     ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
-                                    cleanedNumdog + separator +
+                                    cleanedNumdog.trim() + separator +
                                     record.getBal() + separator +
                                     previousDayDeb.intValue() + separator +
                                     debitSum.intValue() + separator +
@@ -369,7 +369,7 @@ public class FileGeneratorService {
                                         "03" + separator +
                                         inform.getNumks() + separator +
                                         ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
-                                        cleanedNumdog + separator +
+                                        cleanedNumdog.trim() + separator +
                                         dok.getKod().intValue() + separator +
                                         "0103" + separator +
                                         "1" + separator +
@@ -400,7 +400,7 @@ public class FileGeneratorService {
                                         "03" + separator +
                                         inform.getNumks() + separator +
                                         ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
-                                        cleanedNumdog + separator +
+                                        cleanedNumdog.trim() + separator +
                                         dok.getKod().intValue() + separator +
                                         "0103" + separator +
                                         "1" + separator +
@@ -470,7 +470,7 @@ public class FileGeneratorService {
                                             "03" + separator +
                                             inform.getNumks() + separator +
                                             ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
-                                            cleanedNumdog + separator +
+                                            cleanedNumdog.trim() + separator +
                                             dok.getKod().intValue() + separator +
                                             typeOption + separator +
                                             nalCard + separator +
@@ -500,7 +500,7 @@ public class FileGeneratorService {
                                             "03" + separator +
                                             inform.getNumks() + separator +
                                             ((kredit != null && kredit.getGrkiContractId() != null) ? kredit.getGrkiContractId() : "0") + separator +
-                                            cleanedNumdog + separator +
+                                            cleanedNumdog.trim() + separator +
                                             dok.getKod().intValue() + separator +
                                             typeOption + separator +
                                             nalCard + separator +
