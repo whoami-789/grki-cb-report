@@ -446,15 +446,29 @@ public class FileGeneratorService {
                             }
 
                             if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10509")) {
-                                typeOption = "0302";
+                                typeOption = "0313";
+                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10503")) {
+                                typeOption = "0313";
                             } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0303";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0303";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10503")) {
+                                typeOption = "0313";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10509")) {
+                                typeOption = "0313";
                             } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10509")) {
                                 typeOption = "0303";
                             } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0307";
                             } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10509")) {
                                 typeOption = "0307";
+                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0315";
+                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10509")) {
+                                typeOption = "0313";
+                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10503")) {
+                                typeOption = "0313";
                             } else if (dok.getLs().startsWith("12409")) {
                                 typeOption = "0312";
                             } else if (dok.getLs().startsWith("12501")) {
