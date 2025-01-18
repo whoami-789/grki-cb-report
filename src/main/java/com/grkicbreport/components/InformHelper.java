@@ -44,8 +44,9 @@ public class InformHelper {
             case "mlId" -> inform.getNumks();
             case "director" -> inform.getFioDirektor();
             case "grki_password" -> inform.getGrki_password();
+            case "grki_file_path" -> inform.getGrki_password();
+            case "inn" -> inform.getInn().toString();
             default -> throw new IllegalArgumentException("Неизвестное имя столбца: " + columnName);
         };
     }
 }
-
