@@ -35,8 +35,6 @@ public class FileGeneratorService {
     private final AzolikYurRepository azolikYurRepository;
     private final InformHelper informHelper;
     private final String[] balValues = {"12401", "12405", "12409", "12499", "12501", "14801", "14899", "15701"};
-    private static final String FOLDER_PATH = "C:/Users/user/Desktop/GRKI"; // Укажите здесь вашу папку
-
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -119,12 +117,14 @@ public class FileGeneratorService {
         String dateString = outputSdf.format(currentDate);
         String dateStringReverse = outputSdfReverse.format(currentDate);
         String previousDateString = outputSdf.format(previousDay);
+        Inform inform = informHelper.fetchSingleRow();
+
+        final String FOLDER_PATH = inform.getGrki_file_path(); // Укажите здесь вашу папку
 
         File folder = new File(FOLDER_PATH);
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        Inform inform = informHelper.fetchSingleRow();
 
         // Создание файлов с разными расширениями
         String fileName008 = FOLDER_PATH + "/" + generateFilename(dateString, "008");
@@ -252,10 +252,6 @@ public class FileGeneratorService {
                         lsKod = "01007";
                     } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("12501")) {
                         lsKod = "01007";
-                    } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("16307")) {
-                        lsKod = "01007";
-                    } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("16377")) {
-                        lsKod = "01007";
                     }
                     // dic 060 -> 01008
                     else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
@@ -265,6 +261,8 @@ public class FileGeneratorService {
                     } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10101")) {
                         lsKod = "01008";
                     } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10101")) {
+                        lsKod = "01008";
+                    } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("10101")) {
                         lsKod = "01008";
                     } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10101")) {
                         lsKod = "01008";
@@ -287,6 +285,8 @@ public class FileGeneratorService {
                     } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10503")) {
                         lsKod = "01008";
                     } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10509")) {
+                        lsKod = "01008";
+                    } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10101")) {
                         lsKod = "01008";
                     }
                     // dic 060 -> 01009
@@ -328,13 +328,17 @@ public class FileGeneratorService {
                     // dic 060 -> 01015
                     else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10101")) {
                         lsKod = "01015";
-                    } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
+                    } else if (dok.getLs().startsWith("16309") && dok.getLscor().startsWith("10101")) {
+                        lsKod = "01015";
+                    }  else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
                         lsKod = "01015";
                     } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10503")) {
                         lsKod = "01015";
                     } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10503")) {
                         lsKod = "01015";
                     } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509")) {
+                        lsKod = "01015";
+                    } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10503")) {
                         lsKod = "01015";
                     }
                     // dic 060 -> 01016
@@ -355,8 +359,6 @@ public class FileGeneratorService {
                     } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10503")) {
                         lsKod = "01019";
                     } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10509")) {
-                        lsKod = "01019";
-                    } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
                         lsKod = "01019";
                     }
                     // dic 060 -> 01020
@@ -451,7 +453,11 @@ public class FileGeneratorService {
                                 typeOption = "0301";
                             } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0303";
+                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0303";
                             } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0303";
+                            } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0303";
                             } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10503")) {
                                 typeOption = "0313";
@@ -475,6 +481,8 @@ public class FileGeneratorService {
                                 typeOption = "0313";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0403";
+                            } else if (dok.getLs().startsWith("16309") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0403";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509")) {
                                 typeOption = "0401";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10503")) {
@@ -484,6 +492,8 @@ public class FileGeneratorService {
                             } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0419";
                             } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
+                                typeOption = "0417";
+                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10503")) {
                                 typeOption = "0417";
                             } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0407";
@@ -643,6 +653,8 @@ public class FileGeneratorService {
 
         String zipFileName;
         File file;
+
+        final String FOLDER_PATH = inform.getGrki_file_path(); // Укажите здесь вашу папку
 
         do {
             // Формируем строку RR (номер рейса)

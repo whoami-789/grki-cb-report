@@ -1,6 +1,8 @@
 package com.grkicbreport.service;
 
+import com.grkicbreport.components.InformHelper;
 import com.grkicbreport.dto.*;
+import com.grkicbreport.model.Inform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -8,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -20,10 +21,16 @@ import java.util.zip.ZipInputStream;
 public class ZipService {
 
     private static final Logger logger = LoggerFactory.getLogger(ZipService.class);
+    private final InformHelper informHelper;
+
+    String receiveFolderPath = "/Users/rustamrahmov/work/grki_cb_report/grki cb report/file_check/";
 
     // Укажите правильные пути к папкам
-    private static final String zipFolderPath = "/Users/rustamrahmov/work/grki_cb_report/grki cb report/file_check/";
-    private static final String receiveFolderPath = "/Users/rustamrahmov/work/grki_cb_report/grki cb report/file_check/";
+
+
+    public ZipService(InformHelper informHelper) {
+        this.informHelper = informHelper;
+    }
 
     /**
      * Получение всех записей из основных ZIP-файлов и связанных дополнительных файлов.
@@ -45,6 +52,10 @@ public class ZipService {
      * @return Список ZipFileDTO
      */
     private List<ZipFileDTO> processMainZipFiles() {
+        Inform inform = informHelper.fetchSingleRow();
+
+        String zipFolderPath = inform.getGrki_file_path();
+
         List<ZipFileDTO> zipFiles = new ArrayList<>();
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(zipFolderPath), "N???????.???")) {
@@ -102,6 +113,10 @@ public class ZipService {
         List<RecordDTO> file008Records = new ArrayList<>();
         List<RecordDTO> file009Records = new ArrayList<>();
         Charset charset = Charset.forName("windows-1251"); // Используется для ZIP-архива
+        Inform inform = informHelper.fetchSingleRow();
+
+        String zipFolderPath = inform.getGrki_file_path();
+
 
         try (InputStream fis = Files.newInputStream(zipPath);
              ZipInputStream zis = new ZipInputStream(fis, charset)) {
