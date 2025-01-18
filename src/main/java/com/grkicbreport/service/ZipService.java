@@ -1,16 +1,13 @@
 package com.grkicbreport.service;
 
-import com.grkicbreport.dto.RecordDTO;
-import com.grkicbreport.dto.ZipFileDTO;
-import com.grkicbreport.dto.PFileDTO;
-import com.grkicbreport.dto.BFileDTO;
-import com.grkicbreport.dto.RecordsResponseDTO;
+import com.grkicbreport.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.LocalDate;
@@ -24,12 +21,9 @@ public class ZipService {
 
     private static final Logger logger = LoggerFactory.getLogger(ZipService.class);
 
-    private static final String FILE_008 = "N06005.008";
-    private static final String FILE_009 = "N06005.009";
-//    private static final String zipFolderPath = "C:/Users/user/Desktop/GRKI/";
-//    private static final String receiveFolderPath = "//192.168.2.99/Recv";
-    private static final String zipFolderPath = "/Users/rustamrahmov/work/grki_cb_report/grki cb report/file_check";
-    private static final String receiveFolderPath = "/Users/rustamrahmov/work/grki_cb_report/grki cb report/file_check";
+    // Укажите правильные пути к папкам
+    private static final String zipFolderPath = "/Users/rustamrahmov/work/grki_cb_report/grki cb report/file_check/";
+    private static final String receiveFolderPath = "/Users/rustamrahmov/work/grki_cb_report/grki cb report/file_check/";
 
     /**
      * Получение всех записей из основных ZIP-файлов и связанных дополнительных файлов.
@@ -72,17 +66,19 @@ public class ZipService {
                     continue;
                 }
 
-                // Поиск и обработка связанных p и b файлов
-                String identifier = mainZipFileName.substring(1, mainZipFileName.indexOf('.')); // Извлекаем идентификатор, например, "0707402"
-                String pFilePattern = "p" + identifier + ".*"; // Шаблон для p-файлов
-                String bFilePattern = "b" + identifier + ".*"; // Шаблон для b-файлов
+                // Извлечение идентификатора и расширения
+                String identifier = extractIdentifier(mainZipFileName); // Например, "0600501"
+                String extension = extractExtension(mainZipFileName);   // Например, "P15"
+
+                // Логирование идентификатора и расширения
+                logger.debug("Идентификатор: {}, Расширение: {}", identifier, extension);
 
                 // Обработка p-файлов
-                List<PFileDTO> pFiles = processPFiles(identifier);
+                List<PFileDTO> pFiles = processPFiles(identifier, extension);
                 zipFileDTO.setpFiles(pFiles);
 
                 // Обработка b-файлов
-                List<BFileDTO> bFiles = processBFiles(identifier);
+                List<BFileDTO> bFiles = processBFiles(identifier, extension);
                 zipFileDTO.setbFiles(bFiles);
 
                 zipFiles.add(zipFileDTO);
@@ -105,7 +101,7 @@ public class ZipService {
     private ZipFileDTO processZipFile(Path zipPath, String zipFileName, String zipDate) {
         List<RecordDTO> file008Records = new ArrayList<>();
         List<RecordDTO> file009Records = new ArrayList<>();
-        Charset charset = StandardCharsets.UTF_8; // Замените на нужную кодировку, если требуется
+        Charset charset = Charset.forName("windows-1251"); // Используется для ZIP-архива
 
         try (InputStream fis = Files.newInputStream(zipPath);
              ZipInputStream zis = new ZipInputStream(fis, charset)) {
@@ -122,11 +118,11 @@ public class ZipService {
                 }
 
                 if (!entry.isDirectory()) {
-                    if (fileName.equalsIgnoreCase(FILE_008)) {
+                    if (fileName.equalsIgnoreCase("N06005.008")) { // Возможно, сделать динамическим
                         logger.info("Извлечение файла: {}", fileName);
                         List<RecordDTO> records008 = parseFileContent(zis, zipDate);
                         file008Records.addAll(records008);
-                    } else if (fileName.equalsIgnoreCase(FILE_009)) {
+                    } else if (fileName.equalsIgnoreCase("N06005.009")) { // Возможно, сделать динамическим
                         logger.info("Извлечение файла: {}", fileName);
                         List<RecordDTO> records009 = parseFileContent(zis, zipDate);
                         file009Records.addAll(records009);
@@ -141,123 +137,98 @@ public class ZipService {
             return null;
         }
 
-        return new ZipFileDTO(zipFileName, file008Records, file009Records, new ArrayList<>(), new ArrayList<>());
+        return new ZipFileDTO(zipFileName, zipDate, file008Records, file009Records, new ArrayList<>(), new ArrayList<>());
     }
 
     /**
-     * Обработка связанных pN*.OC3 файлов для данного идентификатора.
+     * Обработка связанных pN*.OC3 файлов для данного идентификатора и расширения.
      *
-     * @param identifier Идентификатор основного ZIP-файла, например, "0707402"
+     * @param identifier Идентификатор основного ZIP-файла, например, "0600501"
+     * @param extension  Расширение основного ZIP-файла, например, "P15"
      * @return Список PFileDTO
      */
-    private List<PFileDTO> processPFiles(String identifier) {
+    private List<PFileDTO> processPFiles(String identifier, String extension) {
         List<PFileDTO> pFiles = new ArrayList<>();
-        String pFilePrefix = "pN" + identifier;
+        String pFilePattern = "pN" + identifier + "." + extension; // Например, "pN0600501.P15"
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(receiveFolderPath), pFilePrefix + ".*")) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(receiveFolderPath), pFilePattern)) {
             for (Path pFilePath : stream) {
                 String pFileName = pFilePath.getFileName().toString();
                 logger.info("Обработка p-файла: {}", pFileName);
                 PFileDTO pFileDTO = processPFile(pFilePath, pFileName);
                 if (pFileDTO != null) {
                     pFiles.add(pFileDTO);
+                } else {
+                    logger.warn("p-файл не был добавлен из-за ошибок: {}", pFileName);
                 }
             }
         } catch (IOException e) {
-            logger.error("Ошибка при сканировании директории с p-файлами для идентификатора: {}", identifier, e);
+            logger.error("Ошибка при сканировании директории с p-файлами для идентификатора {}: {}", identifier, e.getMessage(), e);
         }
 
         return pFiles;
     }
 
     /**
-     * Обработка связанных bN*.OC3 файлов для данного идентификатора.
+     * Обработка связанных bN*.OC3 файлов для данного идентификатора и расширения.
      *
-     * @param identifier Идентификатор основного ZIP-файла, например, "0707402"
+     * @param identifier Идентификатор основного ZIP-файла, например, "0600501"
+     * @param extension  Расширение основного ZIP-файла, например, "P15"
      * @return Список BFileDTO
      */
-    private List<BFileDTO> processBFiles(String identifier) {
+    private List<BFileDTO> processBFiles(String identifier, String extension) {
         List<BFileDTO> bFiles = new ArrayList<>();
-        String bFilePrefix = "bN" + identifier;
+        String bFilePattern = "bN" + identifier + "." + extension; // Например, "bN0600501.P15"
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(receiveFolderPath), bFilePrefix + ".*")) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(receiveFolderPath), bFilePattern)) {
             for (Path bFilePath : stream) {
                 String bFileName = bFilePath.getFileName().toString();
                 logger.info("Обработка b-файла: {}", bFileName);
                 BFileDTO bFileDTO = processBFile(bFilePath, bFileName);
                 if (bFileDTO != null) {
                     bFiles.add(bFileDTO);
+                } else {
+                    logger.warn("b-файл не был добавлен из-за ошибок: {}", bFileName);
                 }
             }
         } catch (IOException e) {
-            logger.error("Ошибка при сканировании директории с b-файлами для идентификатора: {}", identifier, e);
+            logger.error("Ошибка при сканировании директории с b-файлами для идентификатора {}: {}", identifier, e.getMessage(), e);
         }
 
         return bFiles;
     }
 
     /**
-     * Обработка одного pN*.OC3 файла и извлечение записей об ошибках.
+     * Обработка одного pN*.OC3 файла и извлечение строк.
      *
      * @param pFilePath Путь к pN*.OC3 файлу
      * @param pFileName Имя pN*.OC3 файла
-     * @return Объект PFileDTO с записями об ошибках
+     * @return Объект PFileDTO с извлечёнными строками
      */
     private PFileDTO processPFile(Path pFilePath, String pFileName) {
-        List<RecordDTO> errorRecords = new ArrayList<>();
+        List<String> lines = new ArrayList<>();
 
-        try (BufferedReader reader = Files.newBufferedReader(pFilePath, StandardCharsets.UTF_8)) {
+        try (BufferedReader reader = Files.newBufferedReader(pFilePath, Charset.forName("windows-1251"))) {
             String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line.trim());
+            }
 
-            // Чтение первой строки: имя файла внутри p-файла
-            line = reader.readLine();
-            if (line == null) {
-                logger.warn("p-файл пустой: {}", pFileName);
+            // Проверка количества строк
+            if (lines.size() < 3) {
+                logger.warn("p-файл содержит меньше 3 строк: {}", pFileName);
                 return null;
             }
 
-            // Чтение второй строки: дата и время
-            line = reader.readLine();
-            if (line == null) {
-                logger.warn("p-файл без даты: {}", pFileName);
-                return null;
-            }
-
-            // Чтение третьей строки: количество ошибок
-            line = reader.readLine();
-            if (line == null || !line.matches("\\d+")) {
-                logger.warn("p-файл без количества ошибок: {}", pFileName);
-                return null;
-            }
-
-            int numErrors = Integer.parseInt(line.trim());
-
-            for (int i = 0; i < numErrors; i++) {
-                // Чтение номера ошибки
-                String codeLine = reader.readLine();
-                if (codeLine == null || !codeLine.matches("\\d+")) {
-                    logger.warn("p-файл: некорректный код ошибки в файле: {}", pFileName);
-                    break;
-                }
-                long code = Long.parseLong(codeLine.trim());
-
-                // Чтение сообщения об ошибке
-                String messageLine = reader.readLine();
-                if (messageLine == null) {
-                    logger.warn("p-файл: отсутствует сообщение об ошибке в файле: {}", pFileName);
-                    break;
-                }
-
-                RecordDTO record = new RecordDTO(code, null, messageLine.trim());
-                errorRecords.add(record);
-            }
-
-        } catch (IOException | NumberFormatException e) {
+            // Создаём PFileDTO с извлечёнными строками
+            return new PFileDTO(pFileName, lines);
+        } catch (MalformedInputException e) {
+            logger.error("Некорректная кодировка в p-файле: {}", pFileName, e);
+        } catch (IOException e) {
             logger.error("Ошибка при обработке p-файла: {}", pFileName, e);
-            return null;
         }
 
-        return new PFileDTO(pFileName, errorRecords);
+        return null;
     }
 
     /**
@@ -269,7 +240,7 @@ public class ZipService {
      */
     private BFileDTO processBFile(Path bFilePath, String bFileName) {
         List<RecordDTO> errorRecords = new ArrayList<>();
-        Charset charset = StandardCharsets.UTF_8; // Замените на нужную кодировку, если требуется
+        Charset charset = Charset.forName("windows-1251"); // Используется для ZIP-архива
 
         try (InputStream fis = Files.newInputStream(bFilePath);
              ZipInputStream zis = new ZipInputStream(fis, charset)) {
@@ -310,8 +281,9 @@ public class ZipService {
      */
     private List<RecordDTO> parseBFileContent(InputStream is) {
         List<RecordDTO> errorRecords = new ArrayList<>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("windows-1251"))); // Используем windows-1251
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("windows-1251")))) { // Изменено на windows-1251
+        try {
             String line;
             int separatorCount = 0;
 
@@ -326,7 +298,7 @@ public class ZipService {
                 }
             }
 
-            // Чтение записей об ошибках
+            // Чтение строк после второго разделителя до следующего
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
                 if (line.startsWith("-------------------------------------------------")) {
@@ -337,39 +309,19 @@ public class ZipService {
                     continue;
                 }
 
-                // Чтение номера ошибки
-                String numberLine = line;
-                if (!numberLine.matches("\\d+")) {
-                    logger.warn("Некорректный номер ошибки в b-файле: {}", numberLine);
-                    continue;
-                }
-                long number = Long.parseLong(numberLine);
-
-                // Чтение кода ошибки
-                String codeLine = reader.readLine();
-                if (codeLine == null || !codeLine.matches("\\d+")) {
-                    logger.warn("b-файл: некорректный код ошибки");
-                    break;
-                }
-                long code = Long.parseLong(codeLine.trim());
-
-                // Чтение сообщения об ошибке
-                String messageLine = reader.readLine();
-                if (messageLine == null) {
-                    logger.warn("b-файл: отсутствует сообщение об ошибке");
-                    break;
-                }
-
-                RecordDTO record = new RecordDTO(code, null, messageLine.trim());
+                // Создание RecordDTO с сообщением
+                RecordDTO record = new RecordDTO(null, null, line);
                 errorRecords.add(record);
             }
 
-        } catch (IOException | NumberFormatException e) {
+        } catch (IOException e) {
             logger.error("Ошибка при парсинге b-файла", e);
         }
 
+        // Не закрываем reader, чтобы не закрывать 'zis'
         return errorRecords;
     }
+
 
     /**
      * Парсинг содержимого файла `.008` или `.009`.
@@ -380,7 +332,7 @@ public class ZipService {
      */
     private List<RecordDTO> parseFileContent(InputStream is, String zipDate) {
         List<RecordDTO> records = new ArrayList<>();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("windows-1251"))); // Изменено на windows-1251
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("windows-1251"))); // Используем windows-1251
         String line;
 
         try {
@@ -418,7 +370,7 @@ public class ZipService {
      * Пример: N0707402.A1B
      *
      * @param fileName Имя файла
-     * @return Дата в формате yyyyMMdd
+     * @return Дата в формате dd-MM-yyyy
      */
     private String extractDateFromZipFileName(String fileName) {
         // Разделяем по точке
@@ -444,10 +396,40 @@ public class ZipService {
         // Проверка корректности даты
         try {
             LocalDate date = LocalDate.of(year, month, day);
-            return date.format(DateTimeFormatter.ofPattern("dd-MM-yyy")); // Изменённый формат
+            return date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")); // Изменённый формат
         } catch (Exception e) {
             throw new IllegalArgumentException("Некорректная дата в имени файла: " + fileName, e);
         }
     }
 
+    /**
+     * Извлечение идентификатора из имени файла.
+     * Пример: из N0600501.P15 извлекаем "0600501"
+     *
+     * @param fileName Имя файла
+     * @return Идентификатор
+     */
+    private String extractIdentifier(String fileName) {
+        // Извлекаем часть между первой буквой и первой точкой
+        int firstDotIndex = fileName.indexOf('.');
+        if (firstDotIndex == -1) {
+            throw new IllegalArgumentException("Некорректное имя файла (отсутствует точка): " + fileName);
+        }
+        return fileName.substring(1, firstDotIndex); // Например, из "N0600501.P15" получим "0600501"
+    }
+
+    /**
+     * Извлечение расширения из имени файла.
+     * Пример: из N0600501.P15 извлекаем "P15"
+     *
+     * @param fileName Имя файла
+     * @return Расширение
+     */
+    private String extractExtension(String fileName) {
+        int lastDotIndex = fileName.lastIndexOf('.');
+        if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
+            throw new IllegalArgumentException("Некорректное расширение в имени файла: " + fileName);
+        }
+        return fileName.substring(lastDotIndex + 1); // Например, из "N0600501.P15" получим "P15"
+    }
 }

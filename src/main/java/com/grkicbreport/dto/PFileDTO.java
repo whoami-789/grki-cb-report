@@ -4,16 +4,16 @@ import java.util.List;
 
 public class PFileDTO {
     private String pFileName;
-    private List<RecordDTO> errorRecords;
+    private List<String> lines; // Хранит извлечённые строки
 
     public PFileDTO() {}
 
-    public PFileDTO(String pFileName, List<RecordDTO> errorRecords) {
+    public PFileDTO(String pFileName, List<String> lines) {
         this.pFileName = pFileName;
-        this.errorRecords = errorRecords;
+        this.lines = lines;
     }
 
-    // Геттеры и сеттеры
+    // Getters and Setters
 
     public String getpFileName() {
         return pFileName;
@@ -23,11 +23,11 @@ public class PFileDTO {
         this.pFileName = pFileName;
     }
 
-    public List<RecordDTO> getErrorRecords() {
-        return errorRecords;
+    public List<String> getLines() {
+        return lines;
     }
 
-    public void setErrorRecords(List<RecordDTO> errorRecords) {
-        this.errorRecords = errorRecords;
+    public void setLines(List<String> lines) {
+        this.lines = lines;
     }
 }
