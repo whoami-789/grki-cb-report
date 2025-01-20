@@ -23,7 +23,7 @@ public class ZipService {
     private static final Logger logger = LoggerFactory.getLogger(ZipService.class);
     private final InformHelper informHelper;
 
-    String receiveFolderPath = "/Users/rustamrahmov/work/grki_cb_report/grki cb report/file_check/";
+    String receiveFolderPath = "C:/Users";
 
     // Укажите правильные пути к папкам
 
