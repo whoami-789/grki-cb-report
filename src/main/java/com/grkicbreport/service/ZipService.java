@@ -133,11 +133,11 @@ public class ZipService {
                 }
 
                 if (!entry.isDirectory()) {
-                    if (fileName.equalsIgnoreCase("N06005.008")) { // Возможно, сделать динамическим
+                    if (fileName.equalsIgnoreCase("N" + inform.getNumks() + ".008")) { // Возможно, сделать динамическим
                         logger.info("Извлечение файла: {}", fileName);
                         List<RecordDTO> records008 = parseFileContent(zis, zipDate);
                         file008Records.addAll(records008);
-                    } else if (fileName.equalsIgnoreCase("N06005.009")) { // Возможно, сделать динамическим
+                    } else if (fileName.equalsIgnoreCase("N" + inform.getNumks() + ".009")) { // Возможно, сделать динамическим
                         logger.info("Извлечение файла: {}", fileName);
                         List<RecordDTO> records009 = parseFileContent(zis, zipDate);
                         file009Records.addAll(records009);
