@@ -288,6 +288,20 @@ public class FileGeneratorService {
                         lsKod = "01008";
                     } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10101")) {
                         lsKod = "01008";
+                    } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("22812")) {
+                        lsKod = "01008";
+                    } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("22812")) {
+                        lsKod = "01008";
+                    } else if (dok.getLs().startsWith("12409") && dok.getLscor().startsWith("22812")) {
+                        lsKod = "01008";
+                    } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("22812")) {
+                        lsKod = "01008";
+                    } else if (dok.getLs().startsWith("14809") && dok.getLscor().startsWith("22812")) {
+                        lsKod = "01008";
+                    } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("22812")) {
+                        lsKod = "01008";
+                    } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("22812")) {
+                        lsKod = "01008";
                     }
                     // dic 060 -> 01009
                     else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
@@ -371,7 +385,7 @@ public class FileGeneratorService {
                     if (!((dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10509") ||
                             (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509") ||
                                     (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10509") ||
-                                                    (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101"))))))) {
+                                            (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101"))))))) {
                         if (dok.getNazn().startsWith("Выдача")) {
 
                             if (fiz == null) {
@@ -453,6 +467,20 @@ public class FileGeneratorService {
                                 typeOption = "0301";
                             } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0303";
+                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
+                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
+                            } else if (dok.getLs().startsWith("12409") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
+                            } else if (dok.getLs().startsWith("14809") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
+                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
+                            } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
                             } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0303";
                             } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10101")) {
