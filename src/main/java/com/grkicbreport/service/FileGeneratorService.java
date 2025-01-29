@@ -352,6 +352,8 @@ public class FileGeneratorService {
                         lsKod = "01015";
                     } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509")) {
                         lsKod = "01015";
+                    } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
+                        lsKod = "01015";
                     } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10503")) {
                         lsKod = "01015";
                     }
