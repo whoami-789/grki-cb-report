@@ -199,10 +199,10 @@ public class FileGeneratorService {
                                     ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
                                     cleanedNumdog + separator +
                                     record.getBal() + separator +
-                                    previousDayDeb.intValue() + separator +
-                                    debitSum.intValue() + separator +
-                                    kreditSum.intValue() + separator +
-                                    record.getDeb().intValue() + separator + "\n";
+                                    previousDayDeb.intValue() + "00" + separator +
+                                    debitSum.intValue() + "00" + separator +
+                                    kreditSum.intValue() + "00" + separator +
+                                    record.getDeb().intValue() + "00" + separator + "\n";
 
                             // Записываем строку в файл с расширением .008
                             writer008.write(line008);
@@ -354,6 +354,8 @@ public class FileGeneratorService {
                         lsKod = "01015";
                     } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10503")) {
                         lsKod = "01015";
+                    } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
+                        lsKod = "01015";
                     }
                     // dic 060 -> 01016
                     else if (dok.getLs().startsWith("96335") && dok.getLscor().startsWith("91501")) {
@@ -403,7 +405,7 @@ public class FileGeneratorService {
                                         dok.getLscor() + separator +
                                         inform.getNumks() + separator +
                                         dok.getLs() + separator +
-                                        dok.getSums().intValue() + separator +
+                                        dok.getSums().intValue() + "00" + separator +
                                         inform.getName() + separator +
                                         yur.getName() + separator +
                                         lsKod + separator +
@@ -434,7 +436,7 @@ public class FileGeneratorService {
                                         dok.getLscor() + separator +
                                         inform.getNumks() + separator +
                                         dok.getLs() + separator +
-                                        dok.getSums().intValue() + separator +
+                                        dok.getSums().intValue() + "00" + separator +
                                         inform.getName() + separator +
                                         fiz.getName() + separator +
                                         lsKod + separator +
@@ -547,7 +549,7 @@ public class FileGeneratorService {
                                         dok.getLscor() + separator +
                                         inform.getNumks() + separator +
                                         dok.getLs() + separator +
-                                        dok.getSums().intValue() + separator +
+                                        dok.getSums().intValue() + "00" + separator +
                                         yur.getName() + separator +
                                         inform.getName() + separator +
                                         lsKod + separator +
@@ -577,7 +579,7 @@ public class FileGeneratorService {
                                         dok.getLscor() + separator +
                                         inform.getNumks() + separator +
                                         dok.getLs() + separator +
-                                        dok.getSums().intValue() + separator +
+                                        dok.getSums().intValue() + "00" + separator +
                                         inform.getName() + separator +
                                         fiz.getName() + separator +
                                         lsKod + separator +

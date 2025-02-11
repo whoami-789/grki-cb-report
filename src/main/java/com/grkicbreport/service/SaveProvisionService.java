@@ -50,7 +50,7 @@ public class SaveProvisionService {
     public saveProvisionDTO createProvision(String contractNumber, String provisionNumber,
                                             LocalDate provisionDate, String nibbd, String engineNumber, String bodyNumber,
                                             String year, String stateNumber, String model, String chassisNumber, String color,
-                                            String docSeriaNumber, String vinNumber) {
+                                            String docSeriaNumber, String vinNumber, String save_mode) {
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         Optional<Zalog> zalogList = zalogRepository.findByNumdog(contractNumber);
@@ -73,7 +73,7 @@ public class SaveProvisionService {
 
             saveProvisionDTO dto = new saveProvisionDTO();
 
-            dto.setSave_mode("1");
+            dto.setSave_mode(save_mode);
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("02");
@@ -173,8 +173,8 @@ public class SaveProvisionService {
                         List<ProvisionsDTO.Vehicle> vehicleArrayList = new ArrayList<>();
                         ProvisionsDTO.Vehicle vehicle = new ProvisionsDTO.Vehicle();
                         vehicle.setProvision_id(cleanedNumdog.replaceAll("\\s", "")); // Replace with actual data
-                        vehicle.setPledge_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
-                        vehicle.setEstimate_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
+                        vehicle.setPledge_amount(zalog.getSums().intValue() + "00"); // Replace with actual data
+                        vehicle.setEstimate_amount(zalog.getSums().intValue() + "00"); // Replace with actual data
                         vehicle.setCountry("860");
                         vehicle.setEstimate_inn(inform.getInn());
                         vehicle.setEstimate_name(inform.getName());
@@ -219,9 +219,9 @@ public class SaveProvisionService {
     public ResponseEntity<String> sendSaveProvision(String contractNumber, String provisionNumber,
                                                     LocalDate provisionDate, String nibbd, String engineNumber, String bodyNumber,
                                                     String year, String stateNumber, String model, String chassisNumber, String color,
-                                                    String docSeriaNumber, String vinNumber) {
+                                                    String docSeriaNumber, String vinNumber, String save_mode) {
         saveProvisionDTO dto = createProvision(contractNumber, provisionNumber, provisionDate, nibbd,
-                engineNumber, bodyNumber, year, stateNumber, model, chassisNumber, color, docSeriaNumber, vinNumber);
+                engineNumber, bodyNumber, year, stateNumber, model, chassisNumber, color, docSeriaNumber, vinNumber, save_mode);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

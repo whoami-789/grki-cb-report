@@ -46,13 +46,13 @@ public class MainController {
 
     @PostMapping("/get-save-claim")
     public ResponseEntity<String> sendSaveClaim(@RequestBody RequestDTO requestDTO) {
-        return saveClaimService.sendSaveClaim(requestDTO.getContractNumber());
+        return saveClaimService.sendSaveClaim(requestDTO.getContractNumber(), requestDTO.getSave_mode());
     }
 
     @PostMapping("/get-save-contract")
     public ResponseEntity<String> sendSaveContract(@RequestBody RequestDTO requestDTO) {
         return saveContractService.sendSaveContract(requestDTO.getContractNumber(), requestDTO.getLoan_line(),
-                requestDTO.getDecisionNumber(), requestDTO.getDecisionDate());
+                requestDTO.getDecisionNumber(), requestDTO.getDecisionDate(), requestDTO.getSave_mode());
     }
 
     @PostMapping("/get-save-agreement")
@@ -66,12 +66,12 @@ public class MainController {
     public ResponseEntity<String> sendSaveProvision(@RequestBody RequestDTO requestDTO) {
         return saveProvisionService.sendSaveProvision(requestDTO.getContractNumber(), requestDTO.getProvisionNumber(), requestDTO.getProvisionDate(),
                 requestDTO.getNibbd(), requestDTO.getEngine_number(), requestDTO.getBody_number(), requestDTO.getYear(), requestDTO.getState_number(),
-                requestDTO.getModel(), requestDTO.getChassis_number(), requestDTO.getColor(), requestDTO.getDoc_seria_number(), requestDTO.getVin_number());
+                requestDTO.getModel(), requestDTO.getChassis_number(), requestDTO.getColor(), requestDTO.getDoc_seria_number(), requestDTO.getVin_number(), requestDTO.getSave_mode());
     }
 
     @PostMapping("/get-save-schedule")
     public ResponseEntity<String> sendSaveSchedule(@RequestBody RequestDTO requestDTO) {
-        return saveScheduleService.sendSaveSchedule(requestDTO.getContractNumber());
+        return saveScheduleService.sendSaveSchedule(requestDTO.getContractNumber(), requestDTO.getSave_mode());
     }
 
     @PostMapping("/get-setStateToLitigation")

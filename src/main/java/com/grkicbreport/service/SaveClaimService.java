@@ -46,7 +46,7 @@ public class SaveClaimService {
     }
 
 
-    public saveClaimDTO createClaim(String contractNumber) {
+    public saveClaimDTO createClaim(String contractNumber, String save_mode) {
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
 
@@ -67,7 +67,7 @@ public class SaveClaimService {
             // Создаем и заполняем DTO
             saveClaimDTO dto = new saveClaimDTO();
 
-            dto.setSave_mode("1");
+            dto.setSave_mode(save_mode);
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
@@ -78,6 +78,7 @@ public class SaveClaimService {
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
             String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
+            if (Objects.equals(save_mode, "5")) claimDTO.setClaim_guid(kredit.getGrkiClaimId());
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
@@ -89,7 +90,7 @@ public class SaveClaimService {
             creditDTO.setSubject_type("2");
             creditDTO.setType("10");
             creditDTO.setCurrency("000");
-            creditDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
+            creditDTO.setAmount(kredit.getSumma().intValue() + "00");
             creditDTO.setPercent(String.valueOf(kredit.getProsent()));
             creditDTO.setPeriod(String.valueOf(kredit.getSrokkred()));
             List<String> targets = new ArrayList<>();
@@ -207,8 +208,8 @@ public class SaveClaimService {
         }
     }
 
-    public ResponseEntity<String> sendSaveClaim(String contractNumber) {
-        saveClaimDTO dto = createClaim(contractNumber);
+    public ResponseEntity<String> sendSaveClaim(String contractNumber, String save_mode) {
+        saveClaimDTO dto = createClaim(contractNumber, save_mode);
         Inform inform = informHelper.fetchSingleRow();
 
         HttpHeaders headers = new HttpHeaders();

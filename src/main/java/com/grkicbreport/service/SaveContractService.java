@@ -46,7 +46,7 @@ public class SaveContractService {
     }
 
     public saveContractDTO createContract(String contractNumber, String Loan_line,
-                                          String decisionNumber, LocalDate decisionDate) {
+                                          String decisionNumber, LocalDate decisionDate, String save_mode) {
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         LocalDate maxDats = grafikRepository.findMaxDatsByNumdog(contractNumber);
         System.out.println("Максимальная дата: " + maxDats);
@@ -65,7 +65,7 @@ public class SaveContractService {
             // Создаем и заполняем DTO
             saveContractDTO dto = new saveContractDTO();
 
-            dto.setSave_mode("1");
+            dto.setSave_mode(save_mode);
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
@@ -76,7 +76,6 @@ public class SaveContractService {
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-//            claimDTO.setClaim_guid("0");
             claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
             String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
@@ -100,7 +99,7 @@ public class SaveContractService {
             contractDTO.setDate_begin(kredit.getDatadog().format(formatter));
             contractDTO.setDate_end(maxDats.format(formatter));
             contractDTO.setCurrency("000");
-            contractDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
+            contractDTO.setAmount(kredit.getSumma().intValue() + "00");
             PercentDTO percentDTO = new PercentDTO();
             percentDTO.setPercent_type("101");
             percentDTO.setPercent_total(String.valueOf(kredit.getProsent()));
@@ -155,8 +154,8 @@ public class SaveContractService {
     }
 
     public ResponseEntity<String> sendSaveContract(String contractNumber, String loanLine,
-                                                   String decisionNumber, LocalDate decisionDate) {
-        saveContractDTO dto = createContract(contractNumber, loanLine, decisionNumber, decisionDate);
+                                                   String decisionNumber, LocalDate decisionDate, String save_mode) {
+        saveContractDTO dto = createContract(contractNumber, loanLine, decisionNumber, decisionDate, save_mode);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
