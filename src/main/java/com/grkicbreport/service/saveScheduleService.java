@@ -40,7 +40,7 @@ public class saveScheduleService {
         this.informHelper = informHelper;
     }
 
-    public saveScheduleDTO createSchedule(String contractNumber) {
+    public saveScheduleDTO createSchedule(String contractNumber, String save_mode) {
         Inform inform = informHelper.fetchSingleRow();
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
@@ -59,7 +59,7 @@ public class saveScheduleService {
         try {
             saveScheduleDTO dto = new saveScheduleDTO();
 
-            dto.setSave_mode("1");
+            dto.setSave_mode(save_mode);
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
@@ -80,9 +80,9 @@ public class saveScheduleService {
             for (Grafik grafik : grafikList) {
                 saveScheduleDTO.Repayment repayment = new saveScheduleDTO.Repayment();
                 repayment.setDate_percent(grafik.getDats().format(formatter));
-                repayment.setAmount_percent(String.valueOf(grafik.getPogProc().intValue())); // Сумма процентов
+                repayment.setAmount_percent(String.valueOf(grafik.getPogProc().intValue()) + "00"); // Сумма процентов
                 repayment.setDate_main(grafik.getDats().format(formatter)); // Устанавливаем дату основного платежа только если pogProc = 0.00
-                repayment.setAmount_main(String.valueOf(grafik.getPogKred().intValue())); // Сумма основного платежа
+                repayment.setAmount_main(String.valueOf(grafik.getPogKred().intValue()) + "00"); // Сумма основного платежа
 
                 repaymentList.add(repayment);
             }
@@ -103,8 +103,8 @@ public class saveScheduleService {
         }
     }
 
-    public ResponseEntity<String> sendSaveSchedule(String contractNumber) {
-        saveScheduleDTO dto = createSchedule(contractNumber);
+    public ResponseEntity<String> sendSaveSchedule(String contractNumber, String save_mode) {
+        saveScheduleDTO dto = createSchedule(contractNumber, save_mode);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

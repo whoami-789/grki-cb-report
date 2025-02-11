@@ -47,7 +47,7 @@ public class SaveProvisionService {
         this.informHelper = informHelper;
     }
 
-    public saveProvisionDTO createProvision(String contractNumber) {
+    public saveProvisionDTO createProvision(String contractNumber, String save_mode) {
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         Optional<Zalog> zalogList = zalogRepository.findByNumdog(contractNumber);
         Inform inform = informHelper.fetchSingleRow();
@@ -69,7 +69,7 @@ public class SaveProvisionService {
 
             saveProvisionDTO dto = new saveProvisionDTO();
 
-            dto.setSave_mode("1");
+            dto.setSave_mode(save_mode);
 
             CreditorDTO creditorDTO = new CreditorDTO();
             creditorDTO.setType("03");
@@ -160,7 +160,7 @@ public class SaveProvisionService {
                         List<ProvisionsDTO.Collateral> collateralList = new ArrayList<>();
                         ProvisionsDTO.Collateral collateral = new ProvisionsDTO.Collateral();
                         collateral.setProvision_id(cleanedNumdog.replaceAll("\\s", "")); // Replace with actual data
-                        collateral.setPledge_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
+                        collateral.setPledge_amount(String.valueOf(zalog.getSums().intValue()) + "00"); // Replace with actual data
                         collateral.setObject_name("Ювелирные изделия"); // Replace with actual data
 
                         collateralList.add(collateral);
@@ -190,8 +190,8 @@ public class SaveProvisionService {
         }
     }
 
-    public ResponseEntity<String> sendSaveProvision(String contractNumber) {
-        saveProvisionDTO dto = createProvision(contractNumber);
+    public ResponseEntity<String> sendSaveProvision(String contractNumber, String save_mode) {
+        saveProvisionDTO dto = createProvision(contractNumber, save_mode);
         Inform inform = informHelper.fetchSingleRow();
 
         HttpHeaders headers = new HttpHeaders();

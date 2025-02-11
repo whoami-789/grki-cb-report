@@ -43,7 +43,7 @@ public class SaveContractService {
         this.informHelper = informHelper;
     }
 
-    public saveContractDTO createContract(String contractNumber) {
+    public saveContractDTO createContract(String contractNumber, String save_mode) {
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         LocalDate maxDats = grafikRepository.findMaxDatsByNumdog(contractNumber);
         System.out.println("Максимальная дата: " + maxDats);
@@ -62,7 +62,7 @@ public class SaveContractService {
             // Создаем и заполняем DTO
             saveContractDTO dto = new saveContractDTO();
 
-            dto.setSave_mode("1");
+            dto.setSave_mode(save_mode);
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
@@ -75,7 +75,7 @@ public class SaveContractService {
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
             String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
-
+            if (Objects.equals(save_mode, "5")) claimDTO.setContract_guid(kredit.getGrkiContractId());
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setClaim(claimDTO);
@@ -97,7 +97,7 @@ public class SaveContractService {
             contractDTO.setDate_begin(kredit.getDatadog().format(formatter));
             contractDTO.setDate_end(maxDats.format(formatter));
             contractDTO.setCurrency("000");
-            contractDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
+            contractDTO.setAmount(kredit.getSumma().intValue() + "00");
             contractDTO.setDiscont_comissions(null);
             PercentDTO percentDTO = new PercentDTO();
             percentDTO.setPercent_type("101");
@@ -111,17 +111,26 @@ public class SaveContractService {
 
             TargetsDTO targetsDTO = new TargetsDTO();
             targetsDTO.setType("0699");
-            targetsDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
+            targetsDTO.setAmount(kredit.getSumma().intValue() + "00");
             targetsDTO.setInfo("На бумажном носителе");
             dto.getTargets().add(targetsDTO);
 
             SourcesDTO sourcesDTO = new SourcesDTO();
             sourcesDTO.setType("100");
             sourcesDTO.setCurrency("000");
-            sourcesDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
+            sourcesDTO.setAmount(kredit.getSumma().intValue() + "00");
             dto.getSources().add(sourcesDTO);
 
-// Возвращаем заполненный DTO
+            if (Objects.equals(save_mode, "5")) {
+                Change_basisDTO changeBasisDTO = new Change_basisDTO();
+                changeBasisDTO.setRevisor("01");
+                changeBasisDTO.setNumber(cleanedNumdog);
+                changeBasisDTO.setDate(kredit.getDatadog().format(formatter));
+                changeBasisDTO.setReason("Корректировка суммы");
+                changeBasisDTO.setRevisor_chief(inform.getFioDirektor());
+                dto.setChange_basis(changeBasisDTO);
+            }
+
             // Возвращаем заполненный DTO
             Gson gson = new GsonBuilder()
                     .serializeNulls() // Include null values in the JSON output
@@ -149,8 +158,8 @@ public class SaveContractService {
         }
     }
 
-    public ResponseEntity<String> sendSaveContract(String contractNumber) {
-        saveContractDTO dto = createContract(contractNumber);
+    public ResponseEntity<String> sendSaveContract(String contractNumber, String save_mode) {
+        saveContractDTO dto = createContract(contractNumber, save_mode);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -199,7 +208,7 @@ public class SaveContractService {
                 } else if ("0".equals(success)) {
                     // Если код успеха равен 0, проверяем наличие ошибки 24023
                     boolean isDuplicateError = responseBody.getAnswer().getErrors().stream()
-                            .anyMatch(error -> "24029".equals(error.getCode()) || "24033".equals(error.getCode())|| "24039".equals(error.getCode()));
+                            .anyMatch(error -> "24029".equals(error.getCode()) || "24033".equals(error.getCode()) || "24039".equals(error.getCode()));
 
                     if (isDuplicateError) {
                         String sendInfoUrl = "http://localhost:5051/api/grki/send-save-info?id=" + kredit.getNumdog() + "&type=2";

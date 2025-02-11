@@ -45,7 +45,7 @@ public class SaveClaimService {
     }
 
 
-    public saveClaimDTO createClaim(String contractNumber) {
+    public saveClaimDTO createClaim(String contractNumber, String save_mode) {
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         Inform inform = informHelper.fetchSingleRow();
@@ -66,7 +66,7 @@ public class SaveClaimService {
             // Создаем и заполняем DTO
             saveClaimDTO dto = new saveClaimDTO();
 
-            dto.setSave_mode("1");
+            dto.setSave_mode(save_mode);
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
@@ -77,11 +77,11 @@ public class SaveClaimService {
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
             String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
-
+            if (Objects.equals(save_mode, "5")) claimDTO.setClaim_guid(kredit.getGrkiClaimId());
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
-            claimDTO.setDate(LocalDate.now().format(formatter));
+            claimDTO.setDate(kredit.getDatadog().format(formatter));
             dto.setClaim(claimDTO);
 
             // Заполнение CreditDTO
@@ -146,7 +146,7 @@ public class SaveClaimService {
             // Создаем и заполняем DTO
             saveClaimDTO dto = new saveClaimDTO();
 
-            dto.setSave_mode("1");
+            dto.setSave_mode(save_mode);
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
@@ -157,6 +157,7 @@ public class SaveClaimService {
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaim_guid("");
+            if (Objects.equals(save_mode, "5")) claimDTO.setClaim_guid(kredit.getGrkiClaimId());
             String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
@@ -169,7 +170,7 @@ public class SaveClaimService {
             creditDTO.setSubject_type("1");
             creditDTO.setType("10");
             creditDTO.setCurrency("000");
-            creditDTO.setAmount(String.valueOf(kredit.getSumma()));
+            creditDTO.setAmount(kredit.getSumma() + "00");
             creditDTO.setPercent(String.valueOf(kredit.getProsent()));
             creditDTO.setPeriod(String.valueOf(kredit.getSrokkred()));
             creditDTO.setTargets(List.of()); // Если список пустой
@@ -207,8 +208,8 @@ public class SaveClaimService {
         }
     }
 
-    public ResponseEntity<String> sendSaveClaim(String contractNumber) {
-        saveClaimDTO dto = createClaim(contractNumber);
+    public ResponseEntity<String> sendSaveClaim(String contractNumber, String save_mode) {
+        saveClaimDTO dto = createClaim(contractNumber, save_mode);
         Inform inform = informHelper.fetchSingleRow();
 
         HttpHeaders headers = new HttpHeaders();

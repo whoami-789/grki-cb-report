@@ -40,22 +40,22 @@ public class MainController {
 
     @PostMapping("/get-save-claim")
     public ResponseEntity<String> sendSaveClaim(@RequestBody RequestDTO requestDTO) {
-        return saveClaimService.sendSaveClaim(requestDTO.getContractNumber());
+        return saveClaimService.sendSaveClaim(requestDTO.getContractNumber(), requestDTO.getSave_mode());
     }
 
     @PostMapping("/get-save-contract")
     public ResponseEntity<String> sendSaveContract(@RequestBody RequestDTO requestDTO) {
-        return saveContractService.sendSaveContract(requestDTO.getContractNumber());
+        return saveContractService.sendSaveContract(requestDTO.getContractNumber(), requestDTO.getSave_mode());
     }
 
     @PostMapping("/get-save-provision")
     public ResponseEntity<String> sendSaveProvision(@RequestBody RequestDTO requestDTO) {
-        return saveProvisionService.sendSaveProvision(requestDTO.getContractNumber());
+        return saveProvisionService.sendSaveProvision(requestDTO.getContractNumber(), requestDTO.getSave_mode());
     }
 
     @PostMapping("/get-save-schedule")
     public ResponseEntity<String> sendSaveSchedule(@RequestBody RequestDTO requestDTO) {
-        return saveScheduleService.sendSaveSchedule(requestDTO.getContractNumber());
+        return saveScheduleService.sendSaveSchedule(requestDTO.getContractNumber(), requestDTO.getSave_mode());
     }
 
     @PostMapping("/get-setStateToLitigation")

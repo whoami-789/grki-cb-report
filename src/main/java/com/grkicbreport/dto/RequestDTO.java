@@ -3,6 +3,8 @@ package com.grkicbreport.dto;
 import java.time.LocalDate;
 
 public class RequestDTO {
+    private String save_mode;
+
     private String contractNumber;
 
     private String loan_line;
@@ -41,6 +43,14 @@ public class RequestDTO {
     private LocalDate date;
 
     public RequestDTO() {
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof RequestDTO;
+    }
+
+    public String getSave_mode() {
+        return this.save_mode;
     }
 
     public String getContractNumber() {
@@ -165,6 +175,10 @@ public class RequestDTO {
 
     public LocalDate getDate() {
         return this.date;
+    }
+
+    public void setSave_mode(String save_mode) {
+        this.save_mode = save_mode;
     }
 
     public void setContractNumber(String contractNumber) {
@@ -296,6 +310,9 @@ public class RequestDTO {
         if (!(o instanceof RequestDTO)) return false;
         final RequestDTO other = (RequestDTO) o;
         if (!other.canEqual((Object) this)) return false;
+        final Object this$save_mode = this.getSave_mode();
+        final Object other$save_mode = other.getSave_mode();
+        if (this$save_mode == null ? other$save_mode != null : !this$save_mode.equals(other$save_mode)) return false;
         final Object this$contractNumber = this.getContractNumber();
         final Object other$contractNumber = other.getContractNumber();
         if (this$contractNumber == null ? other$contractNumber != null : !this$contractNumber.equals(other$contractNumber))
@@ -414,13 +431,11 @@ public class RequestDTO {
         return true;
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof RequestDTO;
-    }
-
     public int hashCode() {
         final int PRIME = 59;
         int result = 1;
+        final Object $save_mode = this.getSave_mode();
+        result = result * PRIME + ($save_mode == null ? 43 : $save_mode.hashCode());
         final Object $contractNumber = this.getContractNumber();
         result = result * PRIME + ($contractNumber == null ? 43 : $contractNumber.hashCode());
         final Object $loan_line = this.getLoan_line();
@@ -487,7 +502,7 @@ public class RequestDTO {
     }
 
     public String toString() {
-        return "RequestDTO(contractNumber=" + this.getContractNumber() + ", loan_line=" + this.getLoan_line() + ", decisionNumber=" + this.getDecisionNumber() + ", decisionDate=" + this.getDecisionDate() + ", agreement_id=" + this.getAgreement_id() + ", agreement_number=" + this.getAgreement_number() + ", agreement_date_begin=" + this.getAgreement_date_begin() + ", agreement_date_end=" + this.getAgreement_date_end() + ", agreement_subject_type=" + this.getAgreement_subject_type() + ", agreement_inn_pinfl=" + this.getAgreement_inn_pinfl() + ", agreement_name=" + this.getAgreement_name() + ", agreement_amount=" + this.getAgreement_amount() + ", provisionNumber=" + this.getProvisionNumber() + ", provisionDate=" + this.getProvisionDate() + ", nibbd=" + this.getNibbd() + ", engine_number=" + this.getEngine_number() + ", body_number=" + this.getBody_number() + ", year=" + this.getYear() + ", state_number=" + this.getState_number() + ", model=" + this.getModel() + ", chassis_number=" + this.getChassis_number() + ", color=" + this.getColor() + ", doc_seria_number=" + this.getDoc_seria_number() + ", vin_number=" + this.getVin_number() + ", decide_number=" + this.getDecide_number() + ", decide_date=" + this.getDecide_date() + ", conclusion=" + this.getConclusion() + ", send_date=" + this.getSend_date() + ", type=" + this.getType() + ", number=" + this.getNumber() + ", date=" + this.getDate() + ")";
+        return "RequestDTO(save_mode=" + this.getSave_mode() + ", contractNumber=" + this.getContractNumber() + ", loan_line=" + this.getLoan_line() + ", decisionNumber=" + this.getDecisionNumber() + ", decisionDate=" + this.getDecisionDate() + ", agreement_id=" + this.getAgreement_id() + ", agreement_number=" + this.getAgreement_number() + ", agreement_date_begin=" + this.getAgreement_date_begin() + ", agreement_date_end=" + this.getAgreement_date_end() + ", agreement_subject_type=" + this.getAgreement_subject_type() + ", agreement_inn_pinfl=" + this.getAgreement_inn_pinfl() + ", agreement_name=" + this.getAgreement_name() + ", agreement_amount=" + this.getAgreement_amount() + ", provisionNumber=" + this.getProvisionNumber() + ", provisionDate=" + this.getProvisionDate() + ", nibbd=" + this.getNibbd() + ", engine_number=" + this.getEngine_number() + ", body_number=" + this.getBody_number() + ", year=" + this.getYear() + ", state_number=" + this.getState_number() + ", model=" + this.getModel() + ", chassis_number=" + this.getChassis_number() + ", color=" + this.getColor() + ", doc_seria_number=" + this.getDoc_seria_number() + ", vin_number=" + this.getVin_number() + ", decide_number=" + this.getDecide_number() + ", decide_date=" + this.getDecide_date() + ", conclusion=" + this.getConclusion() + ", send_date=" + this.getSend_date() + ", type=" + this.getType() + ", number=" + this.getNumber() + ", date=" + this.getDate() + ")";
     }
 }
 
