@@ -112,17 +112,16 @@ public class SaveContractService {
             dto.setContract(contractDTO);
 
 
-
             TargetsDTO targetsDTO = new TargetsDTO();
             targetsDTO.setType("0699");
-            targetsDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
+            targetsDTO.setAmount(String.valueOf(kredit.getSumma().intValue()) + "00");
             targetsDTO.setInfo("Ремонт дома");
             dto.getTargets().add(targetsDTO);
 
             SourcesDTO sourcesDTO = new SourcesDTO();
             sourcesDTO.setType("100");
             sourcesDTO.setCurrency("000");
-            sourcesDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
+            sourcesDTO.setAmount(String.valueOf(kredit.getSumma().intValue()) + "00");
             dto.getSources().add(sourcesDTO);
 
 // Возвращаем заполненный DTO

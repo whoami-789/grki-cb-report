@@ -164,7 +164,7 @@ public class SaveProvisionService {
                         List<ProvisionsDTO.Collateral> collateralList = new ArrayList<>();
                         ProvisionsDTO.Collateral collateral = new ProvisionsDTO.Collateral();
                         collateral.setProvision_id(cleanedNumdog.replaceAll("\\s", "")); // Replace with actual data
-                        collateral.setPledge_amount(String.valueOf(zalog.getSums().intValue())); // Replace with actual data
+                        collateral.setPledge_amount(String.valueOf(zalog.getSums().intValue()) + "00"); // Replace with actual data
                         collateral.setObject_name("Ювелирные изделия"); // Replace with actual data
 
                         collateralList.add(collateral);
