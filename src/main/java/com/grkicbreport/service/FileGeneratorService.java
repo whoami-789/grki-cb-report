@@ -34,7 +34,7 @@ public class FileGeneratorService {
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
     private final InformHelper informHelper;
-    private final String[] balValues = {"12401", "12405", "12409", "12499", "12501", "14801", "14899", "15701"};
+    private final String[] balValues = {"12401", "12405", "12409", "12499", "12501", "14801", "15701"};
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
