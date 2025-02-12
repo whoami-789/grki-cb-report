@@ -77,6 +77,7 @@ public class SaveContractService {
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaim_guid(kredit.getGrkiClaimId().replaceAll("\\s", ""));
+            if (Objects.equals(save_mode, "5")) claimDTO.setContract_guid(kredit.getGrkiContractId());
             String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
@@ -85,7 +86,7 @@ public class SaveContractService {
             DecisionDTO decisionDTO = new DecisionDTO();
             decisionDTO.setDecide("03");
             decisionDTO.setNumber(decisionNumber); // вручную
-            decisionDTO.setDate(decisionDate.format(formatter)); // вручную
+            decisionDTO.setDate(kredit.getDatadog().format(formatter)); // вручную
             decisionDTO.setDecide_chief(inform.getFioDirektor());
             decisionDTO.setBorrower_link("0");
             dto.setDecision(decisionDTO);
@@ -123,6 +124,16 @@ public class SaveContractService {
             sourcesDTO.setCurrency("000");
             sourcesDTO.setAmount(String.valueOf(kredit.getSumma().intValue()) + "00");
             dto.getSources().add(sourcesDTO);
+
+            if (Objects.equals(save_mode, "5")) {
+                Change_basisDTO changeBasisDTO = new Change_basisDTO();
+                changeBasisDTO.setRevisor("01");
+                changeBasisDTO.setNumber(cleanedNumdog);
+                changeBasisDTO.setDate(kredit.getDatadog().format(formatter));
+                changeBasisDTO.setReason("Корректировка суммы");
+                changeBasisDTO.setRevisor_chief(inform.getFioDirektor());
+                dto.setChange_basis(changeBasisDTO);
+            }
 
 // Возвращаем заполненный DTO
             // Возвращаем заполненный DTO

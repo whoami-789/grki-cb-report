@@ -7,13 +7,9 @@ public class Change_basisDTO {
     private String reason;
     private String revisor_chief;
 
-    public Change_basisDTO(String revisor, String number, String date, String reason, String revisor_chief) {
-        this.revisor = revisor;
-        this.number = number;
-        this.date = date;
-        this.reason = reason;
-        this.revisor_chief = revisor_chief;
+    public Change_basisDTO() {
     }
+
 
     public String getRevisor() {
         return this.revisor;

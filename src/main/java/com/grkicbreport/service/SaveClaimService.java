@@ -82,7 +82,7 @@ public class SaveClaimService {
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
-            claimDTO.setDate(LocalDate.now().format(formatter));
+            claimDTO.setDate(kredit.getDatadog().format(formatter));
             dto.setClaim(claimDTO);
 
             // Заполнение CreditDTO
