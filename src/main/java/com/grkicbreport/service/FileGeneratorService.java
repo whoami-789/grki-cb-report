@@ -450,7 +450,7 @@ public class FileGeneratorService {
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
-                                logger.info("Записана строка в .009 файл: " + line009);
+                                logger.info("Записана строка в .009 файл: " +  line009);
 
                             }
                         } else if (dok.getNazn().startsWith("Погашение")) {
@@ -498,7 +498,7 @@ public class FileGeneratorService {
                             } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0307";
                             } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10509")) {
-                                typeOption = "0307";
+                                typeOption = "0306";
                             } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0315";
                             } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10509")) {

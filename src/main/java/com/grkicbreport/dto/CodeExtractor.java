@@ -7,7 +7,7 @@ public class CodeExtractor {
 
     public static String extractCode(String input) {
         // Регулярное выражение для поиска кода в строке
-        String regex = "\\b\\d+(?:/\\d+)?\\b";
+        String regex = "\\d{6,}\\w*[-/]?\\d{0,2}";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
 
