@@ -2,10 +2,9 @@ package com.grkicbreport.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.grkicbreport.components.InformHelper;
+import com.grkicbreport.component.InformHelper;
 import com.grkicbreport.dto.CreditorDTO;
 import com.grkicbreport.dto.saveCourtDecision.saveCourtDecisionDTO;
-import com.grkicbreport.dto.setStateToLitigation.setStateToLitigationDTO;
 import com.grkicbreport.model.Inform;
 import com.grkicbreport.model.Kredit;
 import com.grkicbreport.repository.KreditRepository;

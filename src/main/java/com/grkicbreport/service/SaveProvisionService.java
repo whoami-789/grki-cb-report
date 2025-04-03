@@ -2,7 +2,7 @@ package com.grkicbreport.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.grkicbreport.components.InformHelper;
+import com.grkicbreport.component.InformHelper;
 import com.grkicbreport.dto.CreditorDTO;
 import com.grkicbreport.dto.saveProvision.ContractDTO;
 import com.grkicbreport.dto.saveProvision.ProvisionsDTO;

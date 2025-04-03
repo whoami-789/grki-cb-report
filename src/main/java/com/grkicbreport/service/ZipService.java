@@ -1,6 +1,6 @@
 package com.grkicbreport.service;
 
-import com.grkicbreport.components.InformHelper;
+import com.grkicbreport.component.InformHelper;
 import com.grkicbreport.dto.*;
 import com.grkicbreport.model.Inform;
 import org.slf4j.Logger;

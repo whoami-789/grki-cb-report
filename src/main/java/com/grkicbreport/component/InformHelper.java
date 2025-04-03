@@ -1,4 +1,4 @@
-package com.grkicbreport.components;
+package com.grkicbreport.component;
 
 import com.grkicbreport.model.Inform;
 import com.grkicbreport.repository.InformRepository;

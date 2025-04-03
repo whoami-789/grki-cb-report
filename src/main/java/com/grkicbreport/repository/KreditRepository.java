@@ -6,13 +6,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
+
+@Repository
 public interface KreditRepository extends JpaRepository<Kredit, String> {
+
     Optional<Kredit> findByNumdog(String kod);
 
     @Query(value = "EXEC analiz_schet :date, :bal", nativeQuery = true)
@@ -20,6 +24,9 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
 
     @Query(value = "EXEC analiz_schet :date, :bal", nativeQuery = true)
     List<String> calAnaliz_schet(@Param("date") Date date, @Param("bal") String bal);
+
+    @Query(value = "EXEC creat_otch_13_001 :start_date, :end_date", nativeQuery = true)
+    List<String> cb_otch(@Param("start_date") Date start_date, @Param("end_date")  Date end_date);
 
     @Modifying
     @Transactional
@@ -40,5 +47,22 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
 
     @Query("SELECT k FROM Kredit k WHERE k.status = :status")
     List<Kredit> findCreditsByStatus(@Param("status") int status);
+
+    Optional<Kredit> findKreditByLskred(String lskred);
+
+//    @Query(value = """
+//    DECLARE @sql NVARCHAR(MAX) = '';
+//
+//    SELECT @sql = @sql + ' OR CAST([' + name + '] AS NVARCHAR(MAX)) LIKE ''%'' + :value + ''%'''
+//    FROM sys.columns
+//    WHERE object_id = OBJECT_ID('dbo.kredit');
+//
+//    SET @sql = 'SELECT * FROM dbo.kredit WHERE ' + STUFF(@sql, 1, 4, '');
+//
+//    EXEC sp_executesql @sql, N'value NVARCHAR(MAX)', :value;
+//""", nativeQuery = true)
+//    List<Kredit> searchInAllColumns(@Param("value") String value);
+
+
 
 }
