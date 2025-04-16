@@ -39,4 +39,9 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     List<Kredit> findByStatus(Byte status);
     List<Kredit> findByDatsZakrIsNull();
 
+    @Query(value = "EXEC creat_otch_13_001 :start_date, :end_date", nativeQuery = true)
+    List<String> cb_otch(@Param("start_date") Date start_date, @Param("end_date")  Date end_date);
+
+    Optional<Kredit> findKreditByLskred(String lskred);
+
 }
