@@ -5,16 +5,14 @@ import java.util.regex.Pattern;
 
 public class CodeExtractor {
 
-    public static String extractCode(String input) {
-        // Регулярное выражение для поиска чисел с необязательной буквой К или K после №
-        String regex = "№\\s*(\\d+[КK]?(?:/\\d+)?)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(input);
+    private static final Pattern CODE_PATTERN = Pattern.compile("№\\s*(\\d+[КK]?(?:/\\d+)?)");
 
-        // Возвращаем только найденный код без "№"
-        if (matcher.find()) {
-            return matcher.group(1).trim(); // Группа 1 содержит только код
+    public static String extractCode(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            return null;
         }
-        return null; // Код не найден
+
+        Matcher matcher = CODE_PATTERN.matcher(input);
+        return matcher.find() ? matcher.group(1).trim() : null;
     }
 }
