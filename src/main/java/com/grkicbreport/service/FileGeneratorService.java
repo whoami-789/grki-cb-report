@@ -139,7 +139,7 @@ public class FileGeneratorService {
                 String[] parts = record.split("#");
 
                 // Проверяем, что после 3-й решетки (индекс 3) значение начинается с "12401"
-                if (parts.length > 9 && parts[3].startsWith("12401")) {
+                if (parts.length > 9 && parts[3].startsWith("12401") || parts[3].startsWith("14801") || parts[3].startsWith("15701") || parts[3].startsWith("12405")) {
                     CbOtchDTO dto = new CbOtchDTO();
                     dto.setAccount(parts[3]);       // например, "12401000999000969001"
                     dto.setPrev_amount(parts[6]);   // "-1000000000"
