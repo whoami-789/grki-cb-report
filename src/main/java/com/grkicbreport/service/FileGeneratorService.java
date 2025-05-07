@@ -130,7 +130,7 @@ public class FileGeneratorService {
         // Создание и запись в файл с расширением .008
         try {
             BufferedWriter writer008 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName008), "windows-1251"));
-            List<String> cb_otch = kreditRepository.cb_otch(previousDay, currentDate);
+            List<String> cb_otch = kreditRepository.cb_otch(currentDate, currentDate);
             List<CbOtchDTO> resultList = new ArrayList<>();
             // Итерация по всем значениям bal
             for (String record : cb_otch) {
