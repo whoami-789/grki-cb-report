@@ -4,6 +4,7 @@ import com.grkicbreport.dto.CbOtchDTO;
 import com.grkicbreport.dto.CodeExtractor;
 import com.grkicbreport.model.*;
 import com.grkicbreport.repository.*;
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,8 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 import com.grkicbreport.components.InformHelper;
 
@@ -34,7 +37,8 @@ public class FileGeneratorService {
     private final AzolikYurRepository azolikYurRepository;
     private final InformHelper informHelper;
     private final String[] balValues = {"12401", "12405", "12409", "12499", "12501", "14801", "14899", "15701"};
-
+    @Autowired
+    private EntityManager entityManager;
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private final Map<String, Integer> dailyFlightNumbers = new HashMap<>();
@@ -90,6 +94,23 @@ public class FileGeneratorService {
 
         return dtos;
     }
+
+    public Optional<Kredit> byls_kred(String lskred) {
+        // Очистка кэша сессии перед запросом
+        entityManager.clear();
+
+        String sql = "SELECT * FROM kredit WHERE lskred = :lskred";
+        Query query = entityManager.createNativeQuery(sql, Kredit.class);
+        query.setParameter("lskred", lskred);
+
+        try {
+            Kredit kredit = (Kredit) query.getSingleResult();
+            return Optional.of(kredit);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
 
     public String createFiles(String date) {
         // Парсим строку даты в объект java.sql.Date
@@ -153,14 +174,14 @@ public class FileGeneratorService {
             // Обрабатываем каждую строку из resultList
             for (CbOtchDTO dto : resultList) {
                 // По номеру кредита (account) получаем объект Kredit
-                Optional<Kredit> creditOpt = kreditRepository.findKreditByLskred(dto.getAccount());
+                Optional<Kredit> creditOpt = byls_kred(dto.getAccount());
                 if (creditOpt.isPresent()) {
                     Kredit kredit = creditOpt.get();
                     // Предполагаем, что у объекта Kredit есть метод getGRKIId() и он возвращает нужный объект
                     if (kredit.getGrkiContractId() != null) {
                         // Очищаем номер договора от нежелательных символов
                         String cleanedNumdog = kredit.getNumdog()
-                                .replaceAll("[-KК/\\\\]", "")
+                                .replaceAll("[-KК/\\\\.]", "")
                                 .trim();
 
                         // Формируем строку для записи.

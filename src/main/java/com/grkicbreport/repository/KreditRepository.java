@@ -42,7 +42,9 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     @Query(value = "EXEC creat_otch_13_001 :start_date, :end_date", nativeQuery = true)
     List<String> cb_otch(@Param("start_date") Date start_date, @Param("end_date")  Date end_date);
 
-    @Query(value = "SELECT * FROM kredit WHERE lskred = :lskred", nativeQuery = true)
-    Optional<Kredit> findKreditByLskred(@Param("lskred") String lskred);
+    @Transactional
+    @Query(value = "SELECT * FROM kredit WITH (NOLOCK) WHERE lskred = :lskred", nativeQuery = true)
+    Optional<Kredit> byls_kred(@Param("lskred") String lskred);
+
 
 }
