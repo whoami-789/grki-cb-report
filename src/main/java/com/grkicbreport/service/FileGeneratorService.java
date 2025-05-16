@@ -172,7 +172,7 @@ public class FileGeneratorService {
             // Обрабатываем каждую строку из resultList
             for (CbOtchDTO dto : resultList) {
                 // По номеру кредита (account) получаем объект Kredit
-                Optional<Kredit> creditOpt = kreditRepository.findKreditByLskred(dto.getAccount());
+                Optional<Kredit> creditOpt = byls_kred(dto.getAccount());
                 if (creditOpt.isPresent()) {
                     Kredit kredit = creditOpt.get();
                     // Предполагаем, что у объекта Kredit есть метод getGRKIId() и он возвращает нужный объект
