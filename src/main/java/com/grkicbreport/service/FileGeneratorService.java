@@ -4,6 +4,7 @@ import com.grkicbreport.dto.CbOtchDTO;
 import com.grkicbreport.dto.CodeExtractor;
 import com.grkicbreport.model.*;
 import com.grkicbreport.repository.*;
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,8 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 import com.grkicbreport.component.InformHelper;
 
@@ -33,7 +36,8 @@ public class FileGeneratorService {
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
     private final InformHelper informHelper;
-
+    @Autowired
+    private EntityManager entityManager;
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private final Map<String, Integer> dailyFlightNumbers = new HashMap<>();
@@ -88,6 +92,22 @@ public class FileGeneratorService {
         }
 
         return dtos;
+    }
+
+    public Optional<Kredit> byls_kred(String lskred) {
+        // Очистка кэша сессии перед запросом
+        entityManager.clear();
+
+        String sql = "SELECT * FROM kredit WHERE lskred = :lskred";
+        Query query = entityManager.createNativeQuery(sql, Kredit.class);
+        query.setParameter("lskred", lskred);
+
+        try {
+            Kredit kredit = (Kredit) query.getSingleResult();
+            return Optional.of(kredit);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     public String createFiles(String date) {
