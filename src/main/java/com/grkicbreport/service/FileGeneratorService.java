@@ -98,17 +98,40 @@ public class FileGeneratorService {
         // Очистка кэша сессии перед запросом
         entityManager.clear();
 
+        // Первый запрос по lskred
         String sql = "SELECT * FROM kredit WHERE lskred = :lskred";
         Query query = entityManager.createNativeQuery(sql, Kredit.class);
         query.setParameter("lskred", lskred);
 
         try {
             Kredit kredit = (Kredit) query.getSingleResult();
-            return Optional.of(kredit);
+            return Optional.of(kredit); // Возвращаем результат, если найден
         } catch (Exception e) {
-            return Optional.empty();
+            // Если по lskred не нашли, пробуем по lsprosr_kred
+            sql = "SELECT * FROM kredit WHERE lsprosr_kred = :lskred";
+            query = entityManager.createNativeQuery(sql, Kredit.class);
+            query.setParameter("lskred", lskred);
+
+            try {
+                Kredit kredit = (Kredit) query.getSingleResult();
+                return Optional.of(kredit); // Возвращаем результат, если найден
+            } catch (Exception ex) {
+                // Если по lsprosr_kred не нашли, пробуем по lssud_kred
+                sql = "SELECT * FROM kredit WHERE lssud_kred = :lskred";
+                query = entityManager.createNativeQuery(sql, Kredit.class);
+                query.setParameter("lskred", lskred);
+
+                try {
+                    Kredit kredit = (Kredit) query.getSingleResult();
+                    return Optional.of(kredit); // Возвращаем результат, если найден
+                } catch (Exception exc) {
+                    // Если не нашли ни по одному из полей, возвращаем Optional.empty()
+                    return Optional.empty();
+                }
+            }
         }
     }
+
 
     public String createFiles(String date) {
         // Парсим строку даты в объект java.sql.Date
@@ -194,10 +217,13 @@ public class FileGeneratorService {
                                 dto.getKred().replace("-", "") + separator +
                                 dto.getCurrent_amount().replace("-", "") + separator + "\n";
 
+                        int a = 0;
+                        int b = Integer.parseInt(a + dto.getCurrent_amount().replace("-", ""));
                         // Записываем строку в файл
                         writer008.write(line008);
                         writer008.flush();
                         logger.info("Записана строка в .008 файл: " + line008);
+                        System.out.println(b);
                     } else {
                         logger.info("У кредита с номером " + dto.getAccount() + " отсутствует GRKIId");
                     }
