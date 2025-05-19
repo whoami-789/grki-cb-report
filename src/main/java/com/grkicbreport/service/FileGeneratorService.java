@@ -5,10 +5,6 @@ import com.grkicbreport.dto.CodeExtractor;
 import com.grkicbreport.model.*;
 import com.grkicbreport.repository.*;
 import jakarta.persistence.EntityManager;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -102,17 +98,40 @@ public class FileGeneratorService {
         // Очистка кэша сессии перед запросом
         entityManager.clear();
 
+        // Первый запрос по lskred
         String sql = "SELECT * FROM kredit WHERE lskred = :lskred";
         Query query = entityManager.createNativeQuery(sql, Kredit.class);
         query.setParameter("lskred", lskred);
 
         try {
             Kredit kredit = (Kredit) query.getSingleResult();
-            return Optional.of(kredit);
+            return Optional.of(kredit); // Возвращаем результат, если найден
         } catch (Exception e) {
-            return Optional.empty();
+            // Если по lskred не нашли, пробуем по lsprosr_kred
+            sql = "SELECT * FROM kredit WHERE lsprosr_kred = :lskred";
+            query = entityManager.createNativeQuery(sql, Kredit.class);
+            query.setParameter("lskred", lskred);
+
+            try {
+                Kredit kredit = (Kredit) query.getSingleResult();
+                return Optional.of(kredit); // Возвращаем результат, если найден
+            } catch (Exception ex) {
+                // Если по lsprosr_kred не нашли, пробуем по lssud_kred
+                sql = "SELECT * FROM kredit WHERE lssud_kred = :lskred";
+                query = entityManager.createNativeQuery(sql, Kredit.class);
+                query.setParameter("lskred", lskred);
+
+                try {
+                    Kredit kredit = (Kredit) query.getSingleResult();
+                    return Optional.of(kredit); // Возвращаем результат, если найден
+                } catch (Exception exc) {
+                    // Если не нашли ни по одному из полей, возвращаем Optional.empty()
+                    return Optional.empty();
+                }
+            }
         }
     }
+
 
     public String createFiles(String date) {
         // Парсим строку даты в объект java.sql.Date
@@ -149,23 +168,6 @@ public class FileGeneratorService {
         // Создание файлов с разными расширениями
         String fileName008 = FOLDER_PATH + "/" + generateFilename(dateString, "008");
         String fileName009 = FOLDER_PATH + "/" + generateFilename(dateString, "009");
-
-        String baseFileName = generateZipFileName(dateString).replaceAll("\\.[^.]+$", ""); // удаляем расширение
-        String excelFileName = FOLDER_PATH + "/" + baseFileName + ".xlsx";
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Report");
-
-        // Заголовки
-        Row headerRow = sheet.createRow(0);
-        String[] headers = new String[] {
-                "Дата", "Тип", "Numks", "GRKI ID", "Номер договора",
-                "Счет", "Входящий остаток", "Дебет", "Кредит", "Выходящий остаток"
-        };
-        for (int i = 0; i < headers.length; i++) {
-            headerRow.createCell(i).setCellValue(headers[i]);
-        }
-
-        int rowNum = 1; // Начиная со второй строки
 
         // Создание и запись в файл с расширением .008
         try {
@@ -215,38 +217,19 @@ public class FileGeneratorService {
                                 dto.getKred().replace("-", "") + separator +
                                 dto.getCurrent_amount().replace("-", "") + separator + "\n";
 
+                        int a = 0;
+                        int b = Integer.parseInt(a + dto.getCurrent_amount().replace("-", ""));
                         // Записываем строку в файл
                         writer008.write(line008);
                         writer008.flush();
                         logger.info("Записана строка в .008 файл: " + line008);
-
-                        // Запись в Excel
-                        Row row = sheet.createRow(rowNum++);
-                        row.createCell(0).setCellValue(dateStringReverse);
-                        row.createCell(1).setCellValue("02");
-                        row.createCell(2).setCellValue(inform.getNumks());
-                        row.createCell(3).setCellValue(kredit.getGrkiContractId());
-                        row.createCell(4).setCellValue(cleanedNumdog);
-                        row.createCell(5).setCellValue(dto.getAccount());
-                        row.createCell(6).setCellValue(trimZeros(dto.getPrev_amount()));
-                        row.createCell(7).setCellValue(trimZeros(dto.getDeb()));
-                        row.createCell(8).setCellValue(trimZeros(dto.getKred()));
-                        row.createCell(9).setCellValue(trimZeros(dto.getCurrent_amount()));
-
+                        System.out.println(b);
                     } else {
                         logger.info("У кредита с номером " + dto.getAccount() + " отсутствует GRKIId");
                     }
                 } else {
                     logger.info("Кредит с номером " + dto.getAccount() + " не найден");
                 }
-            }
-            // После цикла — сохраняем Excel-файл
-            try (FileOutputStream fileOut = new FileOutputStream(excelFileName)) {
-                workbook.write(fileOut);
-                workbook.close();
-                logger.info("Excel файл сохранён: " + excelFileName);
-            } catch (IOException e) {
-                logger.info("Ошибка при сохранении Excel файла " + e);
             }
         } catch (Exception e) {
             logger.info("Ошибка при обработке .008 файла " + e);
@@ -745,16 +728,6 @@ public class FileGeneratorService {
                 zipOut.write(bytes, 0, length);
             }
         }
-    }
-
-    private String trimZeros(String value) {
-        if (value == null) return "";
-        // Удаляем минус и обрезаем два последних символа, если они "00"
-        String cleaned = value.replace("-", "");
-        if (cleaned.length() >= 2 && cleaned.endsWith("00")) {
-            return cleaned.substring(0, cleaned.length() - 2);
-        }
-        return cleaned;
     }
 
 }
