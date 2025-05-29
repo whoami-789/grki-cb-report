@@ -522,7 +522,7 @@ public class FileGeneratorService {
                         }
 
                         if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10509")) {
-                            typeOption = "0303";
+                            typeOption = "0301";
                         } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10503")) {
                             typeOption = "0301";
                         } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
