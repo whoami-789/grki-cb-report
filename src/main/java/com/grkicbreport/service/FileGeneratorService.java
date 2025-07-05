@@ -1,10 +1,16 @@
 package com.grkicbreport.service;
 
+import com.grkicbreport.components.InformHelper;
 import com.grkicbreport.dto.CbOtchDTO;
 import com.grkicbreport.dto.CodeExtractor;
 import com.grkicbreport.model.*;
 import com.grkicbreport.repository.*;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -22,10 +28,10 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
-import com.grkicbreport.components.InformHelper;
 
 
 @Service
@@ -99,17 +105,33 @@ public class FileGeneratorService {
         // Очистка кэша сессии перед запросом
         entityManager.clear();
 
-        String sql = "SELECT * FROM kredit WHERE lskred = :lskred";
-        Query query = entityManager.createNativeQuery(sql, Kredit.class);
-        query.setParameter("lskred", lskred);
+        // Поля, по которым будем искать
+        List<String> fields = List.of(
+                "lskred",
+                "lsproc",
+                "lsprosr_proc"
+        );
 
-        try {
-            Kredit kredit = (Kredit) query.getSingleResult();
-            return Optional.of(kredit);
-        } catch (Exception e) {
-            return Optional.empty();
+        for (String field : fields) {
+            String sql = "SELECT * FROM kredit WHERE " + field + " = :lskred";
+            Query query = entityManager.createNativeQuery(sql, Kredit.class);
+            query.setParameter("lskred", lskred);
+
+            try {
+                Kredit kredit = (Kredit) query.getSingleResult();
+                return Optional.of(kredit);
+            } catch (NoResultException e) {
+                // Переходим к следующему полю
+            } catch (Exception e) {
+                // Логировать другие ошибки, если нужно
+                e.printStackTrace();
+            }
         }
+
+        // Если ни один из запросов не дал результат
+        return Optional.empty();
     }
+
 
 
     public String createFiles(String date) {
@@ -148,6 +170,23 @@ public class FileGeneratorService {
         String fileName008 = FOLDER_PATH + "/" + generateFilename(dateString, "008");
         String fileName009 = FOLDER_PATH + "/" + generateFilename(dateString, "009");
 
+        String baseFileName = generateZipFileName(dateString).replaceAll("\\.[^.]+$", ""); // удаляем расширение
+        String excelFileName = FOLDER_PATH + "/" + baseFileName + ".xlsx";
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Report");
+
+        // Заголовки
+        Row headerRow = sheet.createRow(0);
+        String[] headers = new String[]{
+                "Дата", "Тип", "Numks", "GRKI ID", "Номер договора",
+                "Счет", "Входящий остаток", "Дебет", "Кредит", "Выходящий остаток"
+        };
+        for (int i = 0; i < headers.length; i++) {
+            headerRow.createCell(i).setCellValue(headers[i]);
+        }
+
+        int rowNum = 1; // Начиная со второй строки
+
         // Создание и запись в файл с расширением .008
         try {
             BufferedWriter writer008 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName008), "windows-1251"));
@@ -161,7 +200,7 @@ public class FileGeneratorService {
                 String[] parts = record.split("#");
 
                 // Проверяем, что после 3-й решетки (индекс 3) значение начинается с "12401"
-                if (parts.length > 9 && parts[3].startsWith("12401")) {
+                if (parts.length > 9 && parts[3].startsWith("12401") || parts[3].startsWith("16307") || parts[3].startsWith("16377")) {
                     CbOtchDTO dto = new CbOtchDTO();
                     dto.setAccount(parts[3]);       // например, "12401000999000969001"
                     dto.setPrev_amount(parts[6]);   // "-1000000000"
@@ -169,6 +208,7 @@ public class FileGeneratorService {
                     dto.setKred(parts[8]);   // "0"
                     dto.setCurrent_amount(parts[9]);   // "-1000000000"
                     resultList.add(dto);
+                    System.out.println(dto);
                 }
             }
             // Обрабатываем каждую строку из resultList
@@ -181,7 +221,7 @@ public class FileGeneratorService {
                     if (kredit.getGrkiContractId() != null) {
                         // Очищаем номер договора от нежелательных символов
                         String cleanedNumdog = kredit.getNumdog()
-                                .replaceAll("[-KК/\\\\.]", "")
+                                .replaceAll("[-KК/\\\\]", "")
                                 .trim();
 
                         // Формируем строку для записи.
@@ -191,15 +231,28 @@ public class FileGeneratorService {
                                 (kredit.getGrkiContractId() != null ? kredit.getGrkiContractId() : "0") + separator +
                                 cleanedNumdog + separator +
                                 dto.getAccount() + separator +    // Предполагается, что метод getBal() существует в CbOtchDTO
-                                dto.getPrev_amount().replace("-", "") + separator +
-                                dto.getDeb().replace("-", "") + separator +
-                                dto.getKred().replace("-", "") + separator +
-                                dto.getCurrent_amount().replace("-", "") + separator + "\n";
+                                dto.getPrev_amount() + separator +
+                                dto.getDeb() + separator +
+                                dto.getKred() + separator +
+                                dto.getCurrent_amount() + separator + "\n";
 
                         // Записываем строку в файл
                         writer008.write(line008);
                         writer008.flush();
-                        logger.info("Записана строка в .008 файл: " + line008);
+
+                        // Запись в Excel
+                        Row row = sheet.createRow(rowNum++);
+                        row.createCell(0).setCellValue(dateStringReverse);
+                        row.createCell(1).setCellValue("03");
+                        row.createCell(2).setCellValue(inform.getNumks());
+                        row.createCell(3).setCellValue(kredit.getGrkiContractId());
+                        row.createCell(4).setCellValue(cleanedNumdog);
+                        row.createCell(5).setCellValue(dto.getAccount());
+                        row.createCell(6).setCellValue(trimZeros(dto.getPrev_amount()));
+                        row.createCell(7).setCellValue(trimZeros(dto.getDeb()));
+                        row.createCell(8).setCellValue(trimZeros(dto.getKred()));
+                        row.createCell(9).setCellValue(trimZeros(dto.getCurrent_amount()));
+
                     } else {
                         logger.info("У кредита с номером " + dto.getAccount() + " отсутствует GRKIId");
                     }
@@ -207,9 +260,18 @@ public class FileGeneratorService {
                     logger.info("Кредит с номером " + dto.getAccount() + " не найден");
                 }
             }
+            // После цикла — сохраняем Excel-файл
+            try (FileOutputStream fileOut = new FileOutputStream(excelFileName)) {
+                workbook.write(fileOut);
+                workbook.close();
+                logger.info("Excel файл сохранён: " + excelFileName);
+            } catch (IOException e) {
+                logger.info("Ошибка при сохранении Excel файла " + e);
+            }
         } catch (Exception e) {
             logger.info("Ошибка при обработке .008 файла " + e);
         }
+
 
         // Создание и запись в файл с расширением .009
         try {
@@ -704,6 +766,16 @@ public class FileGeneratorService {
                 zipOut.write(bytes, 0, length);
             }
         }
+    }
+
+    private String trimZeros(String value) {
+        if (value == null) return "";
+        // Удаляем минус и обрезаем два последних символа, если они "00"
+        String cleaned = value.replace("-", "");
+        if (cleaned.length() >= 2 && cleaned.endsWith("00")) {
+            return cleaned.substring(0, cleaned.length() - 2);
+        }
+        return cleaned;
     }
 
 }

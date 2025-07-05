@@ -70,8 +70,9 @@
             <version>3.9.0</version> <!-- Или более поздняя версия -->
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.3</version> <!-- или актуальная версия -->
         </dependency>
 
     </dependencies>
