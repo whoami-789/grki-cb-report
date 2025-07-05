@@ -5,6 +5,7 @@ import com.grkicbreport.dto.CodeExtractor;
 import com.grkicbreport.model.*;
 import com.grkicbreport.repository.*;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -103,38 +104,38 @@ public class FileGeneratorService {
         // Очистка кэша сессии перед запросом
         entityManager.clear();
 
-        String sql = "SELECT * FROM kredit WHERE lskred = :lskred";
-        Query query = entityManager.createNativeQuery(sql, Kredit.class);
-        query.setParameter("lskred", lskred);
+        // Поля, по которым будем искать
+        List<String> fields = List.of(
+                "lskred",
+                "lsprosr_kred",
+                "lssud_kred",
+                "lsproc",
+                "lsprocvne",
+                "ls_spiskred",
+                "lsprosr_proc",
+                "lsrezerv"
+        );
 
-        try {
-            Kredit kredit = (Kredit) query.getSingleResult();
-            return Optional.of(kredit);
-        } catch (Exception e1) {
-            // Если не нашли по lskred, пробуем по lsprosr_kred
-            String sqlProsr = "SELECT * FROM kredit WHERE lsprosr_kred = :lskred";
-            Query queryProsr = entityManager.createNativeQuery(sqlProsr, Kredit.class);
-            queryProsr.setParameter("lskred", lskred);
+        for (String field : fields) {
+            String sql = "SELECT * FROM kredit WHERE " + field + " = :lskred";
+            Query query = entityManager.createNativeQuery(sql, Kredit.class);
+            query.setParameter("lskred", lskred);
 
             try {
-                Kredit kreditProsr = (Kredit) queryProsr.getSingleResult();
-                return Optional.of(kreditProsr);
-            } catch (Exception e2) {
-                // Если не нашли по lsprosr_kred, пробуем по lssud_kred
-                String sqlSud = "SELECT * FROM kredit WHERE lssud_kred = :lskred";
-                Query querySud = entityManager.createNativeQuery(sqlSud, Kredit.class);
-                querySud.setParameter("lskred", lskred);
-
-                try {
-                    Kredit kreditSud = (Kredit) querySud.getSingleResult();
-                    return Optional.of(kreditSud);
-                } catch (Exception e3) {
-                    // Ничего не найдено
-                    return Optional.empty();
-                }
+                Kredit kredit = (Kredit) query.getSingleResult();
+                return Optional.of(kredit);
+            } catch (NoResultException e) {
+                // Переходим к следующему полю
+            } catch (Exception e) {
+                // Логировать другие ошибки, если нужно
+                e.printStackTrace();
             }
         }
+
+        // Если ни один из запросов не дал результат
+        return Optional.empty();
     }
+
 
 
     public String createFiles(String date) {
@@ -203,7 +204,9 @@ public class FileGeneratorService {
                 String[] parts = record.split("#");
 
                 // Проверяем, что после 3-й решетки (индекс 3) значение начинается с "12401"
-                if (parts.length > 9 && parts[3].startsWith("12401") || parts[3].startsWith("12405") || parts[3].startsWith("15701")) {
+                if (parts.length > 9 && parts[3].startsWith("12401") || parts[3].startsWith("12405") || parts[3].startsWith("15701")
+                        || parts[3].startsWith("12499") || parts[3].startsWith("15799") || parts[3].startsWith("16307")
+                        || parts[3].startsWith("16377") || parts[3].startsWith("91501") || parts[3].startsWith("95413")) {
                     CbOtchDTO dto = new CbOtchDTO();
                     dto.setAccount(parts[3]);       // например, "12401000999000969001"
                     dto.setPrev_amount(parts[6]);   // "-1000000000"
@@ -211,6 +214,7 @@ public class FileGeneratorService {
                     dto.setKred(parts[8]);   // "0"
                     dto.setCurrent_amount(parts[9]);   // "-1000000000"
                     resultList.add(dto);
+                    System.out.println(dto);
                 }
             }
             // Обрабатываем каждую строку из resultList
@@ -233,15 +237,14 @@ public class FileGeneratorService {
                                 (kredit.getGrkiContractId() != null ? kredit.getGrkiContractId() : "0") + separator +
                                 cleanedNumdog + separator +
                                 dto.getAccount() + separator +    // Предполагается, что метод getBal() существует в CbOtchDTO
-                                dto.getPrev_amount().replace("-", "") + separator +
-                                dto.getDeb().replace("-", "") + separator +
-                                dto.getKred().replace("-", "") + separator +
-                                dto.getCurrent_amount().replace("-", "") + separator + "\n";
+                                dto.getPrev_amount() + separator +
+                                dto.getDeb() + separator +
+                                dto.getKred() + separator +
+                                dto.getCurrent_amount() + separator + "\n";
 
                         // Записываем строку в файл
                         writer008.write(line008);
                         writer008.flush();
-                        logger.info("Записана строка в .008 файл: " + line008);
 
                         // Запись в Excel
                         Row row = sheet.createRow(rowNum++);
@@ -477,7 +480,6 @@ public class FileGeneratorService {
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
-                            logger.info("Записана строка в .009 файл: " + line009);
                         } else {
 
                             String line009 = dateStringReverse + separator +
@@ -530,7 +532,7 @@ public class FileGeneratorService {
                         } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("22812")) {
                             typeOption = "0901";
                         } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("22812")) {
-                            typeOption = "0901";
+                            typeOption = "0902";
                         } else if (dok.getLs().startsWith("12409") && dok.getLscor().startsWith("22812")) {
                             typeOption = "0901";
                         } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("22812")) {
@@ -552,11 +554,11 @@ public class FileGeneratorService {
                         } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10509")) {
                             typeOption = "0313";
                         } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10509")) {
-                            typeOption = "0303";
+                            typeOption = "0405";
                         } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101")) {
                             typeOption = "0307";
                         } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10509")) {
-                            typeOption = "0306";
+                            typeOption = "0305";
                         } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10101")) {
                             typeOption = "0315";
                         } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10509")) {

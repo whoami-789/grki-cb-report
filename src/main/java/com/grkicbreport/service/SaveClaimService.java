@@ -46,7 +46,7 @@ public class SaveClaimService {
     }
 
 
-    public saveClaimDTO createClaim(String contractNumber, String save_mode) {
+    public saveClaimDTO createClaim(String contractNumber, String save_mode, String averageIncome) {
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
 
@@ -120,7 +120,8 @@ public class SaveClaimService {
 
             // Заполнение списка IncomeDTO
             IncomeDTO incomeDTO = new IncomeDTO();
-            incomeDTO.setIncome_type("08");
+            incomeDTO.setIncome_type("07");
+            incomeDTO.setAverage_income(averageIncome);
             dto.setIncome(List.of(incomeDTO)); // Устанавливаем список доходов
 
             // Заполнение ContactsDTO
@@ -208,8 +209,8 @@ public class SaveClaimService {
         }
     }
 
-    public ResponseEntity<String> sendSaveClaim(String contractNumber, String save_mode) {
-        saveClaimDTO dto = createClaim(contractNumber, save_mode);
+    public ResponseEntity<String> sendSaveClaim(String contractNumber, String save_mode, String averageIncome) {
+        saveClaimDTO dto = createClaim(contractNumber, save_mode, averageIncome);
         Inform inform = informHelper.fetchSingleRow();
 
         HttpHeaders headers = new HttpHeaders();

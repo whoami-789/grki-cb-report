@@ -6,6 +6,7 @@ public class RequestDTO {
     private String save_mode;
 
     private String contractNumber;
+    private String average_income;
 
     private String loan_line;
     private String decisionNumber;
@@ -55,6 +56,10 @@ public class RequestDTO {
 
     public String getContractNumber() {
         return this.contractNumber;
+    }
+
+    public String getAverage_income() {
+        return this.average_income;
     }
 
     public String getLoan_line() {
@@ -183,6 +188,10 @@ public class RequestDTO {
 
     public void setContractNumber(String contractNumber) {
         this.contractNumber = contractNumber;
+    }
+
+    public void setAverage_income(String average_income) {
+        this.average_income = average_income;
     }
 
     public void setLoan_line(String loan_line) {
@@ -317,6 +326,10 @@ public class RequestDTO {
         final Object other$contractNumber = other.getContractNumber();
         if (this$contractNumber == null ? other$contractNumber != null : !this$contractNumber.equals(other$contractNumber))
             return false;
+        final Object this$average_income = this.getAverage_income();
+        final Object other$average_income = other.getAverage_income();
+        if (this$average_income == null ? other$average_income != null : !this$average_income.equals(other$average_income))
+            return false;
         final Object this$loan_line = this.getLoan_line();
         final Object other$loan_line = other.getLoan_line();
         if (this$loan_line == null ? other$loan_line != null : !this$loan_line.equals(other$loan_line)) return false;
@@ -438,6 +451,8 @@ public class RequestDTO {
         result = result * PRIME + ($save_mode == null ? 43 : $save_mode.hashCode());
         final Object $contractNumber = this.getContractNumber();
         result = result * PRIME + ($contractNumber == null ? 43 : $contractNumber.hashCode());
+        final Object $average_income = this.getAverage_income();
+        result = result * PRIME + ($average_income == null ? 43 : $average_income.hashCode());
         final Object $loan_line = this.getLoan_line();
         result = result * PRIME + ($loan_line == null ? 43 : $loan_line.hashCode());
         final Object $decisionNumber = this.getDecisionNumber();
@@ -502,7 +517,7 @@ public class RequestDTO {
     }
 
     public String toString() {
-        return "RequestDTO(save_mode=" + this.getSave_mode() + ", contractNumber=" + this.getContractNumber() + ", loan_line=" + this.getLoan_line() + ", decisionNumber=" + this.getDecisionNumber() + ", decisionDate=" + this.getDecisionDate() + ", agreement_id=" + this.getAgreement_id() + ", agreement_number=" + this.getAgreement_number() + ", agreement_date_begin=" + this.getAgreement_date_begin() + ", agreement_date_end=" + this.getAgreement_date_end() + ", agreement_subject_type=" + this.getAgreement_subject_type() + ", agreement_inn_pinfl=" + this.getAgreement_inn_pinfl() + ", agreement_name=" + this.getAgreement_name() + ", agreement_amount=" + this.getAgreement_amount() + ", provisionNumber=" + this.getProvisionNumber() + ", provisionDate=" + this.getProvisionDate() + ", nibbd=" + this.getNibbd() + ", engine_number=" + this.getEngine_number() + ", body_number=" + this.getBody_number() + ", year=" + this.getYear() + ", state_number=" + this.getState_number() + ", model=" + this.getModel() + ", chassis_number=" + this.getChassis_number() + ", color=" + this.getColor() + ", doc_seria_number=" + this.getDoc_seria_number() + ", vin_number=" + this.getVin_number() + ", decide_number=" + this.getDecide_number() + ", decide_date=" + this.getDecide_date() + ", conclusion=" + this.getConclusion() + ", send_date=" + this.getSend_date() + ", type=" + this.getType() + ", number=" + this.getNumber() + ", date=" + this.getDate() + ")";
+        return "RequestDTO(save_mode=" + this.getSave_mode() + ", contractNumber=" + this.getContractNumber() + ", average_income=" + this.getAverage_income() + ", loan_line=" + this.getLoan_line() + ", decisionNumber=" + this.getDecisionNumber() + ", decisionDate=" + this.getDecisionDate() + ", agreement_id=" + this.getAgreement_id() + ", agreement_number=" + this.getAgreement_number() + ", agreement_date_begin=" + this.getAgreement_date_begin() + ", agreement_date_end=" + this.getAgreement_date_end() + ", agreement_subject_type=" + this.getAgreement_subject_type() + ", agreement_inn_pinfl=" + this.getAgreement_inn_pinfl() + ", agreement_name=" + this.getAgreement_name() + ", agreement_amount=" + this.getAgreement_amount() + ", provisionNumber=" + this.getProvisionNumber() + ", provisionDate=" + this.getProvisionDate() + ", nibbd=" + this.getNibbd() + ", engine_number=" + this.getEngine_number() + ", body_number=" + this.getBody_number() + ", year=" + this.getYear() + ", state_number=" + this.getState_number() + ", model=" + this.getModel() + ", chassis_number=" + this.getChassis_number() + ", color=" + this.getColor() + ", doc_seria_number=" + this.getDoc_seria_number() + ", vin_number=" + this.getVin_number() + ", decide_number=" + this.getDecide_number() + ", decide_date=" + this.getDecide_date() + ", conclusion=" + this.getConclusion() + ", send_date=" + this.getSend_date() + ", type=" + this.getType() + ", number=" + this.getNumber() + ", date=" + this.getDate() + ")";
     }
 }
 

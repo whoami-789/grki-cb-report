@@ -46,7 +46,7 @@ public class MainController {
 
     @PostMapping("/get-save-claim")
     public ResponseEntity<String> sendSaveClaim(@RequestBody RequestDTO requestDTO) {
-        return saveClaimService.sendSaveClaim(requestDTO.getContractNumber(), requestDTO.getSave_mode());
+        return saveClaimService.sendSaveClaim(requestDTO.getContractNumber(), requestDTO.getSave_mode(), requestDTO.getAverage_income());
     }
 
     @PostMapping("/get-save-contract")
