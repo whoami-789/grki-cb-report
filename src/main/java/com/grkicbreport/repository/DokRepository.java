@@ -2,6 +2,8 @@ package com.grkicbreport.repository;
 
 import com.grkicbreport.model.Dok;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.query.Procedure;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Date;
@@ -15,4 +17,6 @@ public interface DokRepository extends JpaRepository<Dok, Long> {
     List<Dok> getDokumentByLsAndDats(String ls, LocalDate dats);
 
     List<Dok> getDokumentByLscorAndDats(String lscor, LocalDate dats);
-}
+
+    @Procedure(name = "analiz_schet")
+    List<String> analiz_schet(@Param("dats") String dats, @Param("bal")  String bal);}

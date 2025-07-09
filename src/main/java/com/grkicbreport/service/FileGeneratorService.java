@@ -42,6 +42,7 @@ public class FileGeneratorService {
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
     private final InformHelper informHelper;
+    private final SaldoRepository saldoRepository;
     @Autowired
     private EntityManager entityManager;
     @Autowired
@@ -49,12 +50,13 @@ public class FileGeneratorService {
     private final Map<String, Integer> dailyFlightNumbers = new HashMap<>();
     private static final Logger logger = Logger.getLogger(FileGeneratorService.class.getName());
 
-    public FileGeneratorService(KreditRepository kreditRepository, DokRepository dokRepository, AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository, com.grkicbreport.component.InformHelper informHelper) {
+    public FileGeneratorService(KreditRepository kreditRepository, DokRepository dokRepository, AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository, com.grkicbreport.component.InformHelper informHelper, SaldoRepository saldoRepository) {
         this.kreditRepository = kreditRepository;
         this.dokRepository = dokRepository;
         this.azolikFizRepository = azolikFizRepository;
         this.azolikYurRepository = azolikYurRepository;
         this.informHelper = informHelper;
+        this.saldoRepository = saldoRepository;
     }
 
 
@@ -194,10 +196,12 @@ public class FileGeneratorService {
         // Создание и запись в файл с расширением .008
         try {
             BufferedWriter writer008 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName008), "windows-1251"));
-            List<String> cb_otch = kreditRepository.cb_otch(currentDate, currentDate);
+            List<String> saldo_current = dokRepository.analiz_schet(String.valueOf(currentDate), "12401");
+
+            System.out.println(saldo_current);
             List<CbOtchDTO> resultList = new ArrayList<>();
             // Итерация по всем значениям bal
-            for (String record : cb_otch) {
+            for (String record : saldo_current) {
                 // Убираем завершающие символы, если необходимо
                 record = record.replace(",,", "");
                 // Разбиваем строку по символу "#"
@@ -781,6 +785,5 @@ public class FileGeneratorService {
         }
         return cleaned;
     }
-
 }
 

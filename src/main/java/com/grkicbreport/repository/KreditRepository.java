@@ -5,12 +5,15 @@ import com.grkicbreport.model.Kredit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 
@@ -53,6 +56,8 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
 
     @Query(value = "SELECT * FROM kredit WHERE lsprosr_kred = :lskred", nativeQuery = true)
     Optional<Kredit> findKreditByLsProsrkred(@Param("lskred") String lskred);
+
+
 //    @Query(value = """
 //    DECLARE @sql NVARCHAR(MAX) = '';
 //

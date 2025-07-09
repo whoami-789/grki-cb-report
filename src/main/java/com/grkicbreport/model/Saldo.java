@@ -12,11 +12,6 @@ import java.time.LocalDate;
 @Table(name = "saldo")
 public class Saldo {
 
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "id", nullable = false)
-//    private Long id;
-
     @Id
     @Column(name = "ls", nullable = false)
     private String ls;

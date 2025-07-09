@@ -37,4 +37,6 @@ public interface SaldoRepository extends JpaRepository<Saldo, Long> {
             "WHERE s.ls = :ls " +
             "AND s.dats = :dats", nativeQuery = true)
     BigDecimal findSumsByLsAndDats(@Param("ls") String ls, @Param("dats") LocalDate dats);
+
+    List<String> findByDats(LocalDate date);
 }
