@@ -176,22 +176,6 @@ public class FileGeneratorService {
         String fileName008 = FOLDER_PATH + "/" + generateFilename(dateString, "008");
         String fileName009 = FOLDER_PATH + "/" + generateFilename(dateString, "009");
 
-        String baseFileName = generateZipFileName(dateString).replaceAll("\\.[^.]+$", ""); // удаляем расширение
-        String excelFileName = FOLDER_PATH + "/" + baseFileName + ".xlsx";
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Report");
-
-        // Заголовки
-        Row headerRow = sheet.createRow(0);
-        String[] headers = new String[]{
-                "Дата", "Тип", "Numks", "GRKI ID", "Номер договора",
-                "Счет", "Входящий остаток", "Дебет", "Кредит", "Выходящий остаток"
-        };
-        for (int i = 0; i < headers.length; i++) {
-            headerRow.createCell(i).setCellValue(headers[i]);
-        }
-
-        int rowNum = 1; // Начиная со второй строки
 
         // Создание и запись в файл с расширением .008
         try {
@@ -265,9 +249,9 @@ public class FileGeneratorService {
                                     cleanedNumdog + separator +
                                     dto.getAccount() + separator +
                                     dto.getPrev_amount() + separator +
-                                    dto.getDeb() + separator +
-                                    dto.getKred() + separator +
-                                    dto.getCurrent_amount() + separator + "\n";
+                                    findByLscor.get().getSums().intValue() + separator +
+                                    0 + separator +
+                                    dto.getAmount() + separator + "\n";
 
                             // Записываем строку в файл
                             writer008.write(line008);
@@ -290,9 +274,9 @@ public class FileGeneratorService {
                                     cleanedNumdog + separator +
                                     dto.getAccount() + separator +
                                     dto.getPrev_amount() + separator +
-                                    dto.getDeb() + separator +
-                                    dto.getKred() + separator +
-                                    dto.getCurrent_amount() + separator + "\n";
+                                    findByLscor.get().getSums().intValue() + separator +
+                                    findByLs.get().getSums().intValue() + separator +
+                                    dto.getAmount() + separator + "\n";
 
                             // Записываем строку в файл
                             writer008.write(line008);
@@ -306,14 +290,6 @@ public class FileGeneratorService {
                 } else {
                     logger.info("Кредит с номером " + dto.getAccount() + " не найден");
                 }
-            }
-            // После цикла — сохраняем Excel-файл
-            try (FileOutputStream fileOut = new FileOutputStream(excelFileName)) {
-                workbook.write(fileOut);
-                workbook.close();
-                logger.info("Excel файл сохранён: " + excelFileName);
-            } catch (IOException e) {
-                logger.info("Ошибка при сохранении Excel файла " + e);
             }
         } catch (Exception e) {
             logger.info("Ошибка при обработке .008 файла " + e);
