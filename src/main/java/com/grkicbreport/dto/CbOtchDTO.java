@@ -3,6 +3,16 @@ package com.grkicbreport.dto;
 public class CbOtchDTO {
     private String account;
     private String amount;
+    private String prev_amount;
+
+    public String getPrev_amount() {
+        return prev_amount;
+    }
+
+    public void setPrev_amount(String prev_amount) {
+        this.prev_amount = prev_amount;
+    }
+
 
     public String getAccount() {
         return account;
