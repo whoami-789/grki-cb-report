@@ -1,7 +1,24 @@
 package com.grkicbreport.model;
 
+import jakarta.persistence.ColumnResult;
+import jakarta.persistence.ConstructorResult;
+import jakarta.persistence.SqlResultSetMapping;
+
 import java.math.BigDecimal;
 
+@SqlResultSetMapping(
+        name = "Analiz_schetDTOMapping",
+        classes = @ConstructorResult(
+                targetClass = Analiz_schetDTO.class,
+                columns = {
+                        @ColumnResult(name = "bal", type = String.class),
+                        @ColumnResult(name = "namer", type = String.class),
+                        @ColumnResult(name = "deb", type = BigDecimal.class),
+                        @ColumnResult(name = "kred", type = BigDecimal.class),
+                        // ... добавьте все поля DTO
+                }
+        )
+)
 public class Analiz_schetDTO {
     private String bal;
     private String namer;

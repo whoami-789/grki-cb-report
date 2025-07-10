@@ -28,7 +28,6 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
 import com.grkicbreport.component.InformHelper;
@@ -42,6 +41,7 @@ public class FileGeneratorService {
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
     private final InformHelper informHelper;
+    private final Analiz_schetService analizSchetService;
     private final SaldoRepository saldoRepository;
     @Autowired
     private EntityManager entityManager;
@@ -50,12 +50,13 @@ public class FileGeneratorService {
     private final Map<String, Integer> dailyFlightNumbers = new HashMap<>();
     private static final Logger logger = Logger.getLogger(FileGeneratorService.class.getName());
 
-    public FileGeneratorService(KreditRepository kreditRepository, DokRepository dokRepository, AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository, com.grkicbreport.component.InformHelper informHelper, SaldoRepository saldoRepository) {
+    public FileGeneratorService(KreditRepository kreditRepository, DokRepository dokRepository, AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository, com.grkicbreport.component.InformHelper informHelper, Analiz_schetService analizSchetService, SaldoRepository saldoRepository) {
         this.kreditRepository = kreditRepository;
         this.dokRepository = dokRepository;
         this.azolikFizRepository = azolikFizRepository;
         this.azolikYurRepository = azolikYurRepository;
         this.informHelper = informHelper;
+        this.analizSchetService = analizSchetService;
         this.saldoRepository = saldoRepository;
     }
 
@@ -139,7 +140,6 @@ public class FileGeneratorService {
     }
 
 
-
     public String createFiles(String date) {
         // Парсим строку даты в объект java.sql.Date
         Date currentDate;
@@ -196,29 +196,22 @@ public class FileGeneratorService {
         // Создание и запись в файл с расширением .008
         try {
             BufferedWriter writer008 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName008), "windows-1251"));
-            List<String> saldo_current = dokRepository.analiz_schet(String.valueOf(currentDate), "12401");
+            List<String> accounts_current = dokRepository.Analiz_schet(currentDate, "12401");
 
-            System.out.println(saldo_current);
             List<CbOtchDTO> resultList = new ArrayList<>();
             // Итерация по всем значениям bal
-            for (String record : saldo_current) {
-                // Убираем завершающие символы, если необходимо
-                record = record.replace(",,", "");
-                // Разбиваем строку по символу "#"
-                String[] parts = record.split("#");
+            for (String record : accounts_current) {
+                // Разбиваем строку по запятым
+                String[] parts = record.split(",");
 
-                // Проверяем, что после 3-й решетки (индекс 3) значение начинается с "12401"
-                if (parts.length > 9 && parts[3].startsWith("12401") || parts[3].startsWith("12405") || parts[3].startsWith("15701")
-                        || parts[3].startsWith("12499") || parts[3].startsWith("15799") || parts[3].startsWith("16307")
-                        || parts[3].startsWith("16377") || parts[3].startsWith("91501") || parts[3].startsWith("95413")) {
+                if (parts.length >= 3) {  // Проверяем, что есть минимум 3 элемента
                     CbOtchDTO dto = new CbOtchDTO();
-                    dto.setAccount(parts[3]);       // например, "12401000999000969001"
-                    dto.setPrev_amount(parts[6]);   // "-1000000000"
-                    dto.setDeb(parts[7]);   // "0"
-                    dto.setKred(parts[8]);   // "0"
-                    dto.setCurrent_amount(parts[9]);   // "-1000000000"
+                    dto.setAccount(parts[0].trim());       // Первое значение (аккаунт)
+                    dto.setAmount(parts[2].trim());        // Третье значение (сумма)
                     resultList.add(dto);
-                    System.out.println(dto);
+                    System.out.println(dto.getAccount() + " " + dto.getAmount());
+                } else {
+                    System.err.println("Некорректный формат записи: " + record);
                 }
             }
             // Обрабатываем каждую строку из resultList
@@ -227,45 +220,89 @@ public class FileGeneratorService {
                 Optional<Kredit> creditOpt = byls_kred(dto.getAccount());
                 if (creditOpt.isPresent()) {
                     Kredit kredit = creditOpt.get();
-                    // Предполагаем, что у объекта Kredit есть метод getGRKIId() и он возвращает нужный объект
-                    if (kredit.getGrkiContractId() != null) {
-                        // Очищаем номер договора от нежелательных символов
-                        String cleanedNumdog = kredit.getNumdog()
-                                .replaceAll("[-KК/\\\\]", "")
-                                .trim();
 
-                        // Формируем строку для записи.
-                        String line008 = dateStringReverse + separator +
-                                "02" + separator +
-                                inform.getNumks() + separator +
-                                (kredit.getGrkiContractId() != null ? kredit.getGrkiContractId() : "0") + separator +
-                                cleanedNumdog + separator +
-                                dto.getAccount() + separator +    // Предполагается, что метод getBal() существует в CbOtchDTO
-                                dto.getPrev_amount() + separator +
-                                dto.getDeb() + separator +
-                                dto.getKred() + separator +
-                                dto.getCurrent_amount() + separator + "\n";
+                    Optional<Dok> findByLs = dokRepository.getDokumentByLsAndDats(dto.getAccount(), currentDate.toLocalDate());
+                    Optional<Dok> findByLscor = dokRepository.getDokumentByLscorAndDats(dto.getAccount(), currentDate.toLocalDate());
 
-                        // Записываем строку в файл
-                        writer008.write(line008);
-                        writer008.flush();
+                    if (findByLs.isPresent()) {
 
-                        // Запись в Excel
-                        Row row = sheet.createRow(rowNum++);
-                        row.createCell(0).setCellValue(dateStringReverse);
-                        row.createCell(1).setCellValue("02");
-                        row.createCell(2).setCellValue(inform.getNumks());
-                        row.createCell(3).setCellValue(kredit.getGrkiContractId());
-                        row.createCell(4).setCellValue(cleanedNumdog);
-                        row.createCell(5).setCellValue(dto.getAccount());
-                        row.createCell(6).setCellValue(trimZeros(dto.getPrev_amount()));
-                        row.createCell(7).setCellValue(trimZeros(dto.getDeb()));
-                        row.createCell(8).setCellValue(trimZeros(dto.getKred()));
-                        row.createCell(9).setCellValue(trimZeros(dto.getCurrent_amount()));
+                        if (kredit.getGrkiContractId() != null) {
+                            // Очищаем номер договора от нежелательных символов
+                            String cleanedNumdog = kredit.getNumdog()
+                                    .replaceAll("[-KК/\\\\]", "")
+                                    .trim();
 
+                            // Формируем строку для записи.
+                            String line008 = dateStringReverse + separator +
+                                    "02" + separator +
+                                    inform.getNumks() + separator +
+                                    (kredit.getGrkiContractId() != null ? kredit.getGrkiContractId() : "0") + separator +
+                                    cleanedNumdog + separator +
+                                    dto.getAccount() + separator +
+                                    dto.getPrev_amount() + separator +
+                                    0 + separator +
+                                    findByLs.get().getSums().intValue() + separator +
+                                    dto.getAmount() + separator + "\n";
+
+                            // Записываем строку в файл
+                            writer008.write(line008);
+                            writer008.flush();
+                        } else {
+                            logger.info("У кредита с номером " + dto.getAccount() + " отсутствует GRKIId");
+                        }
+                    } else if (findByLscor.isPresent()) {
+                        if (kredit.getGrkiContractId() != null) {
+                            // Очищаем номер договора от нежелательных символов
+                            String cleanedNumdog = kredit.getNumdog()
+                                    .replaceAll("[-KК/\\\\]", "")
+                                    .trim();
+
+                            // Формируем строку для записи.
+                            String line008 = dateStringReverse + separator +
+                                    "02" + separator +
+                                    inform.getNumks() + separator +
+                                    (kredit.getGrkiContractId() != null ? kredit.getGrkiContractId() : "0") + separator +
+                                    cleanedNumdog + separator +
+                                    dto.getAccount() + separator +
+                                    dto.getPrev_amount() + separator +
+                                    dto.getDeb() + separator +
+                                    dto.getKred() + separator +
+                                    dto.getCurrent_amount() + separator + "\n";
+
+                            // Записываем строку в файл
+                            writer008.write(line008);
+                            writer008.flush();
+                        } else {
+                            logger.info("У кредита с номером " + dto.getAccount() + " отсутствует GRKIId");
+                        }
                     } else {
-                        logger.info("У кредита с номером " + dto.getAccount() + " отсутствует GRKIId");
+                        if (kredit.getGrkiContractId() != null) {
+                            // Очищаем номер договора от нежелательных символов
+                            String cleanedNumdog = kredit.getNumdog()
+                                    .replaceAll("[-KК/\\\\]", "")
+                                    .trim();
+
+                            // Формируем строку для записи.
+                            String line008 = dateStringReverse + separator +
+                                    "02" + separator +
+                                    inform.getNumks() + separator +
+                                    (kredit.getGrkiContractId() != null ? kredit.getGrkiContractId() : "0") + separator +
+                                    cleanedNumdog + separator +
+                                    dto.getAccount() + separator +
+                                    dto.getPrev_amount() + separator +
+                                    dto.getDeb() + separator +
+                                    dto.getKred() + separator +
+                                    dto.getCurrent_amount() + separator + "\n";
+
+                            // Записываем строку в файл
+                            writer008.write(line008);
+                            writer008.flush();
+                        } else {
+                            logger.info("У кредита с номером " + dto.getAccount() + " отсутствует GRKIId");
+                        }
                     }
+                    // Предполагаем, что у объекта Kredit есть метод getGRKIId() и он возвращает нужный объект
+
                 } else {
                     logger.info("Кредит с номером " + dto.getAccount() + " не найден");
                 }
