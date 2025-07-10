@@ -4,6 +4,9 @@ import com.grkicbreport.components.InformHelper;
 import com.grkicbreport.dto.CodeExtractor;
 import com.grkicbreport.model.*;
 import com.grkicbreport.repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,7 +36,9 @@ public class FileGeneratorService {
     private final AzolikFizRepository azolikFizRepository;
     private final AzolikYurRepository azolikYurRepository;
     private final InformHelper informHelper;
-    private final String[] balValues = {"12401", "12405", "12409", "12499", "12501", "14801", "14899", "15701"};
+    @Autowired
+    private EntityManager entityManager;
+    private final String[] balValues = {"12401", "12405", "12499", "15701", "15799", "16307", "16377", "91501", "95413"};
     private static final String FOLDER_PATH = "C:/Users/Javlon Javohir/Desktop/GRKI"; // Укажите здесь вашу папку
 
 
@@ -97,6 +102,42 @@ public class FileGeneratorService {
         return dtos;
     }
 
+    public Optional<Kredit> byls_kred(String lskred) {
+        // Очистка кэша сессии перед запросом
+        entityManager.clear();
+
+        // Поля, по которым будем искать
+        List<String> fields = List.of(
+                "lskred",
+                "lsprosr_kred",
+                "lssud_kred",
+                "lsproc",
+                "lsprocvne",
+                "ls_spiskred",
+                "lsprosr_proc",
+                "lsrezerv"
+        );
+
+        for (String field : fields) {
+            String sql = "SELECT * FROM kredit WHERE " + field + " = :lskred";
+            Query query = entityManager.createNativeQuery(sql, Kredit.class);
+            query.setParameter("lskred", lskred);
+
+            try {
+                Kredit kredit = (Kredit) query.getSingleResult();
+                return Optional.of(kredit);
+            } catch (NoResultException e) {
+                // Переходим к следующему полю
+            } catch (Exception e) {
+                // Логировать другие ошибки, если нужно
+                e.printStackTrace();
+            }
+        }
+
+        // Если ни один из запросов не дал результат
+        return Optional.empty();
+    }
+
     public String createFiles(String date) {
         // Парсим строку даты в объект java.sql.Date
         Date currentDate;
@@ -135,63 +176,72 @@ public class FileGeneratorService {
         try {
             BufferedWriter writer008 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName008), "windows-1251"));
             // Итерация по всем значениям bal
+            // Создаем карту для хранения сумм по каждому балансовому счёту
+            Map<String, Map<String, BigDecimal>> sumsByBal = new HashMap<>();
+
+// Инициализируем структуру для всех балансовых счетов
             for (String bal : balValues) {
-                // Получаем сырые данные в виде List<String>
+                Map<String, BigDecimal> sums = new HashMap<>();
+                sums.put("previousDayDeb", BigDecimal.ZERO);
+                sums.put("debitSum", BigDecimal.ZERO);
+                sums.put("kreditSum", BigDecimal.ZERO);
+                sums.put("recordDeb", BigDecimal.ZERO);
+                sumsByBal.put(bal, sums);
+            }
+
+            for (String bal : balValues) {
                 List<String> rawDataList = aliz_schetService.Analiz_schet(currentDate, bal);
-                // Преобразуем сырые данные в List<Analiz_schetDTO>
                 List<Analiz_schetDTO> currentDataList = convertToDTO(rawDataList);
-                // Печать для отладки
                 System.out.println("Current Data List for BAL " + bal + ": " + currentDataList);
 
                 List<String> prewDateRawDataList = aliz_schetService.Analiz_schet(previousDay, bal);
                 List<Analiz_schetDTO> previousDataList = convertToDTO(prewDateRawDataList);
-                // Печать для отладки
                 System.out.println("Previous Data List for BAL " + bal + ": " + previousDataList);
 
-                // Итерация по каждому элементу currentDataList
                 for (Analiz_schetDTO record : currentDataList) {
-                    // Извлекаем код из поля namer
-                    String extractedCode = CodeExtractor.extractCode(record.getNamer());
+                    Optional<Kredit> extractedCode = byls_kred(record.getBal());
                     if (extractedCode == null) {
-                        // Пропуск записи, если код не найден
                         System.err.println("Код не найден для " + record.getNamer());
                         continue;
                     }
 
-                    // Проверяем наличие записи в таблице Kredit
-                    Optional<Kredit> kredit = kreditRepository.findByNumdog(extractedCode);
-                    Kredit getGRKIId = kredit.orElse(null);
+                    assert extractedCode.orElse(null) != null;
+                    String getGRKIId = extractedCode.orElse(null).getGrkiContractId();
 
-                    // Получаем данные о кредите и дебите
                     List<Dok> ls = dokRepository.getDokumentByLsAndDats(record.getBal(), LocalDate.parse(date));
                     List<Dok> lscor = dokRepository.getDokumentByLscorAndDats(record.getBal(), LocalDate.parse(date));
 
-                    // Если данных нет, заполняем нулями
                     Dok lsKredit = ls.isEmpty() ? null : ls.get(0);
                     Dok lsDebit = lscor.isEmpty() ? null : lscor.get(0);
 
                     BigDecimal debitSum = lscor.isEmpty() ? BigDecimal.ZERO : lscor.stream()
-                            .map(Dok::getSums) // Получаем поле `sums` из каждого объекта
-                            .filter(Objects::nonNull) // Убираем возможные null значения
-                            .reduce(BigDecimal.ZERO, BigDecimal::add); // Суммируем все значения
+                            .map(Dok::getSums)
+                            .filter(Objects::nonNull)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
                     BigDecimal kreditSum = (lsKredit != null && lsKredit.getSums() != null) ? lsKredit.getSums() : BigDecimal.ZERO;
 
-                    // Находим значение дебета за предыдущий день
                     BigDecimal previousDayDeb = previousDataList.stream()
-                            .filter(prevRecord -> extractedCode.equals(CodeExtractor.extractCode(prevRecord.getNamer())))
+                            .filter(prevRecord -> extractedCode.equals(byls_kred(prevRecord.getBal())))
                             .map(Analiz_schetDTO::getDeb)
                             .findFirst()
                             .orElse(BigDecimal.ZERO);
 
-                    if (!(record.getBal().startsWith("12499") || record.getBal().startsWith("12507"))) {
                         if (!(getGRKIId == null)) {
-                            String cleanedNumdog = getGRKIId.getNumdog().replaceAll("[-KК/\\\\.]", "").trim();
+                            // Получаем текущие суммы для этого балансового счёта
+                            Map<String, BigDecimal> currentSums = sumsByBal.get(bal);
 
-                            // Формируем строку для записи
+                            // Добавляем значения к текущим суммам
+                            currentSums.put("previousDayDeb", currentSums.get("previousDayDeb").add(previousDayDeb));
+                            currentSums.put("debitSum", currentSums.get("debitSum").add(debitSum));
+                            currentSums.put("kreditSum", currentSums.get("kreditSum").add(kreditSum));
+                            currentSums.put("recordDeb", currentSums.get("recordDeb").add(record.getDeb()));
+
+                            String cleanedNumdog = extractedCode.get().getNumdog().replaceAll("[-KК/\\\\.]", "").trim();
+
                             String line008 = dateStringReverse + separator +
                                     "03" + separator +
                                     inform.getNumks() + separator +
-                                    ((getGRKIId != null && getGRKIId.getGrkiContractId() != null) ? getGRKIId.getGrkiContractId() : "0") + separator +
+                                    getGRKIId + separator +
                                     cleanedNumdog + separator +
                                     record.getBal() + separator +
                                     previousDayDeb.intValue() + separator +
@@ -199,13 +249,23 @@ public class FileGeneratorService {
                                     kreditSum.intValue() + separator +
                                     record.getDeb().intValue() + separator + "\n";
 
-                            // Записываем строку в файл с расширением .008
                             writer008.write(line008);
                             writer008.flush();
                             logger.info("Записана строка в .008 файл: " + line008);
                         }
                     }
-                }
+
+            }
+
+// После обработки всех данных выводим итоговые суммы
+            for (String bal : balValues) {
+                Map<String, BigDecimal> sums = sumsByBal.get(bal);
+                System.out.println("Итоговые суммы для балансового счёта " + bal + ":");
+                System.out.println("Сумма previousDayDeb: " + sums.get("previousDayDeb"));
+                System.out.println("Сумма debitSum: " + sums.get("debitSum"));
+                System.out.println("Сумма kreditSum: " + sums.get("kreditSum"));
+                System.out.println("Сумма record.getDeb(): " + sums.get("recordDeb"));
+                System.out.println("----------------------------------------");
             }
         } catch (IOException e) {
             e.printStackTrace();
