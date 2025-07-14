@@ -107,6 +107,7 @@ public class FileGeneratorService {
         // Очистка кэша сессии перед запросом
         entityManager.clear();
 
+        logger.info("Поиск кредита по номеру счета: " + lskred);
 
         // Поля, по которым будем искать
         List<String> fields = List.of(
@@ -128,6 +129,14 @@ public class FileGeneratorService {
 
             try {
                 Kredit kredit = (Kredit) query.getSingleResult();
+                logger.info("Найден кредит по полному номеру счета в поле " + field);
+
+                // Дополнительная проверка для 95413 счетов
+                if (lskred.startsWith("95413") && (kredit.getGrkiContractId() == null || Objects.equals(kredit.getGrkiContractId(), "0"))) {
+                    logger.info("Для счета 95413 найден кредит, но grki_contract_id пустой - выполняем расширенный поиск");
+                    return findAlternative95413Account(lskred, fields);
+                }
+
                 return Optional.of(kredit);
             } catch (NoResultException e) {
                 // Продолжаем поиск
@@ -137,12 +146,13 @@ public class FileGeneratorService {
         }
 
         // Если не нашли по полному номеру, пробуем найти по сокращенному (первые 5 цифр + суффикс)
-        if (lskred != null && lskred.length() >= 11) {  // Проверяем, что хватает длины для суффикса (11 символов)
-            String suffix = lskred.substring(lskred.length() - 11);  // Берём последние 11 цифр ("99001406001")
+        if (lskred != null && lskred.length() >= 11) {
+            String suffix = lskred.substring(lskred.length() - 11);
             String altPrefix = lskred.startsWith("12499") ? "15799" : lskred.startsWith("15799") ? "12499" : null;
 
             if (altPrefix != null) {
-                String likePattern = altPrefix + "%" + suffix;  // Формируем шаблон "157%99001406001"
+                String likePattern = altPrefix + "%" + suffix;
+                logger.info("Пробуем альтернативный шаблон: " + likePattern);
 
                 for (String field : fields) {
                     String sql = "SELECT * FROM kredit WHERE " + field + " LIKE :likePattern";
@@ -151,6 +161,7 @@ public class FileGeneratorService {
 
                     try {
                         Kredit kredit = (Kredit) query.getSingleResult();
+                        logger.info("Найден кредит по шаблону " + likePattern + " в поле " + field);
                         return Optional.of(kredit);
                     } catch (NoResultException e) {
                         // Продолжаем поиск
@@ -159,10 +170,70 @@ public class FileGeneratorService {
                     }
                 }
             }
+
+            // Дополнительная проверка для счетов 95413
+            if (lskred.startsWith("95413")) {
+                logger.info("Для счета 95413 выполняем расширенный поиск");
+                return findAlternative95413Account(lskred, fields);
+            }
         }
 
         logger.warn("Кредит не найден ни по основному номеру " + lskred + ", ни по альтернативным вариантам");
         return Optional.empty();
+    }
+
+    private Optional<Kredit> findAlternative95413Account(String lskred, List<String> fields) {
+        if (lskred == null || lskred.length() != 20) {
+            logger.warn("Номер счета 95413 должен иметь длину 20 символов. Получено: " +
+                    (lskred == null ? "null" : lskred));
+            return Optional.empty();
+        }
+
+        // Формируем шаблон: 95413%99005989%
+        String middlePart = lskred.substring(8, 16);
+        String likePattern = "95413%" + middlePart + "%";
+        logger.info("Формируем шаблон для поиска: " + likePattern);
+
+        try {
+            // Вариант 1: Параметризованный запрос (предпочтительный)
+            String sql = "SELECT TOP 1 * FROM kredit WHERE ls_spiskred LIKE :pattern " +
+                    "ORDER BY datadog DESC";
+
+            Query query = entityManager.createNativeQuery(sql, Kredit.class);
+            query.setParameter("pattern", likePattern);
+
+            // Логируем фактический запрос
+            logger.debug("Выполняем SQL: " + sql.replace(":pattern", "'" + likePattern + "'"));
+
+            Kredit kredit = (Kredit) query.getSingleResult();
+            logger.info("Найден кредит по шаблону: " + likePattern);
+            return Optional.of(kredit);
+
+        } catch (NoResultException e) {
+            logger.warn("Не найдено результатов по шаблону: " + likePattern);
+
+            // Вариант 2: Явная конкатенация (если параметризация не работает)
+            try {
+                String sql = "SELECT TOP 1 * FROM kredit WHERE ls_spiskred LIKE '" +
+                        likePattern.replace("'", "''") + "' " +
+                        "ORDER BY datadog DESC";
+
+                logger.debug("Пробуем явную конкатенацию: " + sql);
+
+                Query query = entityManager.createNativeQuery(sql, Kredit.class);
+                Kredit kredit = (Kredit) query.getSingleResult();
+                logger.info("Найден кредит через явную конкатенацию");
+                return Optional.of(kredit);
+
+            } catch (Exception e2) {
+                logger.error("Ошибка при явной конкатенации", e2);
+                return Optional.empty();
+            }
+
+        } catch (Exception e) {
+            logger.error("Ошибка при поиске по шаблону " + likePattern, e);
+            return Optional.empty();
+        }
     }
 
 
@@ -239,7 +310,7 @@ public class FileGeneratorService {
                     String[] parts = record.split("#");
 
                     if (parts.length > 9 && /*(parts[3].startsWith("12401") || parts[3].startsWith("12405") || parts[3].startsWith("15701")
-                             parts[3].startsWith("12499") || parts[3].startsWith("15799") ||*/ parts[3].startsWith("12499")
+                             parts[3].startsWith("12499") || parts[3].startsWith("15799") ||*/ parts[3].startsWith("95413")
                             /*|| parts[3].startsWith("16377") || parts[3].startsWith("91501") || parts[3].startsWith("95413")*/) {
 
                         String account = parts[3];
@@ -312,8 +383,8 @@ public class FileGeneratorService {
                     Optional<Kredit> creditOpt = byls_kred(dto.getAccount());
                     if (creditOpt.isPresent()) {
                         Kredit kredit = creditOpt.get();
+                        System.out.println(kredit.getGrkiContractId());
 
-                        if (kredit.getGrkiContractId() != null) {
                             String cleanedNumdog = kredit.getNumdog()
                                     .replaceAll("[-KК/\\\\]", "")
                                     .trim();
@@ -355,7 +426,6 @@ public class FileGeneratorService {
                             row.createCell(9).setCellValue(trimZeros(dto.getCurrent_amount()));
 
                         }
-                    }
                 } catch (Exception e) {
                     logger.error("Ошибка при обработке DTO: " + dto, e);
                 }
