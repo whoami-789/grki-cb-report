@@ -57,6 +57,9 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     @Query(value = "SELECT * FROM kredit WHERE lsprosr_kred = :lskred", nativeQuery = true)
     Optional<Kredit> findKreditByLsProsrkred(@Param("lskred") String lskred);
 
+    @Query(value = "SELECT * FROM kredit WHERE ls_spiskred LIKE :pattern", nativeQuery = true)
+    List<Kredit> findByLsSpiskred(@Param("pattern") String pattern);
+
 
 //    @Query(value = """
 //    DECLARE @sql NVARCHAR(MAX) = '';
