@@ -25,7 +25,7 @@ public interface DokRepository extends JpaRepository<Dok, Long> {
     @Query(value = "EXEC analiz_schet :date, :bal", nativeQuery = true)
     Optional<String> prevAnaliz_schet(@Param("date") Date date, @Param("bal") String bal);
 
-    List<Dok> findAllByLsAndDats(String account, LocalDate localDate);
+    Optional<Dok> findByLsAndDats(String account, Date localDate);
 
-    List<Dok> findAllByLscorAndDats(String account, LocalDate localDate);
+    Optional<Dok> findByLscorAndDats(String account, Date localDate);
 }
