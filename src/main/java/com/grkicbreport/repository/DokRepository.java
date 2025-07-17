@@ -28,4 +28,11 @@ public interface DokRepository extends JpaRepository<Dok, Long> {
     List<Dok> findByLsAndDats(String account, LocalDate localDate);
 
     List<Dok> findByLscorAndDats(String account, LocalDate localDate);
+
+    @Query("SELECT d FROM Dok d WHERE d.ls LIKE CONCAT(:prefix, '%') AND d.dats = :date")
+    List<Dok> findByLsStartingWithAndDats(@Param("prefix") String prefix, @Param("date") LocalDate date);
+
+    @Query("SELECT d FROM Dok d WHERE d.lscor LIKE CONCAT(:prefix, '%') AND d.dats = :date")
+    List<Dok> findByLscorStartingWithAndDats(@Param("prefix") String prefix, @Param("date") LocalDate date);
+
 }
