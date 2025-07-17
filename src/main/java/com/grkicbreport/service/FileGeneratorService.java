@@ -477,6 +477,21 @@ public class FileGeneratorService {
             String[] balValues = {"12401", "12405", "12499", "15701", "15799", "16307",
                     "16377", "91501", "95413", "94502"};
 
+//            я опять переделал.
+//            try {
+//                BufferedWriter writer009 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName009), "windows-1251"));
+//
+//                List<CbOtchDTO> allWrittenRecords = new ArrayList<>();
+//                Optional<Kredit> creditOpt = Optional.empty();
+//
+//                String[] balValues = {"12401", "12405", "12499", "15701", "15799", "16307",
+//                        "16377", "91501", "95413", "94502"};
+//
+//
+//                for (Dok dok : dokList) {
+//
+//                    смотри, тут надо сделать цикл, кторый пройдется по каждому бал валуе, а они сами это начало счетов и по ним будет искать все за сегодня и дальше по ним уже работать  в             for (Dok dok : dokList) {
+
 
             for (Dok dok : dokList) {
 
