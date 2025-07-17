@@ -48,6 +48,7 @@ public class FileGeneratorService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private final Map<String, Integer> dailyFlightNumbers = new HashMap<>();
+
     private static final Logger logger = LoggerFactory.getLogger(FileGeneratorService.class);
 
     public FileGeneratorService(KreditRepository kreditRepository, DokRepository dokRepository, AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository, com.grkicbreport.component.InformHelper informHelper) {
@@ -472,11 +473,9 @@ public class FileGeneratorService {
 
             List<CbOtchDTO> allWrittenRecords = new ArrayList<>();
             Optional<Kredit> creditOpt = Optional.empty();
-//            if (parts.length > 9 && (parts[3].startsWith("12401") || parts[3].startsWith("12405") || parts[3].startsWith("15701")
-//                    || parts[3].startsWith("12499") || parts[3].startsWith("15799") || parts[3].startsWith("16307")
-//                    || parts[3].startsWith("16377") || parts[3].startsWith("91501") || parts[3].startsWith("95413") || parts[3].startsWith("94502"))) {
 
-
+            String[] balValues = {"12401", "12405", "12499", "15701", "15799", "16307",
+                    "16377", "91501", "95413", "94502"};
 
 
             for (Dok dok : dokList) {
