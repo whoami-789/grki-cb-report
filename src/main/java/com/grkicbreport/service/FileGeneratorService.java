@@ -587,11 +587,13 @@ public class FileGeneratorService {
                                 lsKod = "01008";
                             }
                             // dic 060 -> 01009
-                            else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
+                            else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12401")) {
                                 lsKod = "01009";
                             } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("12405")) {
                                 lsKod = "01009";
                             } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("12405")) {
+                                lsKod = "01009";
+                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
                                 lsKod = "01009";
                             }
                             // dic 060 -> 01010
@@ -609,7 +611,7 @@ public class FileGeneratorService {
                                 lsKod = "01011";
                             }
                             // dic 060 -> 01012
-                            else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("56802")) {
+                            else if (dok.getLs().startsWith("56802") && dok.getLscor().startsWith("12499")) {
                                 lsKod = "01012";
                             }
                             // dic 060 -> 01013
@@ -629,7 +631,9 @@ public class FileGeneratorService {
                                 lsKod = "01015";
                             } else if (dok.getLs().startsWith("16309") && dok.getLscor().startsWith("10101")) {
                                 lsKod = "01015";
-                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
+                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16307")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16377")) {
                                 lsKod = "01015";
                             } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
                                 lsKod = "01015";
