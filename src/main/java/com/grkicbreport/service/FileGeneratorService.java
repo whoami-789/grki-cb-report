@@ -300,7 +300,7 @@ public class FileGeneratorService {
 
                     if (parts.length > 9 && (parts[3].startsWith("12401") || parts[3].startsWith("12405") || parts[3].startsWith("15701")
                             || parts[3].startsWith("12499") || parts[3].startsWith("15799") || parts[3].startsWith("16307")
-                            || parts[3].startsWith("16377") || parts[3].startsWith("91501") || parts[3].startsWith("95413") || parts[3].startsWith("94502"))) {
+                            || parts[3].startsWith("16377") || parts[3].startsWith("91501") || parts[3].startsWith("95413"))) {
 
                         String account = parts[3];
                         String accountType = account.length() >= 5 ? account.substring(0, 5) : account;
@@ -475,7 +475,7 @@ public class FileGeneratorService {
             List<CbOtchDTO> allWrittenRecords = new ArrayList<>();
 
             String[] balValues = {"12401", "12405", "12499", "15701", "15799", "16307",
-                    "16377", "91501", "95413", "94502"};
+                    "16377", "91501", "95413"};
 
 // Итоговые суммы по типам счетов
             Map<String, BigDecimal> debitTypeTotalsFinal = new LinkedHashMap<>();
@@ -750,17 +750,21 @@ public class FileGeneratorService {
                             } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0407";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
-                                typeOption = "0912";
+                                typeOption = "0601";
                             } else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16307")) {
                                 typeOption = "0201";
                             } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16307")) {
                                 typeOption = "0201";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
-                                typeOption = "0401";
+                                typeOption = "0402";
                             } else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("56802")) {
                                 typeOption = "0801";
+                            } else if (dok.getLs().startsWith("56802") && dok.getLscor().startsWith("12499")) {
+                                typeOption = "0802";
                             } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
                                 typeOption = "0501";
+                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12401")) {
+                                typeOption = "1441";
                             }
 
 
@@ -774,7 +778,7 @@ public class FileGeneratorService {
                                         typeOption + separator +
                                         nalCard + separator +
                                         "03" + separator +
-                                        dok.getNumdok().replaceAll(" ", "") + separator +
+                                        dok.getKod() + separator +
                                         inform.getNumks() + separator +
                                         dok.getLscor() + separator +
                                         inform.getNumks() + separator +
@@ -803,7 +807,7 @@ public class FileGeneratorService {
                                         typeOption + separator +
                                         nalCard + separator +
                                         "03" + separator +
-                                        dok.getNumdok().replaceAll(" ", "") + separator +
+                                        dok.getKod() + separator +
                                         inform.getNumks() + separator +
                                         dok.getLscor() + separator +
                                         inform.getNumks() + separator +
