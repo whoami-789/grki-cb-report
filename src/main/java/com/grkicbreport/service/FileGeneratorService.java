@@ -35,6 +35,7 @@ import java.util.zip.ZipOutputStream;
 import jakarta.persistence.Query;
 
 
+
 @Service
 public class FileGeneratorService {
 
@@ -110,13 +111,8 @@ public class FileGeneratorService {
         // Поля, по которым будем искать
         List<String> fields = List.of(
                 "lskred",
-                "lsprosr_kred",
-                "lssud_kred",
                 "lsproc",
-                "lsprocvne",
-                "ls_spiskred",
-                "lsprosr_proc",
-                "lsrezerv"
+                "lsprosr_proc"
         );
 
         // Сначала ищем по полному номеру счета
@@ -317,7 +313,7 @@ public class FileGeneratorService {
                                 .trim();
 
                         String line008 = dateStringReverse + separator +
-                                "02" + separator +
+                                "03" + separator +
                                 inform.getNumks() + separator +
                                 (kredit.getGrkiContractId() != null ? kredit.getGrkiContractId() : "0") + separator +
                                 cleanedNumdog + separator +
@@ -342,7 +338,7 @@ public class FileGeneratorService {
                         // Оригинальная запись в Excel
                         Row row = sheet.createRow(rowNum++);
                         row.createCell(0).setCellValue(dateStringReverse);
-                        row.createCell(1).setCellValue("02");
+                        row.createCell(1).setCellValue("03");
                         row.createCell(2).setCellValue(inform.getNumks());
                         row.createCell(3).setCellValue(kredit.getGrkiContractId());
                         row.createCell(4).setCellValue(cleanedNumdog);
@@ -413,7 +409,8 @@ public class FileGeneratorService {
 
             List<CbOtchDTO> allWrittenRecords = new ArrayList<>();
 
-            String[] balValues = {"12401", "16307", "16377"};
+            String[] balValues = {"12401", "12405", "12499", "15701", "15799", "16307",
+                    "16377", "91501", "95413"};
 
 // Итоговые суммы по типам счетов
             Map<String, BigDecimal> debitTypeTotalsFinal = new LinkedHashMap<>();
@@ -525,11 +522,13 @@ public class FileGeneratorService {
                                 lsKod = "01008";
                             }
                             // dic 060 -> 01009
-                            else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
+                            else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12401")) {
                                 lsKod = "01009";
                             } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("12405")) {
                                 lsKod = "01009";
                             } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("12405")) {
+                                lsKod = "01009";
+                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
                                 lsKod = "01009";
                             }
                             // dic 060 -> 01010
@@ -547,7 +546,7 @@ public class FileGeneratorService {
                                 lsKod = "01011";
                             }
                             // dic 060 -> 01012
-                            else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("56802")) {
+                            else if (dok.getLs().startsWith("56802") && dok.getLscor().startsWith("12499")) {
                                 lsKod = "01012";
                             }
                             // dic 060 -> 01013
@@ -567,7 +566,9 @@ public class FileGeneratorService {
                                 lsKod = "01015";
                             } else if (dok.getLs().startsWith("16309") && dok.getLscor().startsWith("10101")) {
                                 lsKod = "01015";
-                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
+                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16307")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16377")) {
                                 lsKod = "01015";
                             } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
                                 lsKod = "01015";
@@ -684,23 +685,27 @@ public class FileGeneratorService {
                             } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0407";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
-                                typeOption = "0912";
+                                typeOption = "0601";
                             } else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16307")) {
                                 typeOption = "0201";
                             } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16307")) {
                                 typeOption = "0201";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
-                                typeOption = "0401";
+                                typeOption = "0402";
                             } else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("56802")) {
                                 typeOption = "0801";
+                            } else if (dok.getLs().startsWith("56802") && dok.getLscor().startsWith("12499")) {
+                                typeOption = "0802";
                             } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
                                 typeOption = "0501";
+                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12401")) {
+                                typeOption = "1441";
                             }
 
 
                             if (fiz == null) {
                                 String line009 = dateStringReverse + separator +
-                                        "02" + separator +
+                                        "03" + separator +
                                         inform.getNumks() + separator +
                                         ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
                                         cleanedNumdog + separator +
@@ -708,7 +713,7 @@ public class FileGeneratorService {
                                         typeOption + separator +
                                         nalCard + separator +
                                         "03" + separator +
-                                        dok.getNumdok().replaceAll(" ", "") + separator +
+                                        dok.getKod() + separator +
                                         inform.getNumks() + separator +
                                         dok.getLscor() + separator +
                                         inform.getNumks() + separator +
@@ -729,7 +734,7 @@ public class FileGeneratorService {
                                 }
                             } else {
                                 String line009 = dateStringReverse + separator +
-                                        "02" + separator +
+                                        "03" + separator +
                                         inform.getNumks() + separator +
                                         ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
                                         cleanedNumdog + separator +
@@ -737,7 +742,7 @@ public class FileGeneratorService {
                                         typeOption + separator +
                                         nalCard + separator +
                                         "03" + separator +
-                                        dok.getNumdok().replaceAll(" ", "") + separator +
+                                        dok.getKod() + separator +
                                         inform.getNumks() + separator +
                                         dok.getLscor() + separator +
                                         inform.getNumks() + separator +
