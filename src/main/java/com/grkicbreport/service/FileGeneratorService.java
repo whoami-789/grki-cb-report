@@ -299,7 +299,7 @@ public class FileGeneratorService {
                     String[] parts = record.split("#");
 
                     if (parts.length > 9 && (parts[3].startsWith("12401") || parts[3].startsWith("12405") || parts[3].startsWith("15701")
-                            || parts[3].startsWith("12499") || parts[3].startsWith("15799") || parts[3].startsWith("16307")
+//                            || parts[3].startsWith("12499") || parts[3].startsWith("15799") || parts[3].startsWith("16307")
                             || parts[3].startsWith("16377") || parts[3].startsWith("91501") || parts[3].startsWith("95413"))) {
 
                         String account = parts[3];
