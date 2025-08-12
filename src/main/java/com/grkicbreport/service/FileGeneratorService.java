@@ -29,11 +29,11 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import jakarta.persistence.Query;
-
 
 
 @Service
@@ -111,8 +111,13 @@ public class FileGeneratorService {
         // Поля, по которым будем искать
         List<String> fields = List.of(
                 "lskred",
+                "lsprosr_kred",
+                "lssud_kred",
                 "lsproc",
-                "lsprosr_proc"
+                "lsprocvne",
+                "ls_spiskred",
+                "lsprosr_proc",
+                "lsrezerv"
         );
 
         // Сначала ищем по полному номеру счета
@@ -313,7 +318,7 @@ public class FileGeneratorService {
                                 .trim();
 
                         String line008 = dateStringReverse + separator +
-                                "03" + separator +
+                                "02" + separator +
                                 inform.getNumks() + separator +
                                 (kredit.getGrkiContractId() != null ? kredit.getGrkiContractId() : "0") + separator +
                                 cleanedNumdog + separator +
@@ -338,7 +343,7 @@ public class FileGeneratorService {
                         // Оригинальная запись в Excel
                         Row row = sheet.createRow(rowNum++);
                         row.createCell(0).setCellValue(dateStringReverse);
-                        row.createCell(1).setCellValue("03");
+                        row.createCell(1).setCellValue("02");
                         row.createCell(2).setCellValue(inform.getNumks());
                         row.createCell(3).setCellValue(kredit.getGrkiContractId());
                         row.createCell(4).setCellValue(cleanedNumdog);
@@ -356,27 +361,49 @@ public class FileGeneratorService {
 
             writer008.close();
 
-            // Агрегация записанных данных по типам счетов (первые 5 цифр)
+            writer008.close();
+
+// Агрегация записей прямо из файла
             Map<String, CbOtchDTO> writtenTypeSums = new LinkedHashMap<>();
-            for (CbOtchDTO record : allWrittenRecords) {
-                String accountType = record.getAccount().length() >= 5 ? record.getAccount().substring(0, 5) : record.getAccount();
-                CbOtchDTO typeSum = writtenTypeSums.get(accountType);
 
-                if (typeSum == null) {
-                    typeSum = new CbOtchDTO();
-                    typeSum.setAccount(accountType);
-                    typeSum.setPrev_amount("0");
-                    typeSum.setDeb("0");
-                    typeSum.setKred("0");
-                    typeSum.setCurrent_amount("0");
-                    writtenTypeSums.put(accountType, typeSum);
+            try (BufferedReader reader = new BufferedReader(new FileReader(fileName008))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split(Pattern.quote(String.valueOf(separator))); // экранируем, если это символ вроде "|"
+
+                    if (parts.length < 10) {
+                        logger.warn("Пропущена строка из-за недостаточного количества полей: " + line);
+                        continue;
+                    }
+
+                    String account = parts[5].trim();
+                    String prev_amount = parts[6].trim();
+                    String deb = parts[7].trim();
+                    String kred = parts[8].trim();
+                    String current_amount = parts[9].trim();
+
+                    String accountType = account.length() >= 5 ? account.substring(0, 5) : account;
+
+                    CbOtchDTO typeSum = writtenTypeSums.get(accountType);
+                    if (typeSum == null) {
+                        typeSum = new CbOtchDTO();
+                        typeSum.setAccount(accountType);
+                        typeSum.setPrev_amount("0");
+                        typeSum.setDeb("0");
+                        typeSum.setKred("0");
+                        typeSum.setCurrent_amount("0");
+                        writtenTypeSums.put(accountType, typeSum);
+                    }
+
+                    typeSum.setPrev_amount(new BigDecimal(typeSum.getPrev_amount()).add(new BigDecimal(prev_amount)).toString());
+                    typeSum.setDeb(new BigDecimal(typeSum.getDeb()).add(new BigDecimal(deb)).toString());
+                    typeSum.setKred(new BigDecimal(typeSum.getKred()).add(new BigDecimal(kred)).toString());
+                    typeSum.setCurrent_amount(new BigDecimal(typeSum.getCurrent_amount()).add(new BigDecimal(current_amount)).toString());
                 }
-
-                typeSum.setPrev_amount(new BigDecimal(typeSum.getPrev_amount()).add(new BigDecimal(record.getPrev_amount())).toString());
-                typeSum.setDeb(new BigDecimal(typeSum.getDeb()).add(new BigDecimal(record.getDeb())).toString());
-                typeSum.setKred(new BigDecimal(typeSum.getKred()).add(new BigDecimal(record.getKred())).toString());
-                typeSum.setCurrent_amount(new BigDecimal(typeSum.getCurrent_amount()).add(new BigDecimal(record.getCurrent_amount())).toString());
+            } catch (IOException e) {
+                logger.error("Ошибка при чтении из .008 файла для агрегации", e);
             }
+
 
             // Вывод агрегированных сумм по типам счетов (на основе записанных данных)
             logger.info("\n=== АГРЕГИРОВАННЫЕ СУММЫ ПО ТИПАМ СЧЕТОВ (НА ОСНОВЕ ЗАПИСАННЫХ ДАННЫХ) ===");
@@ -388,6 +415,55 @@ public class FileGeneratorService {
                 logger.info("Конечный остаток: {}", dto.getCurrent_amount());
                 logger.info("----------------------------------");
             });
+
+            // === СРАВНЕНИЕ ДО И ПОСЛЕ ЗАПИСИ В ФАЙЛ ===
+            logger.info("\n=== СРАВНЕНИЕ СУММ ДО И ПОСЛЕ ЗАПИСИ В ФАЙЛ ===");
+
+            Set<String> allKeys = new HashSet<>();
+            allKeys.addAll(accountTypeSums.keySet());
+            allKeys.addAll(writtenTypeSums.keySet());
+
+            for (String key : allKeys) {
+                CbOtchDTO before = accountTypeSums.get(key);
+                CbOtchDTO after = writtenTypeSums.get(key);
+
+                if (before == null) {
+                    logger.warn("‼️ Запись ПРИСУТСТВУЕТ в файле, но ОТСУТСТВУЕТ в исходных данных: " + key);
+                    continue;
+                }
+
+                if (after == null) {
+                    logger.warn("‼️ Запись ПРИСУТСТВУЕТ в исходных данных, но ОТСУТСТВУЕТ в файле: " + key);
+                    continue;
+                }
+
+                boolean mismatch = false;
+
+                if (compareAmounts(before.getPrev_amount(), after.getPrev_amount()) != 0) {
+                    logger.warn("🔁 Несовпадение 'Начальный остаток' для типа " + key + ": до = " + before.getPrev_amount() + ", после = " + after.getPrev_amount());
+                    mismatch = true;
+                }
+
+                if (compareAmounts(before.getDeb(), after.getDeb()) != 0) {
+                    logger.warn("🔁 Несовпадение 'Дебет' для типа " + key + ": до = " + before.getDeb() + ", после = " + after.getDeb());
+                    mismatch = true;
+                }
+
+                if (compareAmounts(before.getKred(), after.getKred()) != 0) {
+                    logger.warn("🔁 Несовпадение 'Кредит' для типа " + key + ": до = " + before.getKred() + ", после = " + after.getKred());
+                    mismatch = true;
+                }
+
+                if (compareAmounts(before.getCurrent_amount(), after.getCurrent_amount()) != 0) {
+                    logger.warn("🔁 Несовпадение 'Конечный остаток' для типа " + key + ": до = " + before.getCurrent_amount() + ", после = " + after.getCurrent_amount());
+                    mismatch = true;
+                }
+
+                if (!mismatch) {
+                    logger.info("✔️ Совпадает тип счёта " + key);
+                }
+            }
+
 
             // Сохранение Excel файла
             try (FileOutputStream fileOut = new FileOutputStream(excelFileName)) {
@@ -409,8 +485,7 @@ public class FileGeneratorService {
 
             List<CbOtchDTO> allWrittenRecords = new ArrayList<>();
 
-            String[] balValues = {"12401", "12405", "12499", "15701", "15799", "16307",
-                    "16377", "91501", "95413"};
+            String[] balValues = {"12401", "16307", "16377"};
 
 // Итоговые суммы по типам счетов
             Map<String, BigDecimal> debitTypeTotalsFinal = new LinkedHashMap<>();
@@ -522,13 +597,11 @@ public class FileGeneratorService {
                                 lsKod = "01008";
                             }
                             // dic 060 -> 01009
-                            else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12401")) {
+                            else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
                                 lsKod = "01009";
                             } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("12405")) {
                                 lsKod = "01009";
                             } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("12405")) {
-                                lsKod = "01009";
-                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
                                 lsKod = "01009";
                             }
                             // dic 060 -> 01010
@@ -546,7 +619,7 @@ public class FileGeneratorService {
                                 lsKod = "01011";
                             }
                             // dic 060 -> 01012
-                            else if (dok.getLs().startsWith("56802") && dok.getLscor().startsWith("12499")) {
+                            else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("56802")) {
                                 lsKod = "01012";
                             }
                             // dic 060 -> 01013
@@ -566,9 +639,7 @@ public class FileGeneratorService {
                                 lsKod = "01015";
                             } else if (dok.getLs().startsWith("16309") && dok.getLscor().startsWith("10101")) {
                                 lsKod = "01015";
-                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16307")) {
-                                lsKod = "01015";
-                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16377")) {
+                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
                                 lsKod = "01015";
                             } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
                                 lsKod = "01015";
@@ -685,27 +756,23 @@ public class FileGeneratorService {
                             } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
                                 typeOption = "0407";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
-                                typeOption = "0601";
+                                typeOption = "0912";
                             } else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16307")) {
                                 typeOption = "0201";
                             } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16307")) {
                                 typeOption = "0201";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
-                                typeOption = "0402";
+                                typeOption = "0401";
                             } else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("56802")) {
                                 typeOption = "0801";
-                            } else if (dok.getLs().startsWith("56802") && dok.getLscor().startsWith("12499")) {
-                                typeOption = "0802";
                             } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
                                 typeOption = "0501";
-                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12401")) {
-                                typeOption = "1441";
                             }
 
 
                             if (fiz == null) {
                                 String line009 = dateStringReverse + separator +
-                                        "03" + separator +
+                                        "02" + separator +
                                         inform.getNumks() + separator +
                                         ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
                                         cleanedNumdog + separator +
@@ -713,7 +780,7 @@ public class FileGeneratorService {
                                         typeOption + separator +
                                         nalCard + separator +
                                         "03" + separator +
-                                        dok.getKod() + separator +
+                                        dok.getNumdok().replaceAll(" ", "") + separator +
                                         inform.getNumks() + separator +
                                         dok.getLscor() + separator +
                                         inform.getNumks() + separator +
@@ -734,7 +801,7 @@ public class FileGeneratorService {
                                 }
                             } else {
                                 String line009 = dateStringReverse + separator +
-                                        "03" + separator +
+                                        "02" + separator +
                                         inform.getNumks() + separator +
                                         ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
                                         cleanedNumdog + separator +
@@ -742,7 +809,7 @@ public class FileGeneratorService {
                                         typeOption + separator +
                                         nalCard + separator +
                                         "03" + separator +
-                                        dok.getKod() + separator +
+                                        dok.getNumdok().replaceAll(" ", "") + separator +
                                         inform.getNumks() + separator +
                                         dok.getLscor() + separator +
                                         inform.getNumks() + separator +
@@ -938,5 +1005,10 @@ public class FileGeneratorService {
                 .replace(",", " ")
                 .replace(".", ",");
     }
+
+    private int compareAmounts(String a, String b) {
+        return new BigDecimal(a).compareTo(new BigDecimal(b));
+    }
+
 
 }
