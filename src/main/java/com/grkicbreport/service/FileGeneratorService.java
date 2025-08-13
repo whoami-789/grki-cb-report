@@ -409,8 +409,7 @@ public class FileGeneratorService {
 
             List<CbOtchDTO> allWrittenRecords = new ArrayList<>();
 
-            String[] balValues = {"12401", "12405", "12499", "15701", "15799", "16307",
-                    "16377", "91501", "95413"};
+            String[] balValues = {"12401", "16307", "16377"};
 
 // Итоговые суммы по типам счетов
             Map<String, BigDecimal> debitTypeTotalsFinal = new LinkedHashMap<>();
@@ -450,7 +449,7 @@ public class FileGeneratorService {
                         Kredit kredit = creditOpt.get();
                         String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "").trim();
 
-                        kreditRepository.findByNumdog(cleanedNumdog).ifPresent(found_kredit -> {
+                        kreditRepository.findByNumdog(kredit.getNumdog().trim()).ifPresent(found_kredit -> {
                             Optional<AzolikFiz> azolikFiz = azolikFizRepository.findByKodchlen(found_kredit.getKod());
                             Optional<AzolikYur> azolikYur = azolikYurRepository.findByKodchlen(found_kredit.getKod());
 
