@@ -705,7 +705,7 @@ public class FileGeneratorService {
 
                             if (fiz == null) {
                                 String line009 = dateStringReverse + separator +
-                                        "03" + separator +
+                                        "02" + separator +
                                         inform.getNumks() + separator +
                                         ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
                                         cleanedNumdog + separator +
@@ -734,7 +734,7 @@ public class FileGeneratorService {
                                 }
                             } else {
                                 String line009 = dateStringReverse + separator +
-                                        "03" + separator +
+                                        "02" + separator +
                                         inform.getNumks() + separator +
                                         ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
                                         cleanedNumdog + separator +
