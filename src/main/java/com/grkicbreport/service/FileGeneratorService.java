@@ -687,10 +687,14 @@ public class FileGeneratorService {
                                 typeOption = "0601";
                             } else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16307")) {
                                 typeOption = "0201";
+                            } else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16377")) {
+                                typeOption = "0207";
                             } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16307")) {
                                 typeOption = "0201";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
-                                typeOption = "0402";
+                                typeOption = "0912";
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0913";
                             } else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("56802")) {
                                 typeOption = "0801";
                             } else if (dok.getLs().startsWith("56802") && dok.getLscor().startsWith("12499")) {
