@@ -84,6 +84,9 @@ public class Kredit {
     @Column(name = "kod_dog", updatable = false, nullable = false)
     private Integer kodDog;
 
+    @Column(name = "procpeni")
+    private Long procpeni;
+
     @Transient
     private Boolean indpred;
 
@@ -248,6 +251,10 @@ public class Kredit {
     }
 
 
+    protected boolean canEqual(final Object other) {
+        return other instanceof Kredit;
+    }
+
     public String getKod() {
         return this.kod;
     }
@@ -338,6 +345,10 @@ public class Kredit {
 
     public Integer getKodDog() {
         return this.kodDog;
+    }
+
+    public Long getProcpeni() {
+        return this.procpeni;
     }
 
     public Boolean getIndpred() {
@@ -644,6 +655,10 @@ public class Kredit {
         this.kodDog = kodDog;
     }
 
+    public void setProcpeni(Long procpeni) {
+        this.procpeni = procpeni;
+    }
+
     public void setIndpred(Boolean indpred) {
         this.indpred = indpred;
     }
@@ -931,6 +946,9 @@ public class Kredit {
         final Object this$kodDog = this.getKodDog();
         final Object other$kodDog = other.getKodDog();
         if (this$kodDog == null ? other$kodDog != null : !this$kodDog.equals(other$kodDog)) return false;
+        final Object this$procpeni = this.getProcpeni();
+        final Object other$procpeni = other.getProcpeni();
+        if (this$procpeni == null ? other$procpeni != null : !this$procpeni.equals(other$procpeni)) return false;
         final Object this$indpred = this.getIndpred();
         final Object other$indpred = other.getIndpred();
         if (this$indpred == null ? other$indpred != null : !this$indpred.equals(other$indpred)) return false;
@@ -1107,10 +1125,6 @@ public class Kredit {
         return true;
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof Kredit;
-    }
-
     public int hashCode() {
         final int PRIME = 59;
         int result = 1;
@@ -1160,6 +1174,8 @@ public class Kredit {
         result = result * PRIME + ($tel == null ? 43 : $tel.hashCode());
         final Object $kodDog = this.getKodDog();
         result = result * PRIME + ($kodDog == null ? 43 : $kodDog.hashCode());
+        final Object $procpeni = this.getProcpeni();
+        result = result * PRIME + ($procpeni == null ? 43 : $procpeni.hashCode());
         final Object $indpred = this.getIndpred();
         result = result * PRIME + ($indpred == null ? 43 : $indpred.hashCode());
         final Object $sostLs = this.getSostLs();
@@ -1270,7 +1286,7 @@ public class Kredit {
     }
 
     public String toString() {
-        return "Kredit(kod=" + this.getKod() + ", numdog=" + this.getNumdog() + ", datadog=" + this.getDatadog() + ", dats=" + this.getDats() + ", summa=" + this.getSumma() + ", vidvalut=" + this.getVidvalut() + ", vidzalog=" + this.getVidzalog() + ", vidsrok=" + this.getVidsrok() + ", prosent=" + this.getProsent() + ", maqsad=" + this.getMaqsad() + ", sost=" + this.getSost() + ", status=" + this.getStatus() + ", prim=" + this.getPrim() + ", yurfiz=" + this.getYurfiz() + ", tipkred=" + this.getTipkred() + ", srokkred=" + this.getSrokkred() + ", users=" + this.getUsers() + ", lskred=" + this.getLskred() + ", lsproc=" + this.getLsproc() + ", lsprosrKred=" + this.getLsprosrKred() + ", sms=" + this.getSms() + ", tel=" + this.getTel() + ", kodDog=" + this.getKodDog() + ", indpred=" + this.getIndpred() + ", sostLs=" + this.getSostLs() + ", dopsogl=" + this.getDopsogl() + ", lssudKred=" + this.getLssudKred() + ", nalbeznal=" + this.getNalbeznal() + ", vazvnalbeznal=" + this.getVazvnalbeznal() + ", sostProc=" + this.getSostProc() + ", rejnach=" + this.getRejnach() + ", autoe=" + this.getAutoe() + ", autos=" + this.getAutos() + ", autokred=" + this.getAutokred() + ", autoproc=" + this.getAutoproc() + ", dney=" + this.getDney() + ", chas=" + this.getChas() + ", lsDox=" + this.getLsDox() + ", lsprocvne=" + this.getLsprocvne() + ", vidkred=" + this.getVidkred() + ", lsrezerv=" + this.getLsrezerv() + ", tip=" + this.getTip() + ", minvznos=" + this.getMinvznos() + ", komissy=" + this.getKomissy() + ", lgot=" + this.getLgot() + ", progress=" + this.getProgress() + ", lizpredmet=" + this.getLizpredmet() + ", lizprodovec=" + this.getLizprodovec() + ", datsZakr=" + this.getDatsZakr() + ", datsProsr=" + this.getDatsProsr() + ", dopsoglDats=" + this.getDopsoglDats() + ", spec=" + this.getSpec() + ", tipliz=" + this.getTipliz() + ", lsPeres=" + this.getLsPeres() + ", graf=" + this.getGraf() + ", autop=" + this.getAutop() + ", lsKontrvne=" + this.getLsKontrvne() + ", lsSpiskred=" + this.getLsSpiskred() + ", datsIzm=" + this.getDatsIzm() + ", datsIzmGrafik=" + this.getDatsIzmGrafik() + ", datsIzmZalog=" + this.getDatsIzmZalog() + ", objekt=" + this.getObjekt() + ", valut=" + this.getValut() + ", klass=" + this.getKlass() + ", lsprosrProc=" + this.getLsprosrProc() + ", ls22812=" + this.getLs22812() + ", datsIzmAsoki=" + this.getDatsIzmAsoki() + ", xatar=" + this.getXatar() + ", lspeni=" + this.getLspeni() + ", grkiClaimId=" + this.getGrkiClaimId() + ", grkiAgreementId=" + this.getGrkiAgreementId() + ", grkiContractId=" + this.getGrkiContractId() + ", grafiks=" + this.getGrafiks() + ", zalogs=" + this.getZalogs() + ", zalogXranenieList=" + this.getZalogXranenieList() + ", azolikFiz=" + this.getAzolikFiz() + ")";
+        return "Kredit(kod=" + this.getKod() + ", numdog=" + this.getNumdog() + ", datadog=" + this.getDatadog() + ", dats=" + this.getDats() + ", summa=" + this.getSumma() + ", vidvalut=" + this.getVidvalut() + ", vidzalog=" + this.getVidzalog() + ", vidsrok=" + this.getVidsrok() + ", prosent=" + this.getProsent() + ", maqsad=" + this.getMaqsad() + ", sost=" + this.getSost() + ", status=" + this.getStatus() + ", prim=" + this.getPrim() + ", yurfiz=" + this.getYurfiz() + ", tipkred=" + this.getTipkred() + ", srokkred=" + this.getSrokkred() + ", users=" + this.getUsers() + ", lskred=" + this.getLskred() + ", lsproc=" + this.getLsproc() + ", lsprosrKred=" + this.getLsprosrKred() + ", sms=" + this.getSms() + ", tel=" + this.getTel() + ", kodDog=" + this.getKodDog() + ", procpeni=" + this.getProcpeni() + ", indpred=" + this.getIndpred() + ", sostLs=" + this.getSostLs() + ", dopsogl=" + this.getDopsogl() + ", lssudKred=" + this.getLssudKred() + ", nalbeznal=" + this.getNalbeznal() + ", vazvnalbeznal=" + this.getVazvnalbeznal() + ", sostProc=" + this.getSostProc() + ", rejnach=" + this.getRejnach() + ", autoe=" + this.getAutoe() + ", autos=" + this.getAutos() + ", autokred=" + this.getAutokred() + ", autoproc=" + this.getAutoproc() + ", dney=" + this.getDney() + ", chas=" + this.getChas() + ", lsDox=" + this.getLsDox() + ", lsprocvne=" + this.getLsprocvne() + ", vidkred=" + this.getVidkred() + ", lsrezerv=" + this.getLsrezerv() + ", tip=" + this.getTip() + ", minvznos=" + this.getMinvznos() + ", komissy=" + this.getKomissy() + ", lgot=" + this.getLgot() + ", progress=" + this.getProgress() + ", lizpredmet=" + this.getLizpredmet() + ", lizprodovec=" + this.getLizprodovec() + ", datsZakr=" + this.getDatsZakr() + ", datsProsr=" + this.getDatsProsr() + ", dopsoglDats=" + this.getDopsoglDats() + ", spec=" + this.getSpec() + ", tipliz=" + this.getTipliz() + ", lsPeres=" + this.getLsPeres() + ", graf=" + this.getGraf() + ", autop=" + this.getAutop() + ", lsKontrvne=" + this.getLsKontrvne() + ", lsSpiskred=" + this.getLsSpiskred() + ", datsIzm=" + this.getDatsIzm() + ", datsIzmGrafik=" + this.getDatsIzmGrafik() + ", datsIzmZalog=" + this.getDatsIzmZalog() + ", objekt=" + this.getObjekt() + ", valut=" + this.getValut() + ", klass=" + this.getKlass() + ", lsprosrProc=" + this.getLsprosrProc() + ", ls22812=" + this.getLs22812() + ", datsIzmAsoki=" + this.getDatsIzmAsoki() + ", xatar=" + this.getXatar() + ", lspeni=" + this.getLspeni() + ", grkiClaimId=" + this.getGrkiClaimId() + ", grkiAgreementId=" + this.getGrkiAgreementId() + ", grkiContractId=" + this.getGrkiContractId() + ", grafiks=" + this.getGrafiks() + ", zalogs=" + this.getZalogs() + ", zalogXranenieList=" + this.getZalogXranenieList() + ", azolikFiz=" + this.getAzolikFiz() + ")";
     }
 }
 

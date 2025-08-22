@@ -102,7 +102,7 @@ public class SaveContractService {
             percentDTO.setPercent_type("101");
             percentDTO.setPercent_total(String.valueOf(kredit.getProsent()));
             percentDTO.setBorrower_percent(String.valueOf(kredit.getProsent()));
-//            percentDTO.setOverdue_percent(String.valueOf(kredit.getProcpeni()));
+            percentDTO.setOverdue_percent(String.valueOf(kredit.getProcpeni()));
             contractDTO.setPercent(percentDTO);
             contractDTO.setCurrency_first("000");
             contractDTO.setAmount_first("0");
