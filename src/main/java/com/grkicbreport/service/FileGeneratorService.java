@@ -106,18 +106,35 @@ public class FileGeneratorService {
 
     private Map<String, Kredit> loadAllKredits(Set<String> accounts) {
         Map<String, Kredit> result = new HashMap<>();
+        logger.info("Начало загрузки кредитов для {} счетов", accounts.size());
 
-        // Первый проход - массовый поиск
-        result = loadKreditsStandardWay(accounts);
+        // Массовый поиск
+        Map<String, Kredit> standardResults = loadKreditsStandardWay(accounts);
+        result.putAll(standardResults);
+        logger.info("Массовым поиском найдено: {} кредитов", standardResults.size());
 
-        // Второй проход - индивидуальный поиск для ненайденных счетов
-        Set<String> missingAccounts = findMissingAccounts(accounts, result);
+        // Индивидуальный поиск для ненайденных
+        Set<String> missingAccounts = new HashSet<>(accounts);
+        missingAccounts.removeAll(result.keySet());
+
         if (!missingAccounts.isEmpty()) {
-            Map<String, Kredit> additionalResults = loadMissingKredits(missingAccounts);
-            result.putAll(additionalResults);
+            logger.info("Запускаем индивидуальный поиск для {} счетов: {}",
+                    missingAccounts.size(), missingAccounts);
+
+            Map<String, Kredit> individualResults = loadKreditsIndividualWay(missingAccounts);
+            result.putAll(individualResults);
+            logger.info("Индивидуальным поиском найдено: {} кредитов", individualResults.size());
         }
 
-        logger.info("Итогово загружено кредитов: {}/{}", result.size(), accounts.size());
+        // Финальная проверка
+        Set<String> stillMissing = new HashSet<>(accounts);
+        stillMissing.removeAll(result.keySet());
+        if (!stillMissing.isEmpty()) {
+            logger.warn("После всех попыток не найдены кредиты для {} счетов: {}",
+                    stillMissing.size(), stillMissing);
+        }
+
+        logger.info("Итогово загружено: {}/{} кредитов", result.size(), accounts.size());
         return result;
     }
 
@@ -141,44 +158,8 @@ public class FileGeneratorService {
         return result;
     }
 
-    private String getAccountValue(Kredit kredit, String field) {
-        if (kredit == null) {
-            return null;
-        }
-
-        try {
-            switch (field) {
-                case "lskred":
-                    return kredit.getLskred();
-                case "lsproc":
-                    return kredit.getLsproc();
-                case "lsprosr_proc":
-                    return kredit.getLsprosrProc();
-                default:
-                    logger.warn("Неизвестное поле: {}", field);
-                    return null;
-            }
-        } catch (Exception e) {
-            logger.error("Ошибка получения значения поля {} из кредита {}", field, e);
-            return null;
-        }
-    }
-
-    private Set<String> findMissingAccounts(Set<String> allAccounts, Map<String, Kredit> foundResults) {
-        Set<String> missingAccounts = new HashSet<>(allAccounts);
-        missingAccounts.removeAll(foundResults.keySet());
-
-        if (!missingAccounts.isEmpty()) {
-            logger.warn("Не найдено кредитов для счетов: {}", missingAccounts);
-        }
-
-        return missingAccounts;
-    }
-
-    private Map<String, Kredit> loadMissingKredits(Set<String> missingAccounts) {
+    private Map<String, Kredit> loadKreditsIndividualWay(Set<String> missingAccounts) {
         Map<String, Kredit> result = new HashMap<>();
-
-        logger.info("Индивидуальный поиск для {} проблемных счетов", missingAccounts.size());
 
         for (String account : missingAccounts) {
             Kredit kredit = findKreditByAnyField(account);
@@ -194,49 +175,41 @@ public class FileGeneratorService {
     }
 
     private Kredit findKreditByAnyField(String account) {
-        logger.debug("Индивидуальный поиск для счета: '{}'", account);
-
-        // Пробуем разные варианты формата счета
-        List<String> accountVariants = generateAccountVariants(account);
-
         for (String field : List.of("lskred", "lsproc", "lsprosr_proc")) {
-            for (String accountVariant : accountVariants) {
-                Kredit kredit = tryFindKredit(field, accountVariant);
-                if (kredit != null) {
-                    logger.info("Найден по полю {} с вариантом '{}'", field, accountVariant);
-                    return kredit;
+            try {
+                String sql = "SELECT * FROM kredit WHERE " + field + " = :account";
+                List<Kredit> results = entityManager.createNativeQuery(sql, Kredit.class)
+                        .setParameter("account", account)
+                        .getResultList();
+
+                if (!results.isEmpty()) {
+                    logger.info("Найден кредит по полю {} для счета {}", field, account);
+                    return results.get(0);
                 }
+            } catch (Exception e) {
+                logger.error("Ошибка поиска по полю {}", field, e);
             }
         }
-
         return null;
     }
 
-    private List<String> generateAccountVariants(String account) {
-        List<String> variants = new ArrayList<>();
-        variants.add(account); // оригинал
-        variants.add(account.trim()); // без пробелов
-        variants.add(account.replace(" ", "")); // точно без пробелов
-
-        // Если счет длинный, пробуем разные форматы
-        if (account.length() > 10) {
-            variants.add(account.substring(0, 10)); // первые 10 символов
+    private String getAccountValue(Kredit kredit, String field) {
+        if (kredit == null) {
+            return null;
         }
 
-        return variants;
-    }
-
-    private Kredit tryFindKredit(String field, String accountValue) {
         try {
-            String sql = "SELECT * FROM kredit WHERE " + field + " = :account";
-            List<Kredit> results = entityManager.createNativeQuery(sql, Kredit.class)
-                    .setParameter("account", accountValue)
-                    .setMaxResults(1) // берем только первый результат
-                    .getResultList();
-
-            return results.isEmpty() ? null : results.get(0);
+            switch (field) {
+                case "lskred":
+                    return kredit.getLskred();
+                case "lsproc":
+                    return kredit.getLsproc();
+                case "lsprosr_proc":
+                    return kredit.getLsprosrProc();
+                default:
+                    return null;
+            }
         } catch (Exception e) {
-            logger.debug("Не найдено по полю {}: {}", field, accountValue);
             return null;
         }
     }
