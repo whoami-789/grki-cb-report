@@ -105,22 +105,35 @@ public class FileGeneratorService {
     }
 
     private Map<String, Kredit> loadAllKredits(Set<String> accounts) {
-        Map<String, Kredit> result = new HashMap<>();
-        List<String> fields = List.of(
-                "lskred", "lsproc", "lsprosr_proc"
-        );
+        // Один запрос вместо трех
+        String sql = """
+        SELECT * FROM kredit 
+        WHERE lskred IN :accounts 
+           OR lsproc IN :accounts 
+           OR lsprosr_proc IN :accounts
+        """;
 
-        for (String field : fields) {
-            String sql = "SELECT * FROM kredit WHERE " + field + " IN :accounts";
-            List<Kredit> kredits = entityManager.createNativeQuery(sql, Kredit.class)
-                    .setParameter("accounts", accounts)
-                    .getResultList();
-            for (Kredit k : kredits) {
-                String acc = getAccountValue(k, field);
-                if (acc != null) result.putIfAbsent(acc, k);
-            }
+        List<Kredit> kredits = entityManager.createNativeQuery(sql, Kredit.class)
+                .setParameter("accounts", accounts)
+                .getResultList();
+
+        Map<String, Kredit> result = new HashMap<>();
+
+        for (Kredit k : kredits) {
+            // Добавляем все возможные соответствия
+            addIfMatches(result, k.getLskred(), k, accounts);
+            addIfMatches(result, k.getLsproc(), k, accounts);
+            addIfMatches(result, k.getLsprosrProc(), k, accounts);
         }
+
         return result;
+    }
+
+    private void addIfMatches(Map<String, Kredit> map, String account,
+                              Kredit kredit, Set<String> targetAccounts) {
+        if (account != null && targetAccounts.contains(account)) {
+            map.put(account, kredit);
+        }
     }
 
     private String getAccountValue(Kredit kredit, String field) {
