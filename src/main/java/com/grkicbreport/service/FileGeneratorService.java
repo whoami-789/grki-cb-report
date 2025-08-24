@@ -691,9 +691,9 @@ public class FileGeneratorService {
                                 typeOption = "0207";
                             } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16307")) {
                                 typeOption = "0201";
-                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
+                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16307")) {
                                 typeOption = "0912";
-                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("22812")) {
+                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16377")) {
                                 typeOption = "0913";
                             } else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("56802")) {
                                 typeOption = "0801";
@@ -708,7 +708,7 @@ public class FileGeneratorService {
 
                             if (fiz == null) {
                                 String line009 = dateStringReverse + separator +
-                                        "02" + separator +
+                                        "03" + separator +
                                         inform.getNumks() + separator +
                                         ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
                                         cleanedNumdog + separator +
@@ -737,7 +737,7 @@ public class FileGeneratorService {
                                 }
                             } else {
                                 String line009 = dateStringReverse + separator +
-                                        "02" + separator +
+                                        "03" + separator +
                                         inform.getNumks() + separator +
                                         ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
                                         cleanedNumdog + separator +
