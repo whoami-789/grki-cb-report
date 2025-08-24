@@ -29,11 +29,11 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import jakarta.persistence.Query;
-
 
 
 @Service
@@ -61,14 +61,6 @@ public class FileGeneratorService {
     }
 
 
-    // Генерируем следующий номер рейса (RR) на основе даты
-    private String getNextFlightNumber(String date) {
-        int flightNumber = dailyFlightNumbers.getOrDefault(date, 0) + 1;
-        dailyFlightNumbers.put(date, flightNumber);
-
-        return String.format("%02d", flightNumber);
-    }
-
     // Генерация имени файла на основе даты и других параметров
     public String generateFilename(String date, String TTT) {
         Inform inform = informHelper.fetchSingleRow();
@@ -77,30 +69,6 @@ public class FileGeneratorService {
 
         // Формируем название файла
         return N + BBBBB + "." + TTT;
-    }
-
-    private List<Analiz_schetDTO> convertToDTO(List<String> rawData) {
-        List<Analiz_schetDTO> dtos = new ArrayList<>();
-
-        for (String data : rawData) {
-            // Предполагаем, что данные разделены запятой
-            String[] parts = data.split(",");
-
-            if (parts.length >= 4) {
-                Analiz_schetDTO dto = new Analiz_schetDTO();
-
-                // Присваиваем значения DTO из данных
-                dto.setBal(parts[0].trim());        // Первое значение
-                dto.setNamer(parts[1].trim());      // Второе значение
-                dto.setDeb(new BigDecimal(parts[2].trim())); // Третье значение
-                dto.setKred(new BigDecimal(parts[3].trim())); // Четвертое значение
-
-                // Добавляем DTO в список
-                dtos.add(dto);
-            }
-        }
-
-        return dtos;
     }
 
     public Optional<Kredit> byls_kred(String lskred) {
@@ -132,35 +100,41 @@ public class FileGeneratorService {
             }
         }
 
-        // Если не нашли по полному номеру, пробуем найти по сокращенному (первые 5 цифр + суффикс)
-        if (lskred != null && lskred.length() >= 11) {
-            String suffix = lskred.substring(lskred.length() - 11);
-            String altPrefix = lskred.startsWith("12499") ? "15799" : lskred.startsWith("15799") ? "12499" : null;
-
-            if (altPrefix != null) {
-                String likePattern = altPrefix + "%" + suffix;
-
-                for (String field : fields) {
-                    String sql = "SELECT * FROM kredit WHERE " + field + " LIKE :likePattern";
-                    Query query = entityManager.createNativeQuery(sql, Kredit.class);
-                    query.setParameter("likePattern", likePattern);
-
-                    try {
-                        Kredit kredit = (Kredit) query.getSingleResult();
-                        return Optional.of(kredit);
-                    } catch (NoResultException e) {
-                        // Продолжаем поиск
-                    } catch (Exception e) {
-                        logger.warn("Ошибка при поиске по шаблону " + likePattern + " в поле " + field, e);
-                    }
-                }
-            }
-        }
-
         logger.warn("Кредит не найден ни по основному номеру " + lskred + ", ни по альтернативным вариантам");
         return Optional.empty();
     }
 
+    private Map<String, Kredit> loadAllKredits(Set<String> accounts) {
+        Map<String, Kredit> result = new HashMap<>();
+        List<String> fields = List.of(
+                "lskred", "lsproc", "lsprosr_proc"
+        );
+
+        for (String field : fields) {
+            String sql = "SELECT * FROM kredit WHERE " + field + " IN :accounts";
+            List<Kredit> kredits = entityManager.createNativeQuery(sql, Kredit.class)
+                    .setParameter("accounts", accounts)
+                    .getResultList();
+            for (Kredit k : kredits) {
+                String acc = getAccountValue(k, field);
+                if (acc != null) result.putIfAbsent(acc, k);
+            }
+        }
+        return result;
+    }
+
+    private String getAccountValue(Kredit kredit, String field) {
+        switch (field) {
+            case "lskred":
+                return kredit.getLskred();
+            case "lsproc":
+                return kredit.getLsproc();
+            case "lsprosr_proc":
+                return kredit.getLsprosrProc();
+            default:
+                return null;
+        }
+    }
 
     public String createFiles(String date) {
         // Парсим строку даты в объект java.sql.Date
@@ -238,165 +212,148 @@ public class FileGeneratorService {
                             || parts[3].startsWith("16377"))) {
 
                         String account = parts[3];
-                        String accountType = account.length() >= 5 ? account.substring(0, 5) : account;
-
-                        // Обработка для оригинальной логики (по полным номерам счетов)
-                        CbOtchDTO aggregatedDto = accountSums.get(account);
-                        if (aggregatedDto == null) {
-                            aggregatedDto = new CbOtchDTO();
-                            aggregatedDto.setAccount(account);
-                            aggregatedDto.setPrev_amount("0");
-                            aggregatedDto.setDeb("0");
-                            aggregatedDto.setKred("0");
-                            aggregatedDto.setCurrent_amount("0");
-                            accountSums.put(account, aggregatedDto);
-                        }
-
-                        // Обработка для агрегации по типам счетов
-                        CbOtchDTO typeAggregatedDto = accountTypeSums.get(accountType);
-                        if (typeAggregatedDto == null) {
-                            typeAggregatedDto = new CbOtchDTO();
-                            typeAggregatedDto.setAccount(accountType);
-                            typeAggregatedDto.setPrev_amount("0");
-                            typeAggregatedDto.setDeb("0");
-                            typeAggregatedDto.setKred("0");
-                            typeAggregatedDto.setCurrent_amount("0");
-                            accountTypeSums.put(accountType, typeAggregatedDto);
-                        }
+                        String accountType = account.substring(0, 5);
 
                         BigDecimal amount6 = new BigDecimal(parts[6]);
                         BigDecimal amount7 = new BigDecimal(parts[7]);
                         BigDecimal amount8 = new BigDecimal(parts[8]);
                         BigDecimal amount9 = new BigDecimal(parts[9]);
 
-                        // Суммируем значения для оригинальной логики
-                        aggregatedDto.setPrev_amount(new BigDecimal(aggregatedDto.getPrev_amount()).add(amount6).toString());
-                        aggregatedDto.setDeb(new BigDecimal(aggregatedDto.getDeb()).add(amount7).toString());
-                        aggregatedDto.setKred(new BigDecimal(aggregatedDto.getKred()).add(amount8).toString());
-                        aggregatedDto.setCurrent_amount(new BigDecimal(aggregatedDto.getCurrent_amount()).add(amount9).toString());
+                        accountSums.computeIfAbsent(account, a -> new CbOtchDTO(a))
+                                .addAmounts(amount6, amount7, amount8, amount9);
 
-                        // Суммируем значения для агрегации по типам счетов
-                        typeAggregatedDto.setPrev_amount(new BigDecimal(typeAggregatedDto.getPrev_amount()).add(amount6).toString());
-                        typeAggregatedDto.setDeb(new BigDecimal(typeAggregatedDto.getDeb()).add(amount7).toString());
-                        typeAggregatedDto.setKred(new BigDecimal(typeAggregatedDto.getKred()).add(amount8).toString());
-                        typeAggregatedDto.setCurrent_amount(new BigDecimal(typeAggregatedDto.getCurrent_amount()).add(amount9).toString());
+                        accountTypeSums.computeIfAbsent(accountType, a -> new CbOtchDTO(a))
+                                .addAmounts(amount6, amount7, amount8, amount9);
                     }
                 } catch (Exception e) {
                     logger.error("Ошибка при обработке записи: " + record, e);
                 }
             }
 
-            // 1. Вывод сумм по типам счетов (первые 5 цифр)
-            logger.info("\n=== СУММЫ ПО ВИДАМ СЧЕТОВ (первые 5 цифр) ===");
-            accountTypeSums.forEach((accountType, dto) -> {
-                logger.info("Тип счета: {}", accountType);
-                logger.info("Начальный остаток: {}", dto.getPrev_amount());
-                logger.info("Дебет: {}", dto.getDeb());
-                logger.info("Кредит: {}", dto.getKred());
-                logger.info("Конечный остаток: {}", dto.getCurrent_amount());
-                logger.info("----------------------------------");
-            });
-
             // Добавляем агрегированные данные в resultList (оригинальная логика)
             resultList.addAll(accountSums.values());
 
-            // Оригинальная логика обработки для записи в файл (без изменений)
-            // Запись в файл (оригинальная логика)
-            for (CbOtchDTO dto : resultList) {
-                try {
-                    Optional<Kredit> creditOpt = byls_kred(dto.getAccount());
-                    if (creditOpt.isPresent()) {
-                        Kredit kredit = creditOpt.get();
+// 2. Один запрос в БД на все счета
+            Set<String> accountsToSearch = accountSums.keySet();
+            Map<String, Kredit> kreditMap = loadAllKredits(accountsToSearch);
 
-                        String cleanedNumdog = kredit.getNumdog()
-                                .replaceAll("[-KК/\\\\]", "")
-                                .trim();
+// 3. Формируем всё в памяти
+            StringBuilder fileContent = new StringBuilder();
+            List<CbOtchDTO> writtenRecords = new ArrayList<>();
 
-                        String line008 = dateStringReverse + separator +
-                                "03" + separator +
-                                inform.getNumks() + separator +
-                                (kredit.getGrkiContractId() != null ? kredit.getGrkiContractId() : "0") + separator +
-                                cleanedNumdog + separator +
-                                dto.getAccount() + separator +
-                                dto.getPrev_amount() + separator +
-                                dto.getDeb() + separator +
-                                dto.getKred() + separator +
-                                dto.getCurrent_amount() + separator + "\n";
-
-                        writer008.write(line008);
-                        writer008.flush();
-
-                        // Сохраняем записанные данные для последующей агрегации
-                        CbOtchDTO writtenRecord = new CbOtchDTO();
-                        writtenRecord.setAccount(dto.getAccount());
-                        writtenRecord.setPrev_amount(dto.getPrev_amount());
-                        writtenRecord.setDeb(dto.getDeb());
-                        writtenRecord.setKred(dto.getKred());
-                        writtenRecord.setCurrent_amount(dto.getCurrent_amount());
-                        allWrittenRecords.add(writtenRecord);
-
-                        // Оригинальная запись в Excel
-                        Row row = sheet.createRow(rowNum++);
-                        row.createCell(0).setCellValue(dateStringReverse);
-                        row.createCell(1).setCellValue("03");
-                        row.createCell(2).setCellValue(inform.getNumks());
-                        row.createCell(3).setCellValue(kredit.getGrkiContractId());
-                        row.createCell(4).setCellValue(cleanedNumdog);
-                        row.createCell(5).setCellValue(dto.getAccount());
-                        row.createCell(6).setCellValue(trimZeros(dto.getPrev_amount()));
-                        row.createCell(7).setCellValue(trimZeros(dto.getDeb()));
-                        row.createCell(8).setCellValue(trimZeros(dto.getKred()));
-                        row.createCell(9).setCellValue(trimZeros(dto.getCurrent_amount()));
-
-                    }
-                } catch (Exception e) {
-                    logger.error("Ошибка при обработке DTO: " + dto, e);
+            for (CbOtchDTO dto : accountSums.values()) {
+                Kredit kredit = kreditMap.get(dto.getAccount());
+                if (kredit == null) {
+                    logger.warn("Не найден кредит по счету: {}", dto.getAccount());
+                    continue;
                 }
+
+                String cleanedNumdog = kredit.getNumdog()
+                        .replaceAll("[-KК/\\\\]", "")
+                        .trim();
+
+                fileContent.append(dateStringReverse).append(separator)
+                        .append("03").append(separator)
+                        .append(inform.getNumks()).append(separator)
+                        .append(kredit.getGrkiContractId() != null ? kredit.getGrkiContractId() : "0").append(separator)
+                        .append(cleanedNumdog).append(separator)
+                        .append(dto.getAccount()).append(separator)
+                        .append(dto.getPrevAmount()).append(separator)
+                        .append(dto.getDeb()).append(separator)
+                        .append(dto.getKred()).append(separator)
+                        .append(dto.getCurrentAmount()).append("\n");
+
+                writtenRecords.add(dto);
+
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(dateStringReverse);
+                row.createCell(1).setCellValue("03");
+                row.createCell(2).setCellValue(inform.getNumks());
+                row.createCell(3).setCellValue(kredit.getGrkiContractId());
+                row.createCell(4).setCellValue(cleanedNumdog);
+                row.createCell(5).setCellValue(dto.getAccount());
+                row.createCell(6).setCellValue(trimZeros(dto.getPrevAmount()));
+                row.createCell(7).setCellValue(trimZeros(dto.getDeb()));
+                row.createCell(8).setCellValue(trimZeros(dto.getKred()));
+                row.createCell(9).setCellValue(trimZeros(dto.getCurrentAmount()));
             }
 
             writer008.close();
 
-            // Агрегация записанных данных по типам счетов (первые 5 цифр)
-            Map<String, CbOtchDTO> writtenTypeSums = new LinkedHashMap<>();
-            for (CbOtchDTO record : allWrittenRecords) {
-                String accountType = record.getAccount().length() >= 5 ? record.getAccount().substring(0, 5) : record.getAccount();
-                CbOtchDTO typeSum = writtenTypeSums.get(accountType);
+            // 4. Записываем одним махом
+            try (BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(fileName008), "windows-1251"))) {
+                writer.write(fileContent.toString());
+            }
 
-                if (typeSum == null) {
-                    typeSum = new CbOtchDTO();
-                    typeSum.setAccount(accountType);
-                    typeSum.setPrev_amount("0");
-                    typeSum.setDeb("0");
-                    typeSum.setKred("0");
-                    typeSum.setCurrent_amount("0");
-                    writtenTypeSums.put(accountType, typeSum);
+            Map<String, CbOtchDTO> fileTypeSums = new LinkedHashMap<>();
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(fileName008), "windows-1251"))) {
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split(Pattern.quote(String.valueOf(separator)));
+                    if (parts.length < 10) continue;
+
+                    String account = parts[5].trim();
+                    String type = account.length() >= 5 ? account.substring(0, 5) : account;
+
+                    BigDecimal prev = new BigDecimal(parts[6].trim());
+                    BigDecimal deb = new BigDecimal(parts[7].trim());
+                    BigDecimal kred = new BigDecimal(parts[8].trim());
+                    BigDecimal curr = new BigDecimal(parts[9].trim());
+
+                    fileTypeSums.computeIfAbsent(type, t -> new CbOtchDTO(t))
+                            .addAmounts(prev, deb, kred, curr);
                 }
 
-                typeSum.setPrev_amount(new BigDecimal(typeSum.getPrev_amount()).add(new BigDecimal(record.getPrev_amount())).toString());
-                typeSum.setDeb(new BigDecimal(typeSum.getDeb()).add(new BigDecimal(record.getDeb())).toString());
-                typeSum.setKred(new BigDecimal(typeSum.getKred()).add(new BigDecimal(record.getKred())).toString());
-                typeSum.setCurrent_amount(new BigDecimal(typeSum.getCurrent_amount()).add(new BigDecimal(record.getCurrent_amount())).toString());
+            } catch (IOException e) {
+                logger.error("Ошибка при чтении .008 файла для агрегации по типам", e);
             }
 
-            // Вывод агрегированных сумм по типам счетов (на основе записанных данных)
-            logger.info("\n=== АГРЕГИРОВАННЫЕ СУММЫ ПО ТИПАМ СЧЕТОВ (НА ОСНОВЕ ЗАПИСАННЫХ ДАННЫХ) ===");
-            writtenTypeSums.forEach((accountType, dto) -> {
-                logger.info("Тип счета: {}", accountType);
-                logger.info("Начальный остаток: {}", dto.getPrev_amount());
-                logger.info("Дебет: {}", dto.getDeb());
-                logger.info("Кредит: {}", dto.getKred());
-                logger.info("Конечный остаток: {}", dto.getCurrent_amount());
-                logger.info("----------------------------------");
+// --- Логируем суммы по типам счетов ---
+            logger.info("\n=== СУММЫ ПО ТИПАМ СЧЕТОВ ИЗ ФАЙЛА ===");
+            fileTypeSums.forEach((type, dto) -> {
+                logger.info(dto.toLogString());
             });
 
-            // Сохранение Excel файла
+// 5. Агрегация по типам счетов после записи
+            Map<String, CbOtchDTO> writtenTypeSums = new LinkedHashMap<>();
+
+            for (CbOtchDTO dto : writtenRecords) {
+                String type = dto.getAccount().substring(0, 5); // первые 5 цифр
+                writtenTypeSums.computeIfAbsent(type, t -> new CbOtchDTO(t))
+                        .addAmounts(dto.getPrevAmountBD(), dto.getDebBD(), dto.getKredBD(), dto.getCurrentAmountBD());
+            }
+
+// --- Логируем итоговые суммы по типам счетов ---
+            logger.info("\n=== СУММЫ ПО ТИПАМ СЧЕТОВ ИЗ ЗАПИСИ ===");
+            writtenTypeSums.forEach((type, dto) -> {
+                logger.info(dto.toLogString());
+            });
+
+// 6. Сравнение
+            logger.info("\n=== СРАВНЕНИЕ ДО/ПОСЛЕ ===");
+            for (String type : accountTypeSums.keySet()) {
+                CbOtchDTO before = accountTypeSums.get(type);
+                CbOtchDTO after = writtenTypeSums.get(type);
+                if (after == null) {
+                    logger.warn("Отсутствует после записи: {}", type);
+                    continue;
+                }
+                if (!before.equalsAmounts(after)) {
+                    logger.warn("Несовпадение для типа {}: до={}, после={}", type, before, after);
+                } else {
+                    logger.info("✔ Совпадает {}", type);
+                }
+            }
+
+// 7. Сохраняем Excel
             try (FileOutputStream fileOut = new FileOutputStream(excelFileName)) {
                 workbook.write(fileOut);
-                workbook.close();
-                logger.info("Excel файл успешно сохранён: {}", excelFileName);
-            } catch (IOException e) {
-                logger.error("Ошибка при сохранении файлов", e);
             }
+            workbook.close();
 
         } catch (Exception e) {
             logger.error("Критическая ошибка при обработке .008 файла", e);

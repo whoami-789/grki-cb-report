@@ -92,6 +92,17 @@ public class Kredit {
     @OneToMany(mappedBy = "kredit")
     private List<ZalogXranenie> zalogXranenieList;
 
+    public String getLsprosrProc() {
+        return lsprosrProc;
+    }
+
+    public void setLsprosrProc(String lsprosrProc) {
+        this.lsprosrProc = lsprosrProc;
+    }
+
+    @Column(name = "lsprosr_proc")
+    private String lsprosrProc;
+
     @ManyToOne
     @JoinColumn(name = "kod", referencedColumnName = "kodchlen", insertable = false, updatable = false)
     private AzolikFiz azolikFiz;
