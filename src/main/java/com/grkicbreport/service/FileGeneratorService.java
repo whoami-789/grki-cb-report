@@ -555,6 +555,8 @@ public class FileGeneratorService {
                             // dic 060 -> 01014
                             else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16307")) {
                                 lsKod = "01014";
+                            } else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16377")) {
+                                lsKod = "01014";
                             } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16377")) {
                                 lsKod = "01014";
                             } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16307")) {
