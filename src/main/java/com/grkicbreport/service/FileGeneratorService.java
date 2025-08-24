@@ -352,7 +352,7 @@ public class FileGeneratorService {
                         .append(dto.getPrevAmount()).append(separator)
                         .append(dto.getDeb()).append(separator)
                         .append(dto.getKred()).append(separator)
-                        .append(dto.getCurrentAmount()).append("\n");
+                        .append(dto.getCurrentAmount()).append(separator).append("\n");
 
                 writtenRecords.add(dto);
 
