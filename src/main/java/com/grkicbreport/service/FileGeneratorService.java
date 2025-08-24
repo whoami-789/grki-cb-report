@@ -237,12 +237,23 @@ public class FileGeneratorService {
             Set<String> accountsToSearch = accountSums.keySet();
             Map<String, Kredit> kreditMap = loadAllKredits(accountsToSearch);
 
+            logger.info("Размер accountSums: {}", accountSums.size());
+            logger.info("Размер kreditMap: {}", kreditMap.size());
+            logger.info("Ключи kreditMap: {}", kreditMap.keySet());
+
 // 3. Формируем всё в памяти
             StringBuilder fileContent = new StringBuilder();
             List<CbOtchDTO> writtenRecords = new ArrayList<>();
 
             for (CbOtchDTO dto : accountSums.values()) {
+                logger.debug("Ищем кредит для счета: '{}'", dto.getAccount());
                 Kredit kredit = kreditMap.get(dto.getAccount());
+
+                if (dto.getAccount() == null || dto.getAccount().trim().isEmpty()) {
+                    logger.warn("Пустой номер счета в DTO: {}", dto.toLogString());
+                    continue;
+                }
+
                 if (kredit == null) {
                     logger.warn("Не найден кредит по счету: {}", dto.getAccount());
                     continue;
