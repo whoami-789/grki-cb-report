@@ -105,35 +105,42 @@ public class FileGeneratorService {
     }
 
     private Map<String, Kredit> loadAllKredits(Set<String> accounts) {
-        // Один запрос вместо трех
-        String sql = """
-        SELECT * FROM kredit 
-        WHERE lskred IN :accounts 
-           OR lsproc IN :accounts 
-           OR lsprosr_proc IN :accounts
-        """;
-
-        List<Kredit> kredits = entityManager.createNativeQuery(sql, Kredit.class)
-                .setParameter("accounts", accounts)
-                .getResultList();
-
         Map<String, Kredit> result = new HashMap<>();
+        List<String> fields = List.of("lskred", "lsproc", "lsprosr_proc");
 
-        for (Kredit k : kredits) {
-            // Добавляем все возможные соответствия
-            addIfMatches(result, k.getLskred(), k, accounts);
-            addIfMatches(result, k.getLsproc(), k, accounts);
-            addIfMatches(result, k.getLsprosrProc(), k, accounts);
+        logger.info("Ищем кредиты для счетов: {}", accounts);
+
+        for (String field : fields) {
+            String sql = "SELECT * FROM kredit WHERE " + field + " IN :accounts";
+            List<Kredit> kredits = entityManager.createNativeQuery(sql, Kredit.class)
+                    .setParameter("accounts", accounts)
+                    .getResultList();
+
+            logger.info("По полю {} найдено {} кредитов", field, kredits.size());
+
+            for (Kredit k : kredits) {
+                String acc = getAccountValue(k, field);
+                logger.debug("Кредит ID: {}, поле: {}, значение: {}",
+                        k.getNumdog(), field, acc);
+
+                if (acc != null && accounts.contains(acc)) {
+                    result.put(acc, k);
+                    logger.info("Добавлен кредит {} для счета {}", k.getNumdog(), acc);
+                }
+            }
+        }
+
+        logger.info("Итоговый размер kreditMap: {}", result.size());
+        logger.info("Найденные счета: {}", result.keySet());
+
+        // Проверим какие счета не найдены
+        Set<String> missingAccounts = new HashSet<>(accounts);
+        missingAccounts.removeAll(result.keySet());
+        if (!missingAccounts.isEmpty()) {
+            logger.warn("Не найдены кредиты для счетов: {}", missingAccounts);
         }
 
         return result;
-    }
-
-    private void addIfMatches(Map<String, Kredit> map, String account,
-                              Kredit kredit, Set<String> targetAccounts) {
-        if (account != null && targetAccounts.contains(account)) {
-            map.put(account, kredit);
-        }
     }
 
     private String getAccountValue(Kredit kredit, String field) {
