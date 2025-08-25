@@ -619,6 +619,10 @@ public class FileGeneratorService {
                                 lsKod = "01015";
                             } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16377")) {
                                 lsKod = "01015";
+                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("22812")) {
+                                lsKod = "01015";
                             } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
                                 lsKod = "01015";
                             } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10503")) {
@@ -745,9 +749,9 @@ public class FileGeneratorService {
                                 typeOption = "0912";
                             } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16377")) {
                                 typeOption = "0913";
-                            }else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16307")) {
+                            }else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
                                 typeOption = "0909";
-                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16377")) {
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("22812")) {
                                 typeOption = "0910";
                             } else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("56802")) {
                                 typeOption = "0801";
