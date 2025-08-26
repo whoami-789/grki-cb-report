@@ -62,14 +62,6 @@ public class FileGeneratorService {
     }
 
 
-    // Генерируем следующий номер рейса (RR) на основе даты
-    private String getNextFlightNumber(String date) {
-        int flightNumber = dailyFlightNumbers.getOrDefault(date, 0) + 1;
-        dailyFlightNumbers.put(date, flightNumber);
-
-        return String.format("%02d", flightNumber);
-    }
-
     // Генерация имени файла на основе даты и других параметров
     public String generateFilename(String date, String TTT) {
         Inform inform = informHelper.fetchSingleRow();
@@ -78,30 +70,6 @@ public class FileGeneratorService {
 
         // Формируем название файла
         return N + BBBBB + "." + TTT;
-    }
-
-    private List<Analiz_schetDTO> convertToDTO(List<String> rawData) {
-        List<Analiz_schetDTO> dtos = new ArrayList<>();
-
-        for (String data : rawData) {
-            // Предполагаем, что данные разделены запятой
-            String[] parts = data.split(",");
-
-            if (parts.length >= 4) {
-                Analiz_schetDTO dto = new Analiz_schetDTO();
-
-                // Присваиваем значения DTO из данных
-                dto.setBal(parts[0].trim());        // Первое значение
-                dto.setNamer(parts[1].trim());      // Второе значение
-                dto.setDeb(new BigDecimal(parts[2].trim())); // Третье значение
-                dto.setKred(new BigDecimal(parts[3].trim())); // Четвертое значение
-
-                // Добавляем DTO в список
-                dtos.add(dto);
-            }
-        }
-
-        return dtos;
     }
 
     public Optional<Kredit> byls_kred(String lskred) {
