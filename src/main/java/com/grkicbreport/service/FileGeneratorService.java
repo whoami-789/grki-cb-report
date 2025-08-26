@@ -213,17 +213,27 @@ public class FileGeneratorService {
         }
         return result;
     }
+
     private String getAccountValue(Kredit kredit, String field) {
         switch (field) {
-            case "lskred": return kredit.getLskred();
-            case "lsprosr_kred": return kredit.getLsprosrKred();
-            case "lssud_kred": return kredit.getLssudKred();
-            case "lsproc": return kredit.getLsproc();
-            case "lsprocvne": return kredit.getLsprocvne();
-            case "ls_spiskred": return kredit.getLsSpiskred();
-            case "lsprosr_proc": return kredit.getLsprosrProc();
-            case "lsrezerv": return kredit.getLsrezerv();
-            default: return null;
+            case "lskred":
+                return kredit.getLskred();
+            case "lsprosr_kred":
+                return kredit.getLsprosrKred();
+            case "lssud_kred":
+                return kredit.getLssudKred();
+            case "lsproc":
+                return kredit.getLsproc();
+            case "lsprocvne":
+                return kredit.getLsprocvne();
+            case "ls_spiskred":
+                return kredit.getLsSpiskred();
+            case "lsprosr_proc":
+                return kredit.getLsprosrProc();
+            case "lsrezerv":
+                return kredit.getLsrezerv();
+            default:
+                return null;
         }
     }
 
@@ -300,11 +310,11 @@ public class FileGeneratorService {
                     String[] parts = record.split("#");
 
                     if (parts.length > 9 && (
-                            /*parts[3].startsWith("12401") || parts[3].startsWith("12405") ||
-                                    parts[3].startsWith("15701") ||*/ parts[3].startsWith("12499") ||
-                            parts[3].startsWith("15799") /*|| parts[3].startsWith("16307") ||
+                            parts[3].startsWith("12401") || parts[3].startsWith("12405") ||
+                                    parts[3].startsWith("15701") || parts[3].startsWith("12499") ||
+                                    parts[3].startsWith("15799") || parts[3].startsWith("16307") ||
                                     parts[3].startsWith("16377") || parts[3].startsWith("91501") ||
-                                    parts[3].startsWith("95413")*/)) {
+                                    parts[3].startsWith("95413"))) {
 
                         String account = parts[3];
                         String accountType = account.substring(0, 5);
@@ -328,11 +338,11 @@ public class FileGeneratorService {
             // Добавляем агрегированные данные в resultList (оригинальная логика)
             resultList.addAll(accountSums.values());
 
-// 2. Один запрос в БД на все счета
+            // 2. Один запрос в БД на все счета
             Set<String> accountsToSearch = accountSums.keySet();
             Map<String, Kredit> kreditMap = loadAllKredits(accountsToSearch);
 
-// 3. Формируем всё в памяти
+            // 3. Формируем всё в памяти
             StringBuilder fileContent = new StringBuilder();
             List<CbOtchDTO> writtenRecords = new ArrayList<>();
 
@@ -340,7 +350,14 @@ public class FileGeneratorService {
                 Kredit kredit = kreditMap.get(dto.getAccount());
                 if (kredit == null) {
                     logger.warn("Не найден кредит по счету: {}", dto.getAccount());
-                    continue;
+                    kredit = byls_kred(dto.getAccount())
+                            .orElse(null); // или .orElse(new Kredit()) для заглушки
+
+                    if (kredit == null) {
+                        logger.error("Кредит не найден даже через byls_kred для счета: {}", dto.getAccount());
+                        continue; // пропускаем эту итерацию
+                    } else logger.warn("Найден кредит по счету: {}", dto.getAccount());
+
                 }
 
                 String cleanedNumdog = kredit.getNumdog()
@@ -356,7 +373,7 @@ public class FileGeneratorService {
                         .append(dto.getPrevAmount()).append(separator)
                         .append(dto.getDeb()).append(separator)
                         .append(dto.getKred()).append(separator)
-                        .append(dto.getCurrentAmount()).append("\n");
+                        .append(dto.getCurrentAmount()).append(separator).append("\n");
 
                 writtenRecords.add(dto);
 
@@ -395,7 +412,7 @@ public class FileGeneratorService {
                     String type = account.length() >= 5 ? account.substring(0, 5) : account;
 
                     BigDecimal prev = new BigDecimal(parts[6].trim());
-                    BigDecimal deb  = new BigDecimal(parts[7].trim());
+                    BigDecimal deb = new BigDecimal(parts[7].trim());
                     BigDecimal kred = new BigDecimal(parts[8].trim());
                     BigDecimal curr = new BigDecimal(parts[9].trim());
 
@@ -456,389 +473,403 @@ public class FileGeneratorService {
 
 
         // Создание и запись в файл с расширением .009
-//        try {
-//            BufferedWriter writer009 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName009), "windows-1251"));
-//
-//            List<CbOtchDTO> allWrittenRecords = new ArrayList<>();
-//
-//            String[] balValues = {"12401", "12405", "12499", "15701", "15799", "16307",
-//                    "16377", "91501", "95413"};
-//
-//// Итоговые суммы по типам счетов
-//            Map<String, BigDecimal> debitTypeTotalsFinal = new LinkedHashMap<>();
-//            Map<String, BigDecimal> creditTypeTotalsFinal = new LinkedHashMap<>();
-//
-//            for (String prefix : balValues) {
-//                List<DokWithSource> dokListCombined = new ArrayList<>();
-//
-//                // Сохраняем, по какому полю нашли Dok
-//                dokRepository.findByLsStartingWithAndDats(prefix, currentDate.toLocalDate())
-//                        .forEach(d -> dokListCombined.add(new DokWithSource(d, "ls")));
-//
-//                dokRepository.findByLscorStartingWithAndDats(prefix, currentDate.toLocalDate())
-//                        .forEach(d -> dokListCombined.add(new DokWithSource(d, "lscor")));
-//
-//                for (DokWithSource item : dokListCombined) {
-//                    Dok dok = item.getDok();
-//                    String source = item.getSource(); // "ls" или "lscor"
-//
-//                    // Агрегируем по типам счетов
-//                    String accountTypeKey;
-//                    BigDecimal amount = dok.getSums();
-//
-//                    if ("ls".equals(source) && dok.getLs() != null && dok.getLs().length() >= 5) {
-//                        accountTypeKey = dok.getLs().substring(0, 5);
-//                        debitTypeTotalsFinal.merge(accountTypeKey, amount, BigDecimal::add);
-//                    } else if ("lscor".equals(source) && dok.getLscor() != null && dok.getLscor().length() >= 5) {
-//                        accountTypeKey = dok.getLscor().substring(0, 5);
-//                        creditTypeTotalsFinal.merge(accountTypeKey, amount, BigDecimal::add);
-//                    }
-//
-//                    String accountToSearch = source.equals("ls") ? dok.getLs() : dok.getLscor();
-//
-//                    Optional<Kredit> creditOpt = byls_kred(accountToSearch);
-//
-//                    if (creditOpt.isPresent()) {
-//                        Kredit kredit = creditOpt.get();
-//                        String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "").trim();
-//
-//                        kreditRepository.findByNumdog(cleanedNumdog).ifPresent(found_kredit -> {
-//                            Optional<AzolikFiz> azolikFiz = azolikFizRepository.findByKodchlen(found_kredit.getKod());
-//                            Optional<AzolikYur> azolikYur = azolikYurRepository.findByKodchlen(found_kredit.getKod());
-//
-//                            AzolikFiz fiz = azolikFiz.orElse(null);
-//                            AzolikYur yur = azolikYur.orElse(null);
-//
-//                            String lsKod = "";
-//
-//                            // dic 060 -> 01007
-//                            if (dok.getLs().startsWith("10101") && dok.getLscor().startsWith("12401")) {
-//                                lsKod = "01007";
-//                            } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("12401")) {
-//                                lsKod = "01007";
-//                            } else if (dok.getLs().startsWith("10101") && dok.getLscor().startsWith("14801")) {
-//                                lsKod = "01007";
-//                            } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("14801")) {
-//                                lsKod = "01007";
-//                            } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("12501")) {
-//                                lsKod = "01007";
-//                            }
-//                            // dic 060 -> 01008
-//                            else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10101")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10101")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("10101")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10101")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10503")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10503")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10503")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10503")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10509")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10509")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10509")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10509")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10503")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10509")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10101")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("22812")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("22812")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("12409") && dok.getLscor().startsWith("22812")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("22812")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("14809") && dok.getLscor().startsWith("22812")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("22812")) {
-//                                lsKod = "01008";
-//                            } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("22812")) {
-//                                lsKod = "01008";
-//                            }
-//                            // dic 060 -> 01009
-//                            else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12401")) {
-//                                lsKod = "01009";
-//                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("12405")) {
-//                                lsKod = "01009";
-//                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("12405")) {
-//                                lsKod = "01009";
-//                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
-//                                lsKod = "01009";
-//                            }
-//                            // dic 060 -> 01010
-//                            else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12409")) {
-//                                lsKod = "01010";
-//                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12409")) {
-//                                lsKod = "01010";
-//                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("12409")) {
-//                                lsKod = "01010";
-//                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("12409")) {
-//                                lsKod = "01010";
-//                            }
-//                            // dic 060 -> 01011
-//                            else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("15701")) {
-//                                lsKod = "01011";
-//                            }
-//                            // dic 060 -> 01012
-//                            else if (dok.getLs().startsWith("56802") && dok.getLscor().startsWith("12499")) {
-//                                lsKod = "01012";
-//                            }
-//                            // dic 060 -> 01013
-//                            else if (dok.getLs().startsWith("96345") && dok.getLscor().startsWith("95413")) {
-//                                lsKod = "01013";
-//                            }
-//                            // dic 060 -> 01014
-//                            else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16307")) {
-//                                lsKod = "01014";
-//                            } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16377")) {
-//                                lsKod = "01014";
-//                            } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16307")) {
-//                                lsKod = "01014";
-//                            }
-//                            // dic 060 -> 01015
-//                            else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10101")) {
-//                                lsKod = "01015";
-//                            } else if (dok.getLs().startsWith("16309") && dok.getLscor().startsWith("10101")) {
-//                                lsKod = "01015";
-//                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16307")) {
-//                                lsKod = "01015";
-//                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16377")) {
-//                                lsKod = "01015";
-//                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
-//                                lsKod = "01015";
-//                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10503")) {
-//                                lsKod = "01015";
-//                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10503")) {
-//                                lsKod = "01015";
-//                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509")) {
-//                                lsKod = "01015";
-//                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10503")) {
-//                                lsKod = "01015";
-//                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
-//                                lsKod = "01015";
-//                            }
-//                            // dic 060 -> 01016
-//                            else if (dok.getLs().startsWith("96335") && dok.getLscor().startsWith("91501")) {
-//                                lsKod = "01016";
-//                            }
-//                            // dic 060 -> 01017
-//                            else if (dok.getLs().startsWith("91501") && dok.getLscor().startsWith("96335")) {
-//                                lsKod = "01017";
-//                            }
-//                            // dic 060 -> 01018
-//                            else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
-//                                lsKod = "01018";
-//                            }
-//                            // dic 060 -> 01019
-//                            else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
-//                                lsKod = "01019";
-//                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10503")) {
-//                                lsKod = "01019";
-//                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10509")) {
-//                                lsKod = "01019";
-//                            }
-//                            // dic 060 -> 01020
-//                            else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("42001")) {
-//                                lsKod = "01020";
-//                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("42005")) {
-//                                lsKod = "01020";
-//                            }
-//
-//                            String nalCard = "";
-//                            String typeOption = "";
-//                            if (dok.getLscor().startsWith("10509")) {
-//                                nalCard = "3";
-//                            } else {
-//                                nalCard = "1";
-//                            }
-//
-//                            if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10509")) {
-//                                typeOption = "0301";
-//                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10503")) {
-//                                typeOption = "0301";
-//                            } else if (dok.getLs().startsWith("10101") && dok.getLscor().startsWith("12401")) {
-//                                typeOption = "0103";
-//                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
-//                                typeOption = "0303";
-//                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("22812")) {
-//                                typeOption = "0901";
-//                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("22812")) {
-//                                typeOption = "0902";
-//                            } else if (dok.getLs().startsWith("12409") && dok.getLscor().startsWith("22812")) {
-//                                typeOption = "0901";
-//                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("22812")) {
-//                                typeOption = "0901";
-//                            } else if (dok.getLs().startsWith("14809") && dok.getLscor().startsWith("22812")) {
-//                                typeOption = "0901";
-//                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("22812")) {
-//                                typeOption = "0901";
-//                            } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("22812")) {
-//                                typeOption = "0901";
-//                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10101")) {
-//                                typeOption = "0303";
-//                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10101")) {
-//                                typeOption = "0303";
-//                            } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("10101")) {
-//                                typeOption = "0303";
-//                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10503")) {
-//                                typeOption = "0313";
-//                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10509")) {
-//                                typeOption = "0313";
-//                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10509")) {
-//                                typeOption = "0405";
-//                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101")) {
-//                                typeOption = "0307";
-//                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10509")) {
-//                                typeOption = "0305";
-//                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10101")) {
-//                                typeOption = "0315";
-//                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10509")) {
-//                                typeOption = "0313";
-//                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10503")) {
-//                                typeOption = "0313";
-//                            } else if (dok.getLs().startsWith("12409")) {
-//                                typeOption = "0312";
-//                            } else if (dok.getLs().startsWith("12501")) {
-//                                typeOption = "0313";
-//                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10101")) {
-//                                typeOption = "0403";
-//                            } else if (dok.getLs().startsWith("16309") && dok.getLscor().startsWith("10101")) {
-//                                typeOption = "0403";
-//                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509")) {
-//                                typeOption = "0401";
-//                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10503")) {
-//                                typeOption = "0401";
-//                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10503")) {
-//                                typeOption = "0405";
-//                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10101")) {
-//                                typeOption = "0419";
-//                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
-//                                typeOption = "0417";
-//                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10503")) {
-//                                typeOption = "0417";
-//                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
-//                                typeOption = "0407";
-//                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
-//                                typeOption = "0601";
-//                            } else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16307")) {
-//                                typeOption = "0201";
-//                            } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16307")) {
-//                                typeOption = "0201";
-//                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
-//                                typeOption = "0402";
-//                            } else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("56802")) {
-//                                typeOption = "0801";
-//                            } else if (dok.getLs().startsWith("56802") && dok.getLscor().startsWith("12499")) {
-//                                typeOption = "0802";
-//                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
-//                                typeOption = "0501";
-//                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12401")) {
-//                                typeOption = "1441";
-//                            }
-//
-//
-//                            if (fiz == null) {
-//                                String line009 = dateStringReverse + separator +
-//                                        "02" + separator +
-//                                        inform.getNumks() + separator +
-//                                        ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
-//                                        cleanedNumdog + separator +
-//                                        dok.getKod().intValue() + separator +
-//                                        typeOption + separator +
-//                                        nalCard + separator +
-//                                        "03" + separator +
-//                                        dok.getKod() + separator +
-//                                        inform.getNumks() + separator +
-//                                        dok.getLscor() + separator +
-//                                        inform.getNumks() + separator +
-//                                        dok.getLs() + separator +
-//                                        dok.getSums().intValue() + "00" + separator +
-//                                        yur.getName() + separator +
-//                                        inform.getName() + separator +
-//                                        lsKod + separator +
-//                                        dok.getNazn() + separator + "\n";
-//
-//                                // Записываем строку в файл с расширением .009
-//                                try {
-//                                    writer009.write(line009);
-//                                    writer009.flush();
-////                                            allWrittenRecords.add(dto); // <<<<< добавляем только реально записанные
-//                                } catch (IOException e) {
-//                                    throw new RuntimeException(e);
-//                                }
-//                            } else {
-//                                String line009 = dateStringReverse + separator +
-//                                        "02" + separator +
-//                                        inform.getNumks() + separator +
-//                                        ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
-//                                        cleanedNumdog + separator +
-//                                        dok.getKod().intValue() + separator +
-//                                        typeOption + separator +
-//                                        nalCard + separator +
-//                                        "03" + separator +
-//                                        dok.getKod() + separator +
-//                                        inform.getNumks() + separator +
-//                                        dok.getLscor() + separator +
-//                                        inform.getNumks() + separator +
-//                                        dok.getLs() + separator +
-//                                        dok.getSums().intValue() + "00" + separator +
-//                                        inform.getName() + separator +
-//                                        fiz.getName() + separator +
-//                                        lsKod + separator +
-//                                        dok.getNazn() + separator + "\n";
-//
-//
-//                                // Записываем строку в файл с расширением .009
-//                                try {
-//                                    writer009.write(line009);
-//                                    writer009.flush();
-////                                            allWrittenRecords.add(dto); // <<<<< добавляем только реально записанные
-//                                } catch (IOException e) {
-//                                    throw new RuntimeException(e);
-//                                }
-//                            }
-//
-//                        });
-//                    }
-//                }
-//            }
-//            // ============ Лог финальных сумм по типам счетов ============
-//            logger.info("\n=== СУММЫ ПО ВИДАМ СЧЕТОВ ТРАНЗАКЦИЙ (ПОСЛЕ ЗАПИСИ В .009) ===");
-//
-//            Set<String> allKeys = new TreeSet<>();
-//            allKeys.addAll(debitTypeTotalsFinal.keySet());
-//            allKeys.addAll(creditTypeTotalsFinal.keySet());
-//
-//            for (String accountType : allKeys) {
-//                BigDecimal debit = debitTypeTotalsFinal.getOrDefault(accountType, BigDecimal.ZERO);
-//                BigDecimal credit = creditTypeTotalsFinal.getOrDefault(accountType, BigDecimal.ZERO);
-//
-//                logger.info("Тип счета: {}", accountType);
-//                logger.info("Дебет: {}", debit);
-//                logger.info("Кредит: {}", credit);
-//                logger.info("----------------------------------");
-//            }
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
+        try {
+            BufferedWriter writer009 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName009), "windows-1251"));
+
+            List<CbOtchDTO> allWrittenRecords = new ArrayList<>();
+
+            String[] balValues = {"12401", "12405", "15701", "12499",
+                    "15799", "91501", "95413", "16307", "16377"};
+
+// Итоговые суммы по типам счетов
+            Map<String, BigDecimal> debitTypeTotalsFinal = new LinkedHashMap<>();
+            Map<String, BigDecimal> creditTypeTotalsFinal = new LinkedHashMap<>();
+
+            for (String prefix : balValues) {
+                List<DokWithSource> dokListCombined = new ArrayList<>();
+
+                // Сохраняем, по какому полю нашли Dok
+                dokRepository.findByLsStartingWithAndDats(prefix, currentDate.toLocalDate())
+                        .forEach(d -> dokListCombined.add(new DokWithSource(d, "ls")));
+
+                dokRepository.findByLscorStartingWithAndDats(prefix, currentDate.toLocalDate())
+                        .forEach(d -> dokListCombined.add(new DokWithSource(d, "lscor")));
+
+                for (DokWithSource item : dokListCombined) {
+                    Dok dok = item.getDok();
+                    String source = item.getSource(); // "ls" или "lscor"
+
+                    // Агрегируем по типам счетов
+                    String accountTypeKey;
+                    BigDecimal amount = dok.getSums();
+
+                    if ("ls".equals(source) && dok.getLs() != null && dok.getLs().length() >= 5) {
+                        accountTypeKey = dok.getLs().substring(0, 5);
+                        debitTypeTotalsFinal.merge(accountTypeKey, amount, BigDecimal::add);
+                    } else if ("lscor".equals(source) && dok.getLscor() != null && dok.getLscor().length() >= 5) {
+                        accountTypeKey = dok.getLscor().substring(0, 5);
+                        creditTypeTotalsFinal.merge(accountTypeKey, amount, BigDecimal::add);
+                    }
+
+                    String accountToSearch = source.equals("ls") ? dok.getLs() : dok.getLscor();
+
+                    Optional<Kredit> creditOpt = byls_kred(accountToSearch);
+
+                    if (creditOpt.isPresent()) {
+                        Kredit kredit = creditOpt.get();
+                        String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "").trim();
+
+                        kreditRepository.findByNumdog(kredit.getNumdog().trim()).ifPresent(found_kredit -> {
+                            Optional<AzolikFiz> azolikFiz = azolikFizRepository.findByKodchlen(found_kredit.getKod());
+                            Optional<AzolikYur> azolikYur = azolikYurRepository.findByKodchlen(found_kredit.getKod());
+
+                            AzolikFiz fiz = azolikFiz.orElse(null);
+                            AzolikYur yur = azolikYur.orElse(null);
+
+                            String lsKod = "";
+
+                            // dic 060 -> 01007
+                            if (dok.getLs().startsWith("10101") && dok.getLscor().startsWith("12401")) {
+                                lsKod = "01007";
+                            } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("12401")) {
+                                lsKod = "01007";
+                            } else if (dok.getLs().startsWith("10101") && dok.getLscor().startsWith("14801")) {
+                                lsKod = "01007";
+                            } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("14801")) {
+                                lsKod = "01007";
+                            } else if (dok.getLs().startsWith("10503") && dok.getLscor().startsWith("12501")) {
+                                lsKod = "01007";
+                            }
+                            // dic 060 -> 01008
+                            else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10101")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10101")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("10101")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10101")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10503")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10503")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10503")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10503")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10509")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10509")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10509")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10509")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10503")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10509")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10101")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("22812")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("22812")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("12409") && dok.getLscor().startsWith("22812")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("22812")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("14809") && dok.getLscor().startsWith("22812")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("22812")) {
+                                lsKod = "01008";
+                            } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("22812")) {
+                                lsKod = "01008";
+                            }
+                            // dic 060 -> 01009
+                            else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12401")) {
+                                lsKod = "01009";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("12405")) {
+                                lsKod = "01009";
+                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("12405")) {
+                                lsKod = "01009";
+                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
+                                lsKod = "01009";
+                            }
+                            // dic 060 -> 01010
+                            else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12409")) {
+                                lsKod = "01010";
+                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12409")) {
+                                lsKod = "01010";
+                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("12409")) {
+                                lsKod = "01010";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("12409")) {
+                                lsKod = "01010";
+                            }
+                            // dic 060 -> 01011
+                            else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("15701")) {
+                                lsKod = "01011";
+                            }
+                            // dic 060 -> 01012
+                            else if (dok.getLs().startsWith("56802") && dok.getLscor().startsWith("12499")) {
+                                lsKod = "01012";
+                            }
+                            // dic 060 -> 01013
+                            else if (dok.getLs().startsWith("96345") && dok.getLscor().startsWith("95413")) {
+                                lsKod = "01013";
+                            }
+                            // dic 060 -> 01014
+                            else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16307")) {
+                                lsKod = "01014";
+                            } else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16377")) {
+                                lsKod = "01014";
+                            } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16377")) {
+                                lsKod = "01014";
+                            } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16307")) {
+                                lsKod = "01014";
+                            }
+                            // dic 060 -> 01015
+                            else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10101")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("16309") && dok.getLscor().startsWith("10101")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16307")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16377")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("22812")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10503")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10503")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10503")) {
+                                lsKod = "01015";
+                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
+                                lsKod = "01015";
+                            }
+                            // dic 060 -> 01016
+                            else if (dok.getLs().startsWith("96335") && dok.getLscor().startsWith("91501")) {
+                                lsKod = "01016";
+                            }
+                            // dic 060 -> 01017
+                            else if (dok.getLs().startsWith("91501") && dok.getLscor().startsWith("96335")) {
+                                lsKod = "01017";
+                            }
+                            // dic 060 -> 01018
+                            else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
+                                lsKod = "01018";
+                            }
+                            // dic 060 -> 01019
+                            else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
+                                lsKod = "01019";
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10503")) {
+                                lsKod = "01019";
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10509")) {
+                                lsKod = "01019";
+                            }
+                            // dic 060 -> 01020
+                            else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("42001")) {
+                                lsKod = "01020";
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("42005")) {
+                                lsKod = "01020";
+                            }
+
+                            String nalCard = "";
+                            String typeOption = "";
+                            if (dok.getLscor().startsWith("10509")) {
+                                nalCard = "3";
+                            } else {
+                                nalCard = "1";
+                            }
+
+                            if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10509")) {
+                                typeOption = "0301";
+                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10503")) {
+                                typeOption = "0301";
+                            } else if (dok.getLs().startsWith("10101") && dok.getLscor().startsWith("12401")) {
+                                typeOption = "0103";
+                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0303";
+                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
+                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0902";
+                            } else if (dok.getLs().startsWith("12409") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
+                            } else if (dok.getLs().startsWith("14809") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
+                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
+                            } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0901";
+                            } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0303";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0303";
+                            } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0303";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10503")) {
+                                typeOption = "0313";
+                            } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10509")) {
+                                typeOption = "0313";
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10509")) {
+                                typeOption = "0405";
+                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0307";
+                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("10509")) {
+                                typeOption = "0305";
+                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0315";
+                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10509")) {
+                                typeOption = "0313";
+                            } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("10503")) {
+                                typeOption = "0313";
+                            } else if (dok.getLs().startsWith("12409")) {
+                                typeOption = "0312";
+                            } else if (dok.getLs().startsWith("12501")) {
+                                typeOption = "0313";
+                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0403";
+                            } else if (dok.getLs().startsWith("16309") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0403";
+                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10509")) {
+                                typeOption = "0401";
+                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("10503")) {
+                                typeOption = "0401";
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10503")) {
+                                typeOption = "0405";
+                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0419";
+                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10509")) {
+                                typeOption = "0417";
+                            } else if (dok.getLs().startsWith("16405") && dok.getLscor().startsWith("10503")) {
+                                typeOption = "0417";
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("10101")) {
+                                typeOption = "0407";
+                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
+                                typeOption = "0601";
+                            } else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16307")) {
+                                typeOption = "0201";
+                            } else if (dok.getLs().startsWith("42001") && dok.getLscor().startsWith("16377")) {
+                                typeOption = "0207";
+                            } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16307")) {
+                                typeOption = "0201";
+                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16307")) {
+                                typeOption = "0912";
+                            } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16377")) {
+                                typeOption = "0913";
+                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0909";
+                            } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("22812")) {
+                                typeOption = "0910";
+                            } else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("56802")) {
+                                typeOption = "0801";
+                            } else if (dok.getLs().startsWith("56802") && dok.getLscor().startsWith("12499")) {
+                                typeOption = "0802";
+                            } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("12405")) {
+                                typeOption = "0501";
+                            } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12401")) {
+                                typeOption = "1441";
+                            }
+
+
+                            if (fiz == null) {
+                                String line009 = dateStringReverse + separator +
+                                        "02" + separator +
+                                        inform.getNumks() + separator +
+                                        ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
+                                        cleanedNumdog + separator +
+                                        dok.getKod().intValue() + separator +
+                                        typeOption + separator +
+                                        nalCard + separator +
+                                        "03" + separator +
+                                        dok.getKod() + separator +
+                                        inform.getNumks() + separator +
+                                        dok.getLscor() + separator +
+                                        inform.getNumks() + separator +
+                                        dok.getLs() + separator +
+                                        dok.getSums().intValue() + "00" + separator +
+                                        yur.getName() + separator +
+                                        inform.getName() + separator +
+                                        lsKod + separator +
+                                        dok.getNazn() + separator + "\n";
+
+                                // Записываем строку в файл с расширением .009
+                                try {
+                                    writer009.write(line009);
+                                    writer009.flush();
+//                                            allWrittenRecords.add(dto); // <<<<< добавляем только реально записанные
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            } else {
+                                String line009 = dateStringReverse + separator +
+                                        "02" + separator +
+                                        inform.getNumks() + separator +
+                                        ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
+                                        cleanedNumdog + separator +
+                                        dok.getKod().intValue() + separator +
+                                        typeOption + separator +
+                                        nalCard + separator +
+                                        "03" + separator +
+                                        dok.getKod() + separator +
+                                        inform.getNumks() + separator +
+                                        dok.getLscor() + separator +
+                                        inform.getNumks() + separator +
+                                        dok.getLs() + separator +
+                                        dok.getSums().intValue() + "00" + separator +
+                                        inform.getName() + separator +
+                                        fiz.getName() + separator +
+                                        lsKod + separator +
+                                        dok.getNazn() + separator + "\n";
+
+
+                                // Записываем строку в файл с расширением .009
+                                try {
+                                    writer009.write(line009);
+                                    writer009.flush();
+//                                            allWrittenRecords.add(dto); // <<<<< добавляем только реально записанные
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+
+                        });
+                    }
+                }
+            }
+            // ============ Лог финальных сумм по типам счетов ============
+            logger.info("\n=== СУММЫ ПО ВИДАМ СЧЕТОВ ТРАНЗАКЦИЙ (ПОСЛЕ ЗАПИСИ В .009) ===");
+
+            Set<String> allKeys = new TreeSet<>();
+            allKeys.addAll(debitTypeTotalsFinal.keySet());
+            allKeys.addAll(creditTypeTotalsFinal.keySet());
+
+            for (String accountType : allKeys) {
+                BigDecimal debit = debitTypeTotalsFinal.getOrDefault(accountType, BigDecimal.ZERO);
+                BigDecimal credit = creditTypeTotalsFinal.getOrDefault(accountType, BigDecimal.ZERO);
+
+                logger.info("Тип счета: {}", accountType);
+                logger.info("Дебет: {}", debit);
+                logger.info("Кредит: {}", credit);
+                logger.info("----------------------------------");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
 
         String zipFileName = generateZipFileName(dateString); // Генерируем имя архива
@@ -946,52 +977,5 @@ public class FileGeneratorService {
             return cleaned.substring(0, cleaned.length() - 2);
         }
         return cleaned;
-    }
-
-// Вспомогательные методs
-
-    private String cleanContractNumber(String numdog) {
-        return numdog.replaceAll("[-KК/\\\\]", "").trim();
-    }
-
-    private void createCell(Row row, int column, String value) {
-        row.createCell(column).setCellValue(value);
-    }
-
-    private String getContractNumberForAccount(String account) {
-        try {
-            Optional<Kredit> creditOpt = byls_kred(account);
-            if (creditOpt.isPresent()) {
-                return creditOpt.get().getNumdog()
-                        .replaceAll("[-KК/\\\\]", "")
-                        .trim();
-            }
-        } catch (Exception e) {
-            logger.error("Ошибка при получении номера договора для счета: " + account, e);
-        }
-        return "НЕ НАЙДЕН";
-    }
-
-    // Метод для сложения BigDecimal (корректная арифметика)
-    private String sumBigDecimals(String num1, String num2) {
-        BigDecimal bd1 = new BigDecimal(num1);
-        BigDecimal bd2 = new BigDecimal(num2);
-        return bd1.add(bd2).toString();
-    }
-
-    // Методы остаются без изменений
-    private String sumValues(String a, String b) {
-        return new BigDecimal(a).add(new BigDecimal(b)).toString();
-    }
-
-    private String formatSum(String amount) {
-        return new DecimalFormat("#,##0.00")
-                .format(new BigDecimal(amount))
-                .replace(",", " ")
-                .replace(".", ",");
-    }
-
-    private int compareAmounts(String a, String b) {
-        return new BigDecimal(a).compareTo(new BigDecimal(b));
     }
 }
