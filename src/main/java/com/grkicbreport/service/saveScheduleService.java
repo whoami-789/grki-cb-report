@@ -41,19 +41,32 @@ public class saveScheduleService {
 
     public saveScheduleDTO createSchedule(String contractNumber, String save_mode) {
 
-        Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
-        List<Grafik> grafikList = grafikRepository.findAllByNumdog(contractNumber);
+        Optional<Kredit> kreditOptional;
 
-        if (kreditList.isEmpty()) {
-            throw new IllegalArgumentException("Кредит с таким номером не найден.");
+        // Сначала пытаемся найти по номеру договора
+        kreditOptional = kreditRepository.findByNumdog(contractNumber);
+
+        // Если не нашли по номеру договора, пытаемся найти по GrkiContractId
+        if (kreditOptional.isEmpty()) {
+            kreditOptional = kreditRepository.findByGrkiContractId(contractNumber);
         }
+
+        if (kreditOptional.isEmpty()) {
+            throw new IllegalArgumentException("Кредит с номером/ID: " + contractNumber + " не найден.");
+        }
+
+        Kredit kredit = kreditOptional.get();
+
+        // Используем actualNumdog для поиска графика платежей
+        String actualNumdog = kredit.getNumdog();
+        List<Grafik> grafikList = grafikRepository.findAllByNumdog(actualNumdog);
+
         if (grafikList.isEmpty()) {
-            throw new IllegalArgumentException("График с таким номером не найден.");
+            throw new IllegalArgumentException("График платежей для кредита с номером: " + actualNumdog + " не найден.");
         }
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         Inform inform = informHelper.fetchSingleRow();
-
-        Kredit kredit = kreditList.get();
 
         try {
             saveScheduleDTO dto = new saveScheduleDTO();

@@ -43,19 +43,29 @@ public class SaveContractService {
     }
 
     public saveContractDTO createContract(String contractNumber, String Loan_line,
-                                          String decisionNumber, LocalDate decisionDate, String save_mode) {
-        Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
-        LocalDate maxDats = grafikRepository.findMaxDatsByNumdog(contractNumber);
+                                          String decisionNumber, String save_mode) {
+        Optional<Kredit> kreditOptional;
+
+        // Сначала пытаемся найти по номеру договора
+        kreditOptional = kreditRepository.findByNumdog(contractNumber);
+
+        // Если не нашли по номеру договора, пытаемся найти по GrkiContractId
+        if (kreditOptional.isEmpty()) {
+            kreditOptional = kreditRepository.findByGrkiContractId(contractNumber);
+        }
+
+        Kredit kredit = kreditOptional.get();
+
+        LocalDate maxDats = grafikRepository.findMaxDatsByNumdog(kredit.getNumdog());
         System.out.println("Максимальная дата: " + maxDats);
 
         Inform inform = informHelper.fetchSingleRow();
 
-        if (kreditList.isEmpty()) {
-            throw new IllegalArgumentException("Кредит с таким номером не найден.");
+        if (kreditOptional.isEmpty()) {
+            throw new IllegalArgumentException("Кредит с номером/ID: " + contractNumber + " не найден.");
         }
 
 
-        Kredit kredit = kreditList.get();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
         try {
@@ -82,7 +92,7 @@ public class SaveContractService {
 
             DecisionDTO decisionDTO = new DecisionDTO();
             decisionDTO.setDecide("03");
-            decisionDTO.setNumber(decisionNumber); // вручную
+            decisionDTO.setNumber(decisionNumber != null ? decisionNumber : cleanedNumdog.replaceAll("\\s", "")); // вручную
             decisionDTO.setDate(kredit.getDatadog().format(formatter)); // вручную
             decisionDTO.setDecide_chief(inform.getFioDirektor());
             decisionDTO.setBorrower_link("0");
@@ -91,7 +101,7 @@ public class SaveContractService {
             ContractDTO contractDTO = new ContractDTO();
             contractDTO.setLoan_type("10");
             contractDTO.setIssue_mode("02");
-            contractDTO.setLoan_line(Loan_line);
+            contractDTO.setLoan_line(Loan_line != null ? Loan_line : "02");
             contractDTO.setAsset_quality(String.valueOf(kredit.getKlass()));
             contractDTO.setNumber(kredit.getNumdog().replaceAll("\\s", ""));
             contractDTO.setDate_begin(kredit.getDatadog().format(formatter));
@@ -108,7 +118,6 @@ public class SaveContractService {
             contractDTO.setAmount_first("0");
             contractDTO.setDiscont_comissions(null);
             dto.setContract(contractDTO);
-
 
             TargetsDTO targetsDTO = new TargetsDTO();
             targetsDTO.setType("0699");
@@ -132,7 +141,6 @@ public class SaveContractService {
                 dto.setChange_basis(changeBasisDTO);
             }
 
-// Возвращаем заполненный DTO
             // Возвращаем заполненный DTO
             Gson gson = new GsonBuilder()
                     .serializeNulls() // Include null values in the JSON output
@@ -143,26 +151,18 @@ public class SaveContractService {
             return dto;
         } catch (Exception e) {
             System.out.println(e);
-            // Создаем и заполняем DTO
-//            saveContractDTO dto = new saveContractDTO();
-//
-//            dto.setSave_mode("1");
-//
-//            // Заполнение CreditorDTO
-//            CreditorDTO creditorDTO = new CreditorDTO();
-//            creditorDTO.setType("02");
-//            creditorDTO.setCode("6005");
-//            dto.setCreditor(creditorDTO);
-//
-//            System.out.println("yur");
-//            return dto;
             return null;
         }
     }
 
     public ResponseEntity<String> sendSaveContract(String contractNumber, String loanLine,
                                                    String decisionNumber, LocalDate decisionDate, String save_mode) {
-        saveContractDTO dto = createContract(contractNumber, loanLine, decisionNumber, decisionDate, save_mode);
+        saveContractDTO dto = createContract(contractNumber, loanLine, decisionNumber, save_mode);
+
+        if (dto == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при создании DTO.");
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -187,7 +187,12 @@ public class SaveContractService {
             logger.info("Ответ от сервера: " + gson.toJson(responseBody));
 
             String success = responseBody.getResult().getSuccess();
+
+            // Ищем кредит так же, как в createContract
             Optional<Kredit> kreditOptional = kreditRepository.findByNumdog(contractNumber);
+            if (kreditOptional.isEmpty()) {
+                kreditOptional = kreditRepository.findByGrkiContractId(contractNumber);
+            }
 
             if (kreditOptional.isPresent()) {
                 Kredit kredit = kreditOptional.get();
@@ -207,21 +212,25 @@ public class SaveContractService {
                     }
                 } else if ("0".equals(success)) {
                     // Если код успеха равен 0, проверяем наличие ошибки 24023
-                    boolean isDuplicateError = responseBody.getAnswer().getErrors().stream()
-                            .anyMatch(error -> "24029".equals(error.getCode()));
+                    if (responseBody.getAnswer() != null && responseBody.getAnswer().getErrors() != null) {
+                        boolean isDuplicateError = responseBody.getAnswer().getErrors().stream()
+                                .anyMatch(error -> "24029".equals(error.getCode()));
 
-                    if (isDuplicateError) {
-                        String sendInfoUrl = "http://localhost:5051/api/grki/send-save-info?id=" + kredit.getNumdog() + "&type=2";
-                        restTemplate.getForEntity(sendInfoUrl, String.class);
-                        logger.info("Отправлен запрос на: " + sendInfoUrl);
-                        return ResponseEntity.status(HttpStatus.CONFLICT)
-                                .body("Контракт с указанным номером кредитной организации уже существует. Дополнительный запрос выполнен. Ответ: " + gson.toJson(responseBody));
+                        if (isDuplicateError) {
+                            String sendInfoUrl = "http://localhost:5051/api/grki/send-save-info?id=" + kredit.getNumdog() + "&type=2";
+                            restTemplate.getForEntity(sendInfoUrl, String.class);
+                            logger.info("Отправлен запрос на: " + sendInfoUrl);
+                            return ResponseEntity.status(HttpStatus.CONFLICT)
+                                    .body("Контракт с указанным номером кредитной организации уже существует. Дополнительный запрос выполнен. Ответ: " + gson.toJson(responseBody));
+                        }
                     }
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Ошибка при сохранении контракта. Ответ: " + gson.toJson(responseBody));
                 }
             } else {
-                logger.warning("Кредит с таким номером договора не найден.");
+                logger.warning("Кредит с номером/ID: " + contractNumber + " не найден.");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Кредит с таким номером договора не найден. Ответ: " + gson.toJson(responseBody));
+                        .body("Кредит с номером/ID: " + contractNumber + " не найден. Ответ: " + gson.toJson(responseBody));
             }
         } else {
             logger.warning("Ошибка при выполнении запроса к внешнему сервису.");
