@@ -799,6 +799,10 @@ public class FileGeneratorService {
                                 typeOption = "0801";
                             } else if (dok.getLs().startsWith("56842") && dok.getLscor().startsWith("15799")) {
                                 typeOption = "0802";
+                            } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("42001")) {
+                                typeOption = "1460";
+                            } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16377")) {
+                                typeOption = "0202";
                             }
 
 
