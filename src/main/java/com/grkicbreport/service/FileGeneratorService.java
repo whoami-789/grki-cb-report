@@ -275,14 +275,13 @@ public class FileGeneratorService {
         // Создание и запись в файл с расширением .008
         try {
             BufferedWriter writer008 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName008), "windows-1251"));
-            List<String> cb_otch = kreditRepository.getReport008(previousDay, currentDate);
+            List<String> cb_otch = kreditRepository.getReport008(currentDate, currentDate);
             List<CbOtchDTO> resultList = new ArrayList<>();
 
 
             // Для агрегации сумм по счетам (оригинальная логика)
             Map<String, CbOtchDTO> accountSums = new LinkedHashMap<>();
 
-            // Итерация по всем значениям bal
             for (String record : cb_otch) {
                 try {
                     // Разбиваем строку на части по "#"
@@ -291,12 +290,6 @@ public class FileGeneratorService {
                     if (parts.length > 9) {
                         String account = parts[3]; // Счёт из строки
 
-                        // Фильтруем только нужные счета
-                        if (account.startsWith("12401") || account.startsWith("12405") ||
-                                account.startsWith("15701") || account.startsWith("12499") ||
-                                account.startsWith("15799") || account.startsWith("16307") ||
-                                account.startsWith("16377") || account.startsWith("91501") ||
-                                account.startsWith("95413")) {
 
                             BigDecimal sumbeg = new BigDecimal(parts[6]); // Входящий остаток
                             BigDecimal sumdeb = new BigDecimal(parts[7]); // Дебет
@@ -306,12 +299,13 @@ public class FileGeneratorService {
                             accountSums
                                     .computeIfAbsent(account, a -> new CbOtchDTO(a))
                                     .addAmounts(sumbeg, sumdeb, sumkr, sumend);
-                        }
+
                     }
                 } catch (Exception e) {
                     logger.error("Ошибка при обработке строки из creat_report_008", e);
                 }
             }
+
 
             // Добавляем агрегированные данные в resultList (оригинальная логика)
             resultList.addAll(accountSums.values());
