@@ -4,49 +4,64 @@ import java.math.BigDecimal;
 
 public class CbOtchDTO {
     private String account;
-    private BigDecimal prevAmount = BigDecimal.ZERO;
-    private BigDecimal deb = BigDecimal.ZERO;
-    private BigDecimal kred = BigDecimal.ZERO;
-    private BigDecimal currentAmount = BigDecimal.ZERO;
+    private BigDecimal prevAmount;
+    private BigDecimal deb;
+    private BigDecimal kred;
+    private BigDecimal currentAmount;
 
-    public CbOtchDTO(String account) { this.account = account; }
-    public CbOtchDTO() {}
+    public CbOtchDTO(String account) {
+        this.account = account;
+        this.prevAmount = BigDecimal.ZERO;
+        this.deb = BigDecimal.ZERO;
+        this.kred = BigDecimal.ZERO;
+        this.currentAmount = BigDecimal.ZERO;
+    }
 
-    // ← ДОБАВЬ ЭТО
+    public void addAmounts(BigDecimal prev, BigDecimal deb, BigDecimal kred, BigDecimal current) {
+        this.prevAmount = this.prevAmount.add(prev);
+        this.deb = this.deb.add(deb);
+        this.kred = this.kred.add(kred);
+        this.currentAmount = this.currentAmount.add(current);
+    }
+
     public String getAccount() {
         return account;
     }
+
     public void setAccount(String account) {
         this.account = account;
     }
 
-    public void addAmounts(BigDecimal p, BigDecimal d, BigDecimal k, BigDecimal c) {
-        prevAmount = prevAmount.add(p);
-        deb = deb.add(d);
-        kred = kred.add(k);
-        currentAmount = currentAmount.add(c);
+    public BigDecimal getPrevAmount() {
+        return prevAmount;
     }
 
-    public BigDecimal getPrevAmountBD() { return prevAmount; }
-    public BigDecimal getDebBD() { return deb; }
-    public BigDecimal getKredBD() { return kred; }
-    public BigDecimal getCurrentAmountBD() { return currentAmount; }
-
-    public String getPrevAmount() { return prevAmount.toPlainString(); }
-    public String getDeb() { return deb.toPlainString(); }
-    public String getKred() { return kred.toPlainString(); }
-    public String getCurrentAmount() { return currentAmount.toPlainString(); }
-
-    public String toLogString() {
-        return String.format("Тип %s: нач=%s, деб=%s, кред=%s, кон=%s",
-                account, prevAmount, deb, kred, currentAmount);
+    public void setPrevAmount(BigDecimal prevAmount) {
+        this.prevAmount = prevAmount;
     }
 
-    public boolean equalsAmounts(CbOtchDTO other) {
-        return prevAmount.compareTo(other.prevAmount) == 0 &&
-                deb.compareTo(other.deb) == 0 &&
-                kred.compareTo(other.kred) == 0 &&
-                currentAmount.compareTo(other.currentAmount) == 0;
+    public BigDecimal getDeb() {
+        return deb;
+    }
+
+    public void setDeb(BigDecimal deb) {
+        this.deb = deb;
+    }
+
+    public BigDecimal getKred() {
+        return kred;
+    }
+
+    public void setKred(BigDecimal kred) {
+        this.kred = kred;
+    }
+
+    public BigDecimal getCurrentAmount() {
+        return currentAmount;
+    }
+
+    public void setCurrentAmount(BigDecimal currentAmount) {
+        this.currentAmount = currentAmount;
     }
 }
 

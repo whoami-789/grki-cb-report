@@ -5,15 +5,13 @@ import com.grkicbreport.model.Kredit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -64,18 +62,8 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     Optional<Kredit> findByGrkiContractId(String grkiContractId);
 
 
-//    @Query(value = """
-//    DECLARE @sql NVARCHAR(MAX) = '';
-//
-//    SELECT @sql = @sql + ' OR CAST([' + name + '] AS NVARCHAR(MAX)) LIKE ''%'' + :value + ''%'''
-//    FROM sys.columns
-//    WHERE object_id = OBJECT_ID('dbo.kredit');
-//
-//    SET @sql = 'SELECT * FROM dbo.kredit WHERE ' + STUFF(@sql, 1, 4, '');
-//
-//    EXEC sp_executesql @sql, N'value NVARCHAR(MAX)', :value;
-//""", nativeQuery = true)
-//    List<Kredit> searchInAllColumns(@Param("value") String value);
+    @Query(value = "EXEC dbo.creat_report_008 :p1, :p2", nativeQuery = true)
+    List<String> getReport008(@Param("p1") Date p1, @Param("p2") Date p2);
 
 
 
