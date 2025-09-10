@@ -28,23 +28,13 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Kredit k SET k.grkiAgreementId = :grkiAgreementId WHERE k.numdog = :numdog")
-    void updateGrkiAgreementId(@Param("grkiAgreementId") String grkiAgreementId, @Param("numdog") String numdog);
-
-    @Modifying
-    @Transactional
     @Query("UPDATE Kredit k SET k.grkiContractId = :grkiContractId WHERE k.numdog = :numdog")
     void updateGrkiContractId(@Param("grkiContractId") String grkiContractId, @Param("numdog") String numdog);
 
-    List<Kredit> findByStatus(Byte status);
-    List<Kredit> findByDatsZakrIsNull();
 
-    @Query(value = "EXEC creat_otch_13_001 :start_date, :end_date", nativeQuery = true)
-    List<String> cb_otch(@Param("start_date") Date start_date, @Param("end_date")  Date end_date);
+    @Query(value = "EXEC dbo.creat_report_008 '2024-12-31', '2025-01-01'", nativeQuery = true)
+    List<String> getReport008(@Param("p1") Date p1, @Param("p2") Date p2);
 
-    @Transactional
-    @Query(value = "SELECT * FROM kredit WITH (NOLOCK) WHERE lskred = :lskred", nativeQuery = true)
-    Optional<Kredit> byls_kred(@Param("lskred") String lskred);
 
 
 }
