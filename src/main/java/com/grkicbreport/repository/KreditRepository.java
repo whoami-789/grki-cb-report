@@ -31,10 +31,7 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     @Query("UPDATE Kredit k SET k.grkiContractId = :grkiContractId WHERE k.numdog = :numdog")
     void updateGrkiContractId(@Param("grkiContractId") String grkiContractId, @Param("numdog") String numdog);
 
-
-    @Query(value = "EXEC dbo.creat_report_008 '2024-12-31', '2025-01-01'", nativeQuery = true)
+    @Query(value = "EXEC dbo.creat_report_008 :p1, :p2", nativeQuery = true)
     List<String> getReport008(@Param("p1") Date p1, @Param("p2") Date p2);
-
-
 
 }

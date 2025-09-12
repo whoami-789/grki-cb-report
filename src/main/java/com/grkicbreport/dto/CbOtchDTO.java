@@ -64,3 +64,4 @@ public class CbOtchDTO {
         this.currentAmount = currentAmount;
     }
 }
+
