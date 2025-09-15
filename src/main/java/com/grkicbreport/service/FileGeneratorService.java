@@ -371,6 +371,7 @@ public class FileGeneratorService {
 
             Set<String> balSet = new HashSet<>(Arrays.asList(balValues));
 
+// Итоговые суммы по типам счетов
             Map<String, BigDecimal> debitTypeTotalsFinal = new LinkedHashMap<>();
             Map<String, BigDecimal> creditTypeTotalsFinal = new LinkedHashMap<>();
 
@@ -672,13 +673,13 @@ public class FileGeneratorService {
                         } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16307")) {
                             typeOption = "0201";
                         } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16307")) {
-                            typeOption = "0912";
+                            typeOption = "1419";
                         } else if (dok.getLs().startsWith("22812") && dok.getLscor().startsWith("16377")) {
-                            typeOption = "0913";
+                            typeOption = "1423";
                         } else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("22812")) {
-                            typeOption = "0909";
+                            typeOption = "0402";
                         } else if (dok.getLs().startsWith("16377") && dok.getLscor().startsWith("22812")) {
-                            typeOption = "0910";
+                            typeOption = "0406";
                         } else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("56802")) {
                             typeOption = "0801";
                         } else if (dok.getLs().startsWith("56802") && dok.getLscor().startsWith("12499")) {
