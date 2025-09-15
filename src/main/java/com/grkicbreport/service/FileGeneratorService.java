@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -704,6 +705,12 @@ public class FileGeneratorService {
                             typeOption = "0202";
                         }
 
+                        BigDecimal sum = dok.getSums(); // 7890.41
+                        int sumTiyn = sum.movePointRight(2)   // сдвигаем точку: 789041.00
+                                .setScale(0, RoundingMode.HALF_UP) // убираем дробь
+                                .intValue(); // приводим к int
+
+
 
                         if (fiz == null) {
                             String line009 = dateStringReverse + separator +
@@ -720,7 +727,7 @@ public class FileGeneratorService {
                                     dok.getLscor() + separator +
                                     inform.getNumks() + separator +
                                     dok.getLs() + separator +
-                                    dok.getSums().intValue() + "00" + separator +
+                                    sumTiyn + separator +
                                     yur.getName() + separator +
                                     inform.getName() + separator +
                                     lsKod + separator +
@@ -748,7 +755,7 @@ public class FileGeneratorService {
                                     dok.getLscor() + separator +
                                     inform.getNumks() + separator +
                                     dok.getLs() + separator +
-                                    dok.getSums().intValue() + "00" + separator +
+                                    sumTiyn + separator +
                                     inform.getName() + separator +
                                     fiz.getName() + separator +
                                     lsKod + separator +
