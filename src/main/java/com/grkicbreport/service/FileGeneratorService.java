@@ -877,13 +877,4 @@ public class FileGeneratorService {
         }
     }
 
-    private String trimZeros(String value) {
-        if (value == null) return "";
-        // Удаляем минус и обрезаем два последних символа, если они "00"
-        String cleaned = value.replace("-", "");
-        if (cleaned.length() >= 2 && cleaned.endsWith("00")) {
-            return cleaned.substring(0, cleaned.length() - 2);
-        }
-        return cleaned;
-    }
 }
