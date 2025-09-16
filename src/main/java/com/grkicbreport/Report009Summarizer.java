@@ -32,7 +32,7 @@ public class Report009Summarizer {
 
                 String debitAcc = parts[11];   // lscor
                 String creditAcc = parts[13];  // ls
-                BigDecimal amount = safeParse(parts[15]); // сумма
+                BigDecimal amount = safeParse(parts[14]); // сумма
 
                 // дебет
                 if (debitAcc != null && debitAcc.length() >= 5) {

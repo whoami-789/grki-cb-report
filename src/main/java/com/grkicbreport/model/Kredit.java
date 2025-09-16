@@ -74,6 +74,9 @@ public class Kredit {
     @Column(name = "lsprosr_kred")
     private String lsprosrKred;
 
+    @Column(name = "ls_spiskred")
+    private String ls_spiskred;
+
     @Column(name = "sms")
     private Byte sms;
 
@@ -333,6 +336,10 @@ public class Kredit {
 
     public String getLsprosrKred() {
         return this.lsprosrKred;
+    }
+
+    public String getLs_spiskred() {
+        return this.ls_spiskred;
     }
 
     public Byte getSms() {
@@ -643,6 +650,10 @@ public class Kredit {
         this.lsprosrKred = lsprosrKred;
     }
 
+    public void setLs_spiskred(String ls_spiskred) {
+        this.ls_spiskred = ls_spiskred;
+    }
+
     public void setSms(Byte sms) {
         this.sms = sms;
     }
@@ -937,6 +948,10 @@ public class Kredit {
         final Object other$lsprosrKred = other.getLsprosrKred();
         if (this$lsprosrKred == null ? other$lsprosrKred != null : !this$lsprosrKred.equals(other$lsprosrKred))
             return false;
+        final Object this$ls_spiskred = this.getLs_spiskred();
+        final Object other$ls_spiskred = other.getLs_spiskred();
+        if (this$ls_spiskred == null ? other$ls_spiskred != null : !this$ls_spiskred.equals(other$ls_spiskred))
+            return false;
         final Object this$sms = this.getSms();
         final Object other$sms = other.getSms();
         if (this$sms == null ? other$sms != null : !this$sms.equals(other$sms)) return false;
@@ -1168,6 +1183,8 @@ public class Kredit {
         result = result * PRIME + ($lsproc == null ? 43 : $lsproc.hashCode());
         final Object $lsprosrKred = this.getLsprosrKred();
         result = result * PRIME + ($lsprosrKred == null ? 43 : $lsprosrKred.hashCode());
+        final Object $ls_spiskred = this.getLs_spiskred();
+        result = result * PRIME + ($ls_spiskred == null ? 43 : $ls_spiskred.hashCode());
         final Object $sms = this.getSms();
         result = result * PRIME + ($sms == null ? 43 : $sms.hashCode());
         final Object $tel = this.getTel();
@@ -1286,7 +1303,7 @@ public class Kredit {
     }
 
     public String toString() {
-        return "Kredit(kod=" + this.getKod() + ", numdog=" + this.getNumdog() + ", datadog=" + this.getDatadog() + ", dats=" + this.getDats() + ", summa=" + this.getSumma() + ", vidvalut=" + this.getVidvalut() + ", vidzalog=" + this.getVidzalog() + ", vidsrok=" + this.getVidsrok() + ", prosent=" + this.getProsent() + ", maqsad=" + this.getMaqsad() + ", sost=" + this.getSost() + ", status=" + this.getStatus() + ", prim=" + this.getPrim() + ", yurfiz=" + this.getYurfiz() + ", tipkred=" + this.getTipkred() + ", srokkred=" + this.getSrokkred() + ", users=" + this.getUsers() + ", lskred=" + this.getLskred() + ", lsproc=" + this.getLsproc() + ", lsprosrKred=" + this.getLsprosrKred() + ", sms=" + this.getSms() + ", tel=" + this.getTel() + ", kodDog=" + this.getKodDog() + ", procpeni=" + this.getProcpeni() + ", indpred=" + this.getIndpred() + ", sostLs=" + this.getSostLs() + ", dopsogl=" + this.getDopsogl() + ", lssudKred=" + this.getLssudKred() + ", nalbeznal=" + this.getNalbeznal() + ", vazvnalbeznal=" + this.getVazvnalbeznal() + ", sostProc=" + this.getSostProc() + ", rejnach=" + this.getRejnach() + ", autoe=" + this.getAutoe() + ", autos=" + this.getAutos() + ", autokred=" + this.getAutokred() + ", autoproc=" + this.getAutoproc() + ", dney=" + this.getDney() + ", chas=" + this.getChas() + ", lsDox=" + this.getLsDox() + ", lsprocvne=" + this.getLsprocvne() + ", vidkred=" + this.getVidkred() + ", lsrezerv=" + this.getLsrezerv() + ", tip=" + this.getTip() + ", minvznos=" + this.getMinvznos() + ", komissy=" + this.getKomissy() + ", lgot=" + this.getLgot() + ", progress=" + this.getProgress() + ", lizpredmet=" + this.getLizpredmet() + ", lizprodovec=" + this.getLizprodovec() + ", datsZakr=" + this.getDatsZakr() + ", datsProsr=" + this.getDatsProsr() + ", dopsoglDats=" + this.getDopsoglDats() + ", spec=" + this.getSpec() + ", tipliz=" + this.getTipliz() + ", lsPeres=" + this.getLsPeres() + ", graf=" + this.getGraf() + ", autop=" + this.getAutop() + ", lsKontrvne=" + this.getLsKontrvne() + ", lsSpiskred=" + this.getLsSpiskred() + ", datsIzm=" + this.getDatsIzm() + ", datsIzmGrafik=" + this.getDatsIzmGrafik() + ", datsIzmZalog=" + this.getDatsIzmZalog() + ", objekt=" + this.getObjekt() + ", valut=" + this.getValut() + ", klass=" + this.getKlass() + ", lsprosrProc=" + this.getLsprosrProc() + ", ls22812=" + this.getLs22812() + ", datsIzmAsoki=" + this.getDatsIzmAsoki() + ", xatar=" + this.getXatar() + ", lspeni=" + this.getLspeni() + ", grkiClaimId=" + this.getGrkiClaimId() + ", grkiAgreementId=" + this.getGrkiAgreementId() + ", grkiContractId=" + this.getGrkiContractId() + ", grafiks=" + this.getGrafiks() + ", zalogs=" + this.getZalogs() + ", zalogXranenieList=" + this.getZalogXranenieList() + ", azolikFiz=" + this.getAzolikFiz() + ")";
+        return "Kredit(kod=" + this.getKod() + ", numdog=" + this.getNumdog() + ", datadog=" + this.getDatadog() + ", dats=" + this.getDats() + ", summa=" + this.getSumma() + ", vidvalut=" + this.getVidvalut() + ", vidzalog=" + this.getVidzalog() + ", vidsrok=" + this.getVidsrok() + ", prosent=" + this.getProsent() + ", maqsad=" + this.getMaqsad() + ", sost=" + this.getSost() + ", status=" + this.getStatus() + ", prim=" + this.getPrim() + ", yurfiz=" + this.getYurfiz() + ", tipkred=" + this.getTipkred() + ", srokkred=" + this.getSrokkred() + ", users=" + this.getUsers() + ", lskred=" + this.getLskred() + ", lsproc=" + this.getLsproc() + ", lsprosrKred=" + this.getLsprosrKred() + ", ls_spiskred=" + this.getLs_spiskred() + ", sms=" + this.getSms() + ", tel=" + this.getTel() + ", kodDog=" + this.getKodDog() + ", procpeni=" + this.getProcpeni() + ", indpred=" + this.getIndpred() + ", sostLs=" + this.getSostLs() + ", dopsogl=" + this.getDopsogl() + ", lssudKred=" + this.getLssudKred() + ", nalbeznal=" + this.getNalbeznal() + ", vazvnalbeznal=" + this.getVazvnalbeznal() + ", sostProc=" + this.getSostProc() + ", rejnach=" + this.getRejnach() + ", autoe=" + this.getAutoe() + ", autos=" + this.getAutos() + ", autokred=" + this.getAutokred() + ", autoproc=" + this.getAutoproc() + ", dney=" + this.getDney() + ", chas=" + this.getChas() + ", lsDox=" + this.getLsDox() + ", lsprocvne=" + this.getLsprocvne() + ", vidkred=" + this.getVidkred() + ", lsrezerv=" + this.getLsrezerv() + ", tip=" + this.getTip() + ", minvznos=" + this.getMinvznos() + ", komissy=" + this.getKomissy() + ", lgot=" + this.getLgot() + ", progress=" + this.getProgress() + ", lizpredmet=" + this.getLizpredmet() + ", lizprodovec=" + this.getLizprodovec() + ", datsZakr=" + this.getDatsZakr() + ", datsProsr=" + this.getDatsProsr() + ", dopsoglDats=" + this.getDopsoglDats() + ", spec=" + this.getSpec() + ", tipliz=" + this.getTipliz() + ", lsPeres=" + this.getLsPeres() + ", graf=" + this.getGraf() + ", autop=" + this.getAutop() + ", lsKontrvne=" + this.getLsKontrvne() + ", lsSpiskred=" + this.getLsSpiskred() + ", datsIzm=" + this.getDatsIzm() + ", datsIzmGrafik=" + this.getDatsIzmGrafik() + ", datsIzmZalog=" + this.getDatsIzmZalog() + ", objekt=" + this.getObjekt() + ", valut=" + this.getValut() + ", klass=" + this.getKlass() + ", lsprosrProc=" + this.getLsprosrProc() + ", ls22812=" + this.getLs22812() + ", datsIzmAsoki=" + this.getDatsIzmAsoki() + ", xatar=" + this.getXatar() + ", lspeni=" + this.getLspeni() + ", grkiClaimId=" + this.getGrkiClaimId() + ", grkiAgreementId=" + this.getGrkiAgreementId() + ", grkiContractId=" + this.getGrkiContractId() + ", grafiks=" + this.getGrafiks() + ", zalogs=" + this.getZalogs() + ", zalogXranenieList=" + this.getZalogXranenieList() + ", azolikFiz=" + this.getAzolikFiz() + ")";
     }
 }
 
