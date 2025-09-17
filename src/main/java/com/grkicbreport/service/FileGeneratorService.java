@@ -385,28 +385,22 @@ public class FileGeneratorService {
                 String lscor = dok.getLscor();
                 String accountForSearch = null; // ← будем хранить, по какому счёту реально искать
 
-                // кредит (ls)
-                if (ls != null && ls.length() >= 5) {
-                    String accountTypeKey = ls.substring(0, 5);
-                    if (balSet.contains(accountTypeKey)) {
-                        creditTypeTotalsFinal.merge(accountTypeKey, amount, BigDecimal::add);
-                        accountForSearch = ls; // приоритет LS
-                    }
+                String accountTypeKey = null;
+
+                if (ls != null && ls.length() >= 5 && balSet.contains(ls.substring(0, 5))) {
+                    accountForSearch = ls;
+                    accountTypeKey = ls.substring(0, 5);
+                    creditTypeTotalsFinal.merge(accountTypeKey, amount, BigDecimal::add);
+                } else if (lscor != null && lscor.length() >= 5 && balSet.contains(lscor.substring(0, 5))) {
+                    accountForSearch = lscor;
+                    accountTypeKey = lscor.substring(0, 5);
+                    debitTypeTotalsFinal.merge(accountTypeKey, amount, BigDecimal::add);
                 }
 
-                // дебет (lscor), если LS не подошёл
-                if (accountForSearch == null && lscor != null && lscor.length() >= 5) {
-                    String accountTypeKey = lscor.substring(0, 5);
-                    if (balSet.contains(accountTypeKey)) {
-                        debitTypeTotalsFinal.merge(accountTypeKey, amount, BigDecimal::add);
-                        accountForSearch = lscor;
-                    }
-                }
-
-                // если ни LS, ни LSCOR не интересуют → пропускаем
                 if (accountForSearch == null) {
-                    continue;
+                    continue; // вообще не наш счёт
                 }
+
 
                 // теперь только один запрос в БД
                 Optional<Kredit> creditOpt = byls_kred(accountForSearch);
@@ -591,6 +585,8 @@ public class FileGeneratorService {
                         lsKod = "01012";
                     } else if (dok.getLs().startsWith("56842") && dok.getLscor().startsWith("15799")) {
                         lsKod = "01012";
+                    } else if (dok.getLs().startsWith("96345") && dok.getLscor().startsWith("95413")) {
+                        lsKod = "01013";
                     }
 
                     String nalCard = "";
@@ -610,19 +606,13 @@ public class FileGeneratorService {
                     } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("10101")) {
                         typeOption = "0303";
                     } else if (dok.getLs().startsWith("12401") && dok.getLscor().startsWith("22812")) {
-                        typeOption = "0901";
+                        typeOption = "0302";
                     } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("22812")) {
-                        typeOption = "0902";
+                        typeOption = "0306";
                     } else if (dok.getLs().startsWith("12409") && dok.getLscor().startsWith("22812")) {
-                        typeOption = "0901";
-                    } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("22812")) {
-                        typeOption = "0901";
-                    } else if (dok.getLs().startsWith("14809") && dok.getLscor().startsWith("22812")) {
-                        typeOption = "0901";
+                        typeOption = "0310";
                     } else if (dok.getLs().startsWith("15701") && dok.getLscor().startsWith("22812")) {
-                        typeOption = "0901";
-                    } else if (dok.getLs().startsWith("14901") && dok.getLscor().startsWith("22812")) {
-                        typeOption = "0901";
+                        typeOption = "0314";
                     } else if (dok.getLs().startsWith("12501") && dok.getLscor().startsWith("10101")) {
                         typeOption = "0303";
                     } else if (dok.getLs().startsWith("14801") && dok.getLscor().startsWith("10101")) {
@@ -705,71 +695,46 @@ public class FileGeneratorService {
                         typeOption = "1460";
                     } else if (dok.getLs().startsWith("42005") && dok.getLscor().startsWith("16377")) {
                         typeOption = "0202";
+                    } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12499")) {
+                        typeOption = "0805";
+                    } else if (dok.getLs().startsWith("96345") && dok.getLscor().startsWith("95413")) {
+                        typeOption = "0808";
+                    } else if (dok.getLs().startsWith("96335") && dok.getLscor().startsWith("91501")) {
+                        typeOption = "0613";
                     }
 
-                    BigDecimal sum = dok.getSums(); // 7890.41
-                    int sumTiyn = sum.movePointRight(2)   // сдвигаем точку: 789041.00
-                            .setScale(0, RoundingMode.HALF_UP) // убираем дробь
-                            .intValue(); // приводим к int
+                    BigDecimal sumTiyn = amount.movePointRight(2).setScale(0, RoundingMode.HALF_UP);
 
 
-                    if (fiz == null) {
-                        String line009 = dateStringReverse + separator +
-                                "02" + separator +
-                                inform.getNumks() + separator +
-                                ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
-                                cleanedNumdog + separator +
-                                dok.getKod().intValue() + separator +
-                                typeOption + separator +
-                                nalCard + separator +
-                                "03" + separator +
-                                dok.getKod() + separator +
-                                inform.getNumks() + separator +
-                                dok.getLscor() + separator +
-                                inform.getNumks() + separator +
-                                dok.getLs() + separator +
-                                sumTiyn + separator +
-                                yur.getName() + separator +
-                                inform.getName() + separator +
-                                lsKod + separator +
-                                dok.getNazn() + separator + "\n";
+                    String clientName = (fiz != null) ? fiz.getName() : yur.getName();
 
-                        // Записываем строку в файл с расширением .009
-                        try {
-                            writer009.write(line009);
-                            writer009.flush();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    } else {
-                        String line009 = dateStringReverse + separator +
-                                "02" + separator +
-                                inform.getNumks() + separator +
-                                ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
-                                cleanedNumdog + separator +
-                                dok.getKod().intValue() + separator +
-                                typeOption + separator +
-                                nalCard + separator +
-                                "03" + separator +
-                                dok.getKod() + separator +
-                                inform.getNumks() + separator +
-                                dok.getLscor() + separator +
-                                inform.getNumks() + separator +
-                                dok.getLs() + separator +
-                                sumTiyn + separator +
-                                inform.getName() + separator +
-                                fiz.getName() + separator +
-                                lsKod + separator +
-                                dok.getNazn() + separator + "\n";
+                    String line009 = dateStringReverse + separator +
+                            "02" + separator +
+                            inform.getNumks() + separator +
+                            ((found_kredit != null && found_kredit.getGrkiContractId() != null)
+                                    ? found_kredit.getGrkiContractId() : "0") + separator +
+                            cleanedNumdog + separator +
+                            dok.getKod().intValue() + separator +
+                            typeOption + separator +
+                            nalCard + separator +
+                            "03" + separator +
+                            dok.getKod() + separator +
+                            inform.getNumks() + separator +
+                            dok.getLscor() + separator +
+                            inform.getNumks() + separator +
+                            dok.getLs() + separator +
+                            sumTiyn.toPlainString() + separator +
+                            inform.getName() + separator +
+                            clientName + separator +
+                            lsKod + separator +
+                            dok.getNazn() + separator + "\n";
 
-
-                        // Записываем строку в файл с расширением .009
-                        try {
-                            writer009.write(line009);
-                            writer009.flush();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                    // Записываем строку в файл с расширением .009
+                    try {
+                        writer009.write(line009);
+                        writer009.flush();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
 
                 });
