@@ -376,7 +376,7 @@ public class FileGeneratorService {
             Map<String, BigDecimal> debitTypeTotalsFinal = new LinkedHashMap<>();
             Map<String, BigDecimal> creditTypeTotalsFinal = new LinkedHashMap<>();
 
-            List<Dok> docs = dokRepository.findAllByDats(currentDate.toLocalDate());
+            List<Dok> docs = dokRepository.findAllByDatsAndSost(currentDate.toLocalDate(), 3);
 
             for (Dok dok : docs) {
                 BigDecimal amount = dok.getSums();
@@ -698,7 +698,7 @@ public class FileGeneratorService {
                     } else if (dok.getLs().startsWith("12405") && dok.getLscor().startsWith("12499")) {
                         typeOption = "0805";
                     } else if (dok.getLs().startsWith("96345") && dok.getLscor().startsWith("95413")) {
-                        typeOption = "0808";
+                        typeOption = "0819";
                     } else if (dok.getLs().startsWith("96335") && dok.getLscor().startsWith("91501")) {
                         typeOption = "0613";
                     }
