@@ -93,7 +93,7 @@ public class SaveProvisionService {
                     case 1 -> provisionsDTO.setProvision_type("712");
                     case 2 -> provisionsDTO.setProvision_type("204");
                     case 3 -> provisionsDTO.setProvision_type("101");
-                    case 8 -> provisionsDTO.setProvision_type("400");
+                    case 12 -> provisionsDTO.setProvision_type("403");
                     default -> provisionsDTO.setProvision_type("999"); // Значение по умолчанию
                 }
 
@@ -108,7 +108,7 @@ public class SaveProvisionService {
                     case 1 -> provisionsDTO.setName("Ювелирные изделия");
                     case 2 -> provisionsDTO.setName("Транспортные средства");
                     case 3 -> provisionsDTO.setName("Недвижимость");
-                    case 8 -> provisionsDTO.setName("Гарантии и поручительства");
+                    case 12 -> provisionsDTO.setName("Гарантии и поручительства");
                     default -> provisionsDTO.setName("Другое обеспечение");
                 }
 
@@ -191,6 +191,14 @@ public class SaveProvisionService {
 
                             vehicleArrayList.add(vehicle);
                             provisionsDTO.setVehicles(vehicleArrayList);
+                        } else if (zalog.getKodZalog() == 12) {
+                            List<ProvisionsDTO.GuaranteeSurety> collateralList = new ArrayList<>();
+                            ProvisionsDTO.GuaranteeSurety collateral = new ProvisionsDTO.GuaranteeSurety();
+                            collateral.setProvision_id(cleanedNumdog.replaceAll("\\s", ""));
+                            collateral.setDate_end(kredit.getDatsZakr().format(formatter));
+
+                            collateralList.add(collateral);
+                            provisionsDTO.setGuarantees_sureties(collateralList);
                         }
 
                     }
