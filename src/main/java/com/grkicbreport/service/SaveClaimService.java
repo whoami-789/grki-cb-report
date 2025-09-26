@@ -76,7 +76,7 @@ public class SaveClaimService {
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
             if (Objects.equals(save_mode, "5")) claimDTO.setClaim_guid(kredit.getGrkiClaimId());
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
@@ -89,7 +89,7 @@ public class SaveClaimService {
             creditDTO.setSubject_type("2");
             creditDTO.setType("10");
             creditDTO.setCurrency("000");
-            creditDTO.setAmount(String.valueOf(kredit.getSumma().intValue()));
+            creditDTO.setAmount(kredit.getSumma().intValue() + "00");
             creditDTO.setPercent(String.valueOf(kredit.getProsent()));
             creditDTO.setPeriod(String.valueOf(kredit.getSrokkred()));
             List<String> targets = new ArrayList<>();
@@ -101,7 +101,6 @@ public class SaveClaimService {
             BorrowerDTO borrowerDTO = new BorrowerDTO();
             borrowerDTO.setResident("1");
             borrowerDTO.setPinfl(azolikFiz.getKodPension().replaceAll("\\s", ""));
-            borrowerDTO.setInn(null);
             borrowerDTO.setNibbd_code(azolikFiz.getKodchlen().replaceAll("\\s", ""));
             borrowerDTO.setSecond_name(azolikFiz.getFam().replaceAll("\\s", ""));
             borrowerDTO.setFirst_name(azolikFiz.getImya().replaceAll("\\s", ""));
@@ -119,7 +118,8 @@ public class SaveClaimService {
 
             // Заполнение списка IncomeDTO
             IncomeDTO incomeDTO = new IncomeDTO();
-            incomeDTO.setIncome_type("08");
+            incomeDTO.setIncome_type("07");
+            incomeDTO.setAverage_income("4000000");
             dto.setIncome(List.of(incomeDTO)); // Устанавливаем список доходов
 
             // Заполнение ContactsDTO
@@ -136,7 +136,6 @@ public class SaveClaimService {
             String formattedJson = gson.toJson(dto);
             logger.info(formattedJson);
             return dto;
-
         } catch (Exception e) {
 
             Optional<AzolikYur> azolikYurList = azolikYurRepository.findByKodchlen(kredit.getKod());
@@ -158,7 +157,7 @@ public class SaveClaimService {
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaim_guid("");
             if (Objects.equals(save_mode, "5")) claimDTO.setClaim_guid(kredit.getGrkiClaimId());
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[.\\-KК/\\\\]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
@@ -180,7 +179,6 @@ public class SaveClaimService {
             // Заполнение BorrowerDTO
             BorrowerDTO borrowerDTO = new BorrowerDTO();
             borrowerDTO.setResident("1");
-            borrowerDTO.setInn(azolikYur.getInn().replaceAll("\\s", ""));
             borrowerDTO.setNibbd_code(azolikYur.getKodchlen().replaceAll("\\s", ""));
             borrowerDTO.setCitizenship("860");
             borrowerDTO.setArea(azolikYur.getKodObl().replaceFirst("0", ""));

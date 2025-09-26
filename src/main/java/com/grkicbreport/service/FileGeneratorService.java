@@ -7,10 +7,6 @@ import com.grkicbreport.model.*;
 import com.grkicbreport.repository.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -311,7 +307,7 @@ public class FileGeneratorService {
                 }
 
                 String cleanedNumdog = kredit.getNumdog()
-                        .replaceAll("[-KК/\\\\]", "")
+                        .replaceAll("[.\\-KК/\\\\]", "")
                         .trim();
 
                 fileContent.append(dateStringReverse).append(separator)
@@ -392,7 +388,7 @@ public class FileGeneratorService {
                 if (creditOpt.isPresent()) {
                     Kredit kredit = creditOpt.get();
                     String cleanedNumdog = kredit.getNumdog()
-                            .replaceAll("[-KК/\\\\]", "")
+                            .replaceAll("[.\\-KК/\\\\]", "")
                             .trim();
 
                     kreditRepository.findByNumdog(kredit.getNumdog().trim()).ifPresent(found_kredit -> {
@@ -849,9 +845,6 @@ public class FileGeneratorService {
         return numdog.replaceAll("[-KК/\\\\]", "").trim();
     }
 
-    private void createCell(Row row, int column, String value) {
-        row.createCell(column).setCellValue(value);
-    }
 
     private String getContractNumberForAccount(String account) {
         try {
