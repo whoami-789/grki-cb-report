@@ -140,10 +140,27 @@ public class FileGeneratorService {
         List<String> fields = List.of("lskred", "lsproc", "lsprosr_proc");
 
         for (String field : fields) {
-            String sql = "SELECT * FROM kredit WHERE " + field + " IN :accounts";
-            List<Kredit> kredits = entityManager.createNativeQuery(sql, Kredit.class)
-                    .setParameter("accounts", accounts)
-                    .getResultList();
+            if (accounts.isEmpty()) continue;
+
+            // Собираем SQL с OR через LIKE
+            StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM kredit WHERE ");
+            int i = 0;
+            for (String acc : accounts) {
+                if (i > 0) sqlBuilder.append(" OR ");
+                sqlBuilder.append(field).append(" LIKE :acc").append(i);
+                i++;
+            }
+
+            Query query = entityManager.createNativeQuery(sqlBuilder.toString(), Kredit.class);
+
+            // Подставляем параметры
+            i = 0;
+            for (String acc : accounts) {
+                query.setParameter("acc" + i, acc); // без %, если нужен полный LIKE
+                i++;
+            }
+
+            List<Kredit> kredits = query.getResultList();
 
             for (Kredit k : kredits) {
                 String acc = getAccountValue(k, field);
@@ -152,8 +169,10 @@ public class FileGeneratorService {
                 }
             }
         }
+
         return result;
     }
+
 
     private Map<String, Kredit> loadKreditsIndividualWay(Set<String> missingAccounts) {
         Map<String, Kredit> result = new HashMap<>();

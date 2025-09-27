@@ -192,7 +192,8 @@ public class SaveClaimService {
 
             // Заполнение списка IncomeDTO
             IncomeDTO incomeDTO = new IncomeDTO();
-            incomeDTO.setIncome_type("08");
+            incomeDTO.setIncome_type("07");
+            incomeDTO.setAverage_income("5000000");
             dto.setIncome(List.of(incomeDTO)); // Устанавливаем список доходов
 
             // Заполнение ContactsDTO

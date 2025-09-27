@@ -141,19 +141,6 @@ public class SaveContractService {
             return dto;
         } catch (Exception e) {
             System.out.println(e);
-            // Создаем и заполняем DTO
-//            saveContractDTO dto = new saveContractDTO();
-//
-//            dto.setSave_mode("1");
-//
-//            // Заполнение CreditorDTO
-//            CreditorDTO creditorDTO = new CreditorDTO();
-//            creditorDTO.setType("02");
-//            creditorDTO.setCode("6005");
-//            dto.setCreditor(creditorDTO);
-//
-//            System.out.println("yur");
-//            return dto;
             return null;
         }
     }
