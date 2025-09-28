@@ -34,4 +34,13 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     @Query(value = "EXEC dbo.creat_report_008 :p1, :p2", nativeQuery = true)
     List<String> getReport008(@Param("p1") Date p1, @Param("p2") Date p2);
 
+    @Query(value = "SELECT numdog, [grki-contract-id] FROM kredit " +
+            "WHERE RTRIM(lskred) = :account " +
+            "   OR RTRIM(lsproc) = :account " +
+            "   OR RTRIM(lsprosr_proc) = :account",
+            nativeQuery = true)
+    List<Object[]> findByAccount(@Param("account") String account);
+
+
+
 }

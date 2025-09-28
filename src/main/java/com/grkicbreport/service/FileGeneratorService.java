@@ -69,37 +69,37 @@ public class FileGeneratorService {
     }
 
     public Optional<Kredit> byls_kred(String lskred) {
-        // Очистка кэша сессии перед запросом
+        if (lskred == null || lskred.isBlank()) {
+            return Optional.empty();
+        }
+
         entityManager.clear();
 
+        // порядок поиска
+        List<String> fields = List.of("lskred", "lsproc", "lsprosr_proc");
 
-        // Поля, по которым будем искать
-        List<String> fields = List.of(
-                "lskred",
-                "lsproc",
-                "lsprosr_proc"
-        );
-
-        // Сначала ищем по полному номеру счета
         for (String field : fields) {
-            String sql = "SELECT * FROM kredit WHERE " + field + " = :lskred";
-            Query query = entityManager.createNativeQuery(sql, Kredit.class);
-            query.setParameter("lskred", lskred);
+            String sql = "SELECT * FROM kredit WHERE " + field + " = :lskred ORDER BY datadog DESC";
+            List<Kredit> results = entityManager.createNativeQuery(sql, Kredit.class)
+                    .setParameter("lskred", lskred)
+                    .getResultList();
 
-            try {
-                Kredit kredit = (Kredit) query.getSingleResult();
+            if (!results.isEmpty()) {
+                if (results.size() > 1) {
+                    logger.warn("⚠ Найдено несколько кредитов по полю {} для счёта {}: {}",
+                            field, lskred,
+                            results.stream().map(Kredit::getNumdog).toList());
+                }
 
-                return Optional.of(kredit);
-            } catch (NoResultException e) {
-                // Продолжаем поиск
-            } catch (Exception e) {
-                logger.warn("Ошибка при поиске кредита по полю " + field + ": " + e.getMessage());
+                return Optional.of(results.get(0)); // всегда один и тот же при ORDER BY
             }
         }
 
-        logger.warn("Кредит не найден ни по основному номеру " + lskred + ", ни по альтернативным вариантам");
+        logger.warn("Кредит не найден по счёту {}", lskred);
         return Optional.empty();
     }
+
+
 
     private Map<String, Kredit> loadAllKredits(Set<String> accounts) {
         Map<String, Kredit> result = new HashMap<>();
@@ -191,23 +191,30 @@ public class FileGeneratorService {
     }
 
     private Kredit findKreditByAnyField(String account) {
-        for (String field : List.of("lskred", "lsproc", "lsprosr_proc")) {
-            try {
-                String sql = "SELECT * FROM kredit WHERE " + field + " = :account";
-                List<Kredit> results = entityManager.createNativeQuery(sql, Kredit.class)
-                        .setParameter("account", account)
-                        .getResultList();
+        try {
+            List<Object[]> results = kreditRepository.findByAccount(account);
+            if (!results.isEmpty()) {
+                Object[] row = results.get(0);
+                String numdog = row[0] != null ? row[0].toString().trim() : null;
+                String grkiContractId = row[1] != null ? row[1].toString().trim() : null;
 
-                if (!results.isEmpty()) {
-                    logger.info("Найден кредит по полю {} для счета {}", field, account);
-                    return results.get(0);
-                }
-            } catch (Exception e) {
-                logger.error("Ошибка поиска по полю {}", field, e);
+                Kredit kredit = new Kredit();
+                kredit.setNumdog(numdog);
+                kredit.setGrkiContractId(grkiContractId);
+
+                logger.info("Найден кредит для счёта {} ({} записей)", account, results.size());
+                logger.info("numdog={}, grkiContractId={}", numdog, grkiContractId);
+
+                return kredit;
             }
+        } catch (Exception e) {
+            logger.error("Ошибка поиска кредита для {}", account, e);
         }
         return null;
     }
+
+
+
 
     private String getAccountValue(Kredit kredit, String field) {
         if (kredit == null) {
