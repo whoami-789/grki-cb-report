@@ -10,8 +10,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 
@@ -44,7 +44,7 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     @Query("UPDATE Kredit k SET k.grkiContractId = :grkiContractId WHERE k.numdog = :numdog")
     void updateGrkiContractId(@Param("grkiContractId") String grkiContractId, @Param("numdog") String numdog);
 
-    List<Kredit> findByDatsZakrIsNull();
+    List<Kredit> findAllByDatsZakrIsNullAndGrkiContractIdIsNull();
 
     @Query("SELECT k FROM Kredit k WHERE k.status = :status")
     List<Kredit> findCreditsByStatus(@Param("status") int status);
@@ -65,6 +65,15 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     @Query(value = "EXEC dbo.creat_report_008 :p1, :p2", nativeQuery = true)
     List<String> getReport008(@Param("p1") Date p1, @Param("p2") Date p2);
 
+    List<Kredit> findAllByDatadogBetween(LocalDate from, LocalDate to);
 
+    @Query("SELECT k FROM Kredit k JOIN Zalog z ON z.numdog = k.numdog " +
+            "WHERE k.grkiContractId IS NULL AND k.datadog BETWEEN :from AND :to " +
+            "AND z.kodZalog = 1")
+    List<Kredit> findWithJewelryCollateral(@Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    @Query("SELECT k FROM Kredit k " +
+            "WHERE k.grkiContractId IS NULL AND k.datadog BETWEEN :from AND :to")
+    List<Kredit> findWithoutContractInPeriod(@Param("from") LocalDate from, @Param("to") LocalDate to);
 
 }

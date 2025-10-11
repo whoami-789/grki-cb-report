@@ -7,11 +7,13 @@ import com.grkicbreport.dto.setStateToClose.setStateToCloseDTO;
 import com.grkicbreport.model.Kredit;
 import com.grkicbreport.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,8 +31,13 @@ public class MainController {
     private final FileGeneratorService fileGeneratorService;
     private final getIdentityService getIdentityService;
     private final KreditService kreditService;
+    private final saveScheduleBatchService batchService;
+    private final SaveProvisionBatchService provbatchService;
+    private final SaveClaimBatchService claimbatchService;
+    private final SaveContractBatchService contractbatchService;
 
-    public MainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveAgreementService saveAgreementService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService, com.grkicbreport.service.getIdentityService getIdentityService, KreditService kreditService) {
+
+    public MainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveAgreementService saveAgreementService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService, com.grkicbreport.service.getIdentityService getIdentityService, KreditService kreditService, saveScheduleBatchService batchService, SaveProvisionBatchService provbatchService, SaveClaimBatchService claimbatchService, SaveContractBatchService contractbatchService) {
         this.saveClaimService = saveClaimService;
         this.saveContractService = saveContractService;
         this.saveAgreementService = saveAgreementService;
@@ -42,6 +49,10 @@ public class MainController {
         this.fileGeneratorService = fileGeneratorService;
         this.getIdentityService = getIdentityService;
         this.kreditService = kreditService;
+        this.batchService = batchService;
+        this.provbatchService = provbatchService;
+        this.claimbatchService = claimbatchService;
+        this.contractbatchService = contractbatchService;
     }
 
     @PostMapping("/get-save-claim")
@@ -112,4 +123,48 @@ public class MainController {
     public String generateFiles(@RequestParam String date) {
         return fileGeneratorService.createFiles(date);
     }
+
+    @GetMapping("/run")
+    public ResponseEntity<List<String>> runBatch(
+            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(defaultValue = "save") String save_mode,
+            @RequestParam(defaultValue = "false") boolean sendToCb) {
+
+        List<String> results = batchService.processSchedulesForPeriod(from, to, save_mode, sendToCb);
+        return ResponseEntity.ok(results);
+    }
+
+    @GetMapping("/prov/run")
+    public ResponseEntity<List<String>> runBatch(
+            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(defaultValue = "false") boolean jewelryOnly,
+            @RequestParam(defaultValue = "false") boolean sendToCb
+    ) {
+        List<String> results = provbatchService.processProvisionsForPeriod(from, to, jewelryOnly);
+        return ResponseEntity.ok(results);
+    }
+
+    @GetMapping("/claim/run")
+    public ResponseEntity<List<String>> runClaims(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(defaultValue = "1") String save_mode,
+            @RequestParam(defaultValue = "4000000") String avgIncome,
+            @RequestParam(defaultValue = "false") boolean sendToCb) {
+        return ResponseEntity.ok(claimbatchService.processClaims(from, to, save_mode, avgIncome, sendToCb));
+    }
+
+    @GetMapping("/contract/run")
+    public ResponseEntity<List<String>> runContracts(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(defaultValue = "02") String loanLine,
+            @RequestParam(required = false) String decisionNumber,
+            @RequestParam(defaultValue = "1") String save_mode,
+            @RequestParam(defaultValue = "false") boolean sendToCb) {
+        return ResponseEntity.ok(contractbatchService.processContracts(from, to, loanLine, decisionNumber, save_mode, sendToCb));
+    }
+
 }
