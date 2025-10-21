@@ -565,6 +565,14 @@ public class FileGeneratorService {
                     // dic 060 -> 01017
                     else if (dok.getLs().startsWith("91501") && dok.getLscor().startsWith("96335")) {
                         lsKod = "01017";
+                    } else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("12405")) {
+                        lsKod = "01017";
+                    } else if (dok.getLs().startsWith("95413") && dok.getLscor().startsWith("96397")) {
+                        lsKod = "01017";
+                    } else if (dok.getLs().startsWith("96345") && dok.getLscor().startsWith("95413")) {
+                        lsKod = "01017";
+                    } else if (dok.getLs().startsWith("96335") && dok.getLscor().startsWith("91501")) {
+                        lsKod = "01017";
                     }
                     // dic 060 -> 01018
                     else if (dok.getLs().startsWith("16307") && dok.getLscor().startsWith("16377")) {
@@ -701,8 +709,12 @@ public class FileGeneratorService {
                         typeOption = "0805";
                     } else if (dok.getLs().startsWith("96345") && dok.getLscor().startsWith("95413")) {
                         typeOption = "0819";
-                    } else if (dok.getLs().startsWith("96335") && dok.getLscor().startsWith("91501")) {
-                        typeOption = "0613";
+                    } else if (dok.getLs().startsWith("95413") && dok.getLscor().startsWith("96397")) {
+                        typeOption = "0816";
+                    } else if (dok.getLs().startsWith("91501") && dok.getLscor().startsWith("96335")) {
+                        typeOption = "0615";
+                    } else if (dok.getLs().startsWith("12499") && dok.getLscor().startsWith("12405")) {
+                        typeOption = "0831";
                     }
 
                     BigDecimal sumTiyn = amount.movePointRight(2).setScale(0, RoundingMode.HALF_UP);

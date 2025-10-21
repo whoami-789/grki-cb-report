@@ -76,4 +76,6 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
             "WHERE k.grkiContractId IS NULL AND k.datadog BETWEEN :from AND :to")
     List<Kredit> findWithoutContractInPeriod(@Param("from") LocalDate from, @Param("to") LocalDate to);
 
+    List<Kredit> findAllByOrderByDatadogDesc();
+
 }
