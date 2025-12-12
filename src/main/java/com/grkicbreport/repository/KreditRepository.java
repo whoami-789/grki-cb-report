@@ -41,6 +41,8 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
             nativeQuery = true)
     List<Object[]> findByAccount(@Param("account") String account);
 
+    List<Kredit> findAllByOrderByDatadogDesc();
+
 
 
 }
