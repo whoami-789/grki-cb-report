@@ -27,7 +27,7 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
     List<String> calAnaliz_schet(@Param("date") Date date, @Param("bal") String bal);
 
     @Query(value = "EXEC creat_otch_13_001 :start_date, :end_date", nativeQuery = true)
-    List<String> cb_otch(@Param("start_date") Date start_date, @Param("end_date")  Date end_date);
+    List<String> cb_otch(@Param("start_date") Date start_date, @Param("end_date") Date end_date);
 
     @Modifying
     @Transactional
@@ -78,4 +78,18 @@ public interface KreditRepository extends JpaRepository<Kredit, String> {
 
     List<Kredit> findAllByOrderByDatadogDesc();
 
+    List<Kredit> findByDatsIzmBetweenOrStatus(LocalDate start, LocalDate end, Byte status);
+
+    List<Kredit> findByDatsIzmBetweenAndNumdog(LocalDate start, LocalDate end, String numdog);
+
+    List<Kredit> findByDatadogBetweenOrStatus(LocalDate start, LocalDate end, Byte status);
+
+    @Query("""
+            select k
+            from Kredit k
+            where k.datadog <= :to
+              and (k.datsZakr is null or k.datsZakr >= :from)
+            """)
+    List<Kredit> findActiveInPeriod(@Param("from") LocalDate from,
+                                    @Param("to") LocalDate to);
 }

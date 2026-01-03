@@ -14,4 +14,8 @@ public interface AzolikFizRepository extends JpaRepository<AzolikFiz, String> {
 
     Optional<AzolikFiz> findByKodchlen(String kodchlen);
 
+    List<AzolikFiz> findCrifByKodchlen(String kodchlen);
+
+    @Query("SELECT s.nameu FROM SprRayon s WHERE s.kod = :kod")
+    Optional<String> findNameuByKod(String kod);
 }

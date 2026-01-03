@@ -2,15 +2,10 @@ package com.grkicbreport.controller;
 
 import com.grkicbreport.dto.KreditDTO;
 import com.grkicbreport.dto.RequestDTO;
-import com.grkicbreport.dto.saveClaim.saveClaimDTO;
-import com.grkicbreport.dto.setStateToClose.setStateToCloseDTO;
-import com.grkicbreport.model.Kredit;
 import com.grkicbreport.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -19,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/grki")
-public class MainController {
+public class GRKIMainController {
     private final SaveClaimService saveClaimService;
     private final SaveContractService saveContractService;
     private final SaveAgreementService saveAgreementService;
@@ -37,7 +32,7 @@ public class MainController {
     private final SaveContractBatchService contractbatchService;
 
 
-    public MainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveAgreementService saveAgreementService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService, com.grkicbreport.service.getIdentityService getIdentityService, KreditService kreditService, saveScheduleBatchService batchService, SaveProvisionBatchService provbatchService, SaveClaimBatchService claimbatchService, SaveContractBatchService contractbatchService) {
+    public GRKIMainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveAgreementService saveAgreementService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService, com.grkicbreport.service.getIdentityService getIdentityService, KreditService kreditService, saveScheduleBatchService batchService, SaveProvisionBatchService provbatchService, SaveClaimBatchService claimbatchService, SaveContractBatchService contractbatchService) {
         this.saveClaimService = saveClaimService;
         this.saveContractService = saveContractService;
         this.saveAgreementService = saveAgreementService;
