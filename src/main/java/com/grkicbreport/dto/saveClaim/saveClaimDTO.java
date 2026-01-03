@@ -8,12 +8,16 @@ public class saveClaimDTO {
     private String save_mode;
     private CreditorDTO creditor;
     private ClaimDTO claim;
-    private CreditDTO credit;
+    private CreditDTO financing;
     private BorrowerDTO borrower;
     private List<IncomeDTO> income;
     private ContactsDTO contacts;
 
     public saveClaimDTO() {
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof saveClaimDTO;
     }
 
     public String getSave_mode() {
@@ -28,8 +32,8 @@ public class saveClaimDTO {
         return this.claim;
     }
 
-    public CreditDTO getCredit() {
-        return this.credit;
+    public CreditDTO getFinancing() {
+        return this.financing;
     }
 
     public BorrowerDTO getBorrower() {
@@ -56,8 +60,8 @@ public class saveClaimDTO {
         this.claim = claim;
     }
 
-    public void setCredit(CreditDTO credit) {
-        this.credit = credit;
+    public void setFinancing(CreditDTO financing) {
+        this.financing = financing;
     }
 
     public void setBorrower(BorrowerDTO borrower) {
@@ -86,9 +90,9 @@ public class saveClaimDTO {
         final Object this$claim = this.getClaim();
         final Object other$claim = other.getClaim();
         if (this$claim == null ? other$claim != null : !this$claim.equals(other$claim)) return false;
-        final Object this$credit = this.getCredit();
-        final Object other$credit = other.getCredit();
-        if (this$credit == null ? other$credit != null : !this$credit.equals(other$credit)) return false;
+        final Object this$financing = this.getFinancing();
+        final Object other$financing = other.getFinancing();
+        if (this$financing == null ? other$financing != null : !this$financing.equals(other$financing)) return false;
         final Object this$borrower = this.getBorrower();
         final Object other$borrower = other.getBorrower();
         if (this$borrower == null ? other$borrower != null : !this$borrower.equals(other$borrower)) return false;
@@ -101,10 +105,6 @@ public class saveClaimDTO {
         return true;
     }
 
-    protected boolean canEqual(final Object other) {
-        return other instanceof saveClaimDTO;
-    }
-
     public int hashCode() {
         final int PRIME = 59;
         int result = 1;
@@ -114,8 +114,8 @@ public class saveClaimDTO {
         result = result * PRIME + ($creditor == null ? 43 : $creditor.hashCode());
         final Object $claim = this.getClaim();
         result = result * PRIME + ($claim == null ? 43 : $claim.hashCode());
-        final Object $credit = this.getCredit();
-        result = result * PRIME + ($credit == null ? 43 : $credit.hashCode());
+        final Object $financing = this.getFinancing();
+        result = result * PRIME + ($financing == null ? 43 : $financing.hashCode());
         final Object $borrower = this.getBorrower();
         result = result * PRIME + ($borrower == null ? 43 : $borrower.hashCode());
         final Object $income = this.getIncome();
@@ -126,6 +126,6 @@ public class saveClaimDTO {
     }
 
     public String toString() {
-        return "saveClaimDTO(save_mode=" + this.getSave_mode() + ", creditor=" + this.getCreditor() + ", claim=" + this.getClaim() + ", credit=" + this.getCredit() + ", borrower=" + this.getBorrower() + ", income=" + this.getIncome() + ", contacts=" + this.getContacts() + ")";
+        return "saveClaimDTO(save_mode=" + this.getSave_mode() + ", creditor=" + this.getCreditor() + ", claim=" + this.getClaim() + ", financing=" + this.getFinancing() + ", borrower=" + this.getBorrower() + ", income=" + this.getIncome() + ", contacts=" + this.getContacts() + ")";
     }
 }

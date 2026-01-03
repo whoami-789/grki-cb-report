@@ -32,8 +32,13 @@ public class BorrowerDTO {
     private String doc_number;
     private String doc_date;
     private String doc_issuer;
+    private String work_village;
 
     public BorrowerDTO() {
+    }
+
+    protected boolean canEqual(final Object other) {
+        return other instanceof BorrowerDTO;
     }
 
     public String getResident() {
@@ -160,6 +165,10 @@ public class BorrowerDTO {
         return this.doc_issuer;
     }
 
+    public String getWork_village() {
+        return this.work_village;
+    }
+
     public void setResident(String resident) {
         this.resident = resident;
     }
@@ -284,6 +293,10 @@ public class BorrowerDTO {
         this.doc_issuer = doc_issuer;
     }
 
+    public void setWork_village(String work_village) {
+        this.work_village = work_village;
+    }
+
     public boolean equals(final Object o) {
         if (o == this) return true;
         if (!(o instanceof BorrowerDTO)) return false;
@@ -398,11 +411,11 @@ public class BorrowerDTO {
         final Object other$doc_issuer = other.getDoc_issuer();
         if (this$doc_issuer == null ? other$doc_issuer != null : !this$doc_issuer.equals(other$doc_issuer))
             return false;
+        final Object this$work_village = this.getWork_village();
+        final Object other$work_village = other.getWork_village();
+        if (this$work_village == null ? other$work_village != null : !this$work_village.equals(other$work_village))
+            return false;
         return true;
-    }
-
-    protected boolean canEqual(final Object other) {
-        return other instanceof BorrowerDTO;
     }
 
     public int hashCode() {
@@ -470,10 +483,12 @@ public class BorrowerDTO {
         result = result * PRIME + ($doc_date == null ? 43 : $doc_date.hashCode());
         final Object $doc_issuer = this.getDoc_issuer();
         result = result * PRIME + ($doc_issuer == null ? 43 : $doc_issuer.hashCode());
+        final Object $work_village = this.getWork_village();
+        result = result * PRIME + ($work_village == null ? 43 : $work_village.hashCode());
         return result;
     }
 
     public String toString() {
-        return "BorrowerDTO(resident=" + this.getResident() + ", pinfl=" + this.getPinfl() + ", inn=" + this.getInn() + ", nibbd_code=" + this.getNibbd_code() + ", second_name=" + this.getSecond_name() + ", first_name=" + this.getFirst_name() + ", patronymic=" + this.getPatronymic() + ", birth_date=" + this.getBirth_date() + ", gender=" + this.getGender() + ", citizenship=" + this.getCitizenship() + ", area=" + this.getArea() + ", region=" + this.getRegion() + ", work_area=" + this.getWork_area() + ", work_region=" + this.getWork_region() + ", activity_direction=" + this.getActivity_direction() + ", egrsp_data=" + this.getEgrsp_data() + ", egrsp_number=" + this.getEgrsp_number() + ", oked=" + this.getOked() + ", ownership=" + this.getOwnership() + ", legal_form=" + this.getLegal_form() + ", soogu=" + this.getSoogu() + ", soato=" + this.getSoato() + ", type_business=" + this.getType_business() + ", full_name=" + this.getFull_name() + ", short_name=" + this.getShort_name() + ", staff_count=" + this.getStaff_count() + ", doc_type=" + this.getDoc_type() + ", doc_seria=" + this.getDoc_seria() + ", doc_number=" + this.getDoc_number() + ", doc_date=" + this.getDoc_date() + ", doc_issuer=" + this.getDoc_issuer() + ")";
+        return "BorrowerDTO(resident=" + this.getResident() + ", pinfl=" + this.getPinfl() + ", inn=" + this.getInn() + ", nibbd_code=" + this.getNibbd_code() + ", second_name=" + this.getSecond_name() + ", first_name=" + this.getFirst_name() + ", patronymic=" + this.getPatronymic() + ", birth_date=" + this.getBirth_date() + ", gender=" + this.getGender() + ", citizenship=" + this.getCitizenship() + ", area=" + this.getArea() + ", region=" + this.getRegion() + ", work_area=" + this.getWork_area() + ", work_region=" + this.getWork_region() + ", activity_direction=" + this.getActivity_direction() + ", egrsp_data=" + this.getEgrsp_data() + ", egrsp_number=" + this.getEgrsp_number() + ", oked=" + this.getOked() + ", ownership=" + this.getOwnership() + ", legal_form=" + this.getLegal_form() + ", soogu=" + this.getSoogu() + ", soato=" + this.getSoato() + ", type_business=" + this.getType_business() + ", full_name=" + this.getFull_name() + ", short_name=" + this.getShort_name() + ", staff_count=" + this.getStaff_count() + ", doc_type=" + this.getDoc_type() + ", doc_seria=" + this.getDoc_seria() + ", doc_number=" + this.getDoc_number() + ", doc_date=" + this.getDoc_date() + ", doc_issuer=" + this.getDoc_issuer() + ", work_village=" + this.getWork_village() + ")";
     }
 }
