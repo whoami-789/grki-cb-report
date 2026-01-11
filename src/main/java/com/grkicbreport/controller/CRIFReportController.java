@@ -23,7 +23,7 @@ import java.util.Base64;
 
 
 @RestController
-@RequestMapping("/api/report")
+@RequestMapping("/api/crif")
 public class CRIFReportController {
 
     private final ReportService kreditService;
