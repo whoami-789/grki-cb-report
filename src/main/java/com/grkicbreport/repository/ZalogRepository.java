@@ -21,5 +21,5 @@ public interface ZalogRepository extends JpaRepository<Zalog, Byte> {
     @Query(value = "select z.kod_cb from zalog z inner join dbo.kredit k on k.numdog = z.numdog where k.numdog = :numdog", nativeQuery = true)
     List<String> findKodCb(@Param("numdog") String numdog);
 
-    List<Zalog> findByNumdog(String numdog);
+    Optional<Zalog> findByNumdog(String numdog);
 }

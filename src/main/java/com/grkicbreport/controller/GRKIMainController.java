@@ -17,7 +17,6 @@ import java.util.List;
 public class GRKIMainController {
     private final SaveClaimService saveClaimService;
     private final SaveContractService saveContractService;
-    private final SaveAgreementService saveAgreementService;
     private final SaveProvisionService saveProvisionService;
     private final saveScheduleService saveScheduleService;
     private final setStateToLitigationService setStateToLitigationService;
@@ -26,16 +25,11 @@ public class GRKIMainController {
     private final FileGeneratorService fileGeneratorService;
     private final getIdentityService getIdentityService;
     private final KreditService kreditService;
-    private final saveScheduleBatchService batchService;
-    private final SaveProvisionBatchService provbatchService;
-    private final SaveClaimBatchService claimbatchService;
-    private final SaveContractBatchService contractbatchService;
 
 
-    public GRKIMainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveAgreementService saveAgreementService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService, com.grkicbreport.service.getIdentityService getIdentityService, KreditService kreditService, saveScheduleBatchService batchService, SaveProvisionBatchService provbatchService, SaveClaimBatchService claimbatchService, SaveContractBatchService contractbatchService) {
+    public GRKIMainController(SaveClaimService saveClaimService, SaveContractService saveContractService, SaveProvisionService saveProvisionService, saveScheduleService saveScheduleService, setStateToLitigationService setStateToLitigationService, saveCourtDecisionService saveCourtDecisionService, setStateToCloseService setStateToCloseService, FileGeneratorService fileGeneratorService, com.grkicbreport.service.getIdentityService getIdentityService, KreditService kreditService) {
         this.saveClaimService = saveClaimService;
         this.saveContractService = saveContractService;
-        this.saveAgreementService = saveAgreementService;
         this.saveProvisionService = saveProvisionService;
         this.saveScheduleService = saveScheduleService;
         this.setStateToLitigationService = setStateToLitigationService;
@@ -44,35 +38,21 @@ public class GRKIMainController {
         this.fileGeneratorService = fileGeneratorService;
         this.getIdentityService = getIdentityService;
         this.kreditService = kreditService;
-        this.batchService = batchService;
-        this.provbatchService = provbatchService;
-        this.claimbatchService = claimbatchService;
-        this.contractbatchService = contractbatchService;
     }
 
     @PostMapping("/get-save-claim")
     public ResponseEntity<String> sendSaveClaim(@RequestBody RequestDTO requestDTO) {
-        return saveClaimService.sendSaveClaim(requestDTO.getContractNumber(), requestDTO.getSave_mode(), requestDTO.getAverage_income());
+        return saveClaimService.sendSaveClaim(requestDTO.getContractNumber(), requestDTO.getSave_mode());
     }
 
     @PostMapping("/get-save-contract")
     public ResponseEntity<String> sendSaveContract(@RequestBody RequestDTO requestDTO) {
-        return saveContractService.sendSaveContract(requestDTO.getContractNumber(), requestDTO.getLoan_line(),
-                requestDTO.getDecisionNumber(), requestDTO.getDecisionDate(), requestDTO.getSave_mode());
-    }
-
-    @PostMapping("/get-save-agreement")
-    public ResponseEntity<String> sendSaveAgreement(@RequestBody RequestDTO requestDTO) {
-        return saveAgreementService.sendSaveAgreement(requestDTO.getContractNumber(), requestDTO.getAgreement_id(), requestDTO.getAgreement_number(),
-                requestDTO.getAgreement_date_begin(), requestDTO.getAgreement_date_end(), requestDTO.getAgreement_subject_type(),
-                requestDTO.getAgreement_inn_pinfl(), requestDTO.getAgreement_name(), requestDTO.getAgreement_amount());
+        return saveContractService.sendSaveContract(requestDTO.getContractNumber(), requestDTO.getSave_mode());
     }
 
     @PostMapping("/get-save-provision")
     public ResponseEntity<String> sendSaveProvision(@RequestBody RequestDTO requestDTO) {
-        return saveProvisionService.sendSaveProvision(requestDTO.getContractNumber(), requestDTO.getProvisionNumber(), requestDTO.getProvisionDate(),
-                requestDTO.getNibbd(), requestDTO.getEngine_number(), requestDTO.getBody_number(), requestDTO.getYear(), requestDTO.getState_number(),
-                requestDTO.getModel(), requestDTO.getChassis_number(), requestDTO.getColor(), requestDTO.getDoc_seria_number(), requestDTO.getVin_number(), requestDTO.getSave_mode());
+        return saveProvisionService.sendSaveProvision(requestDTO.getContractNumber(), requestDTO.getSave_mode());
     }
 
     @PostMapping("/get-save-schedule")
@@ -97,6 +77,11 @@ public class GRKIMainController {
         return setStateToCloseService.sendSetStateToClose(requestDTO.getContractNumber());
     }
 
+    @GetMapping("/generate-files")
+    public String generateFiles(@RequestParam String date) {
+        return fileGeneratorService.createFiles(date);
+    }
+
     @GetMapping("/send-save-info")
     public ResponseEntity<String> sendSaveInfo(
             @RequestParam String id,
@@ -113,53 +98,4 @@ public class GRKIMainController {
         }
         return ResponseEntity.ok(credits);
     }
-
-    @GetMapping("/generate-files")
-    public String generateFiles(@RequestParam String date) {
-        return fileGeneratorService.createFiles(date);
-    }
-
-    @GetMapping("/run")
-    public ResponseEntity<List<String>> runBatch(
-            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            @RequestParam(defaultValue = "save") String save_mode,
-            @RequestParam(defaultValue = "false") boolean sendToCb) {
-
-        List<String> results = batchService.processSchedulesForPeriod(from, to, save_mode, sendToCb);
-        return ResponseEntity.ok(results);
-    }
-
-    @GetMapping("/prov/run")
-    public ResponseEntity<List<String>> runBatch(
-            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            @RequestParam(defaultValue = "false") boolean jewelryOnly,
-            @RequestParam(defaultValue = "false") boolean sendToCb
-    ) {
-        List<String> results = provbatchService.processProvisionsForPeriod(from, to, jewelryOnly);
-        return ResponseEntity.ok(results);
-    }
-
-    @GetMapping("/claim/run")
-    public ResponseEntity<List<String>> runClaims(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            @RequestParam(defaultValue = "1") String save_mode,
-            @RequestParam(defaultValue = "4000000") String avgIncome,
-            @RequestParam(defaultValue = "false") boolean sendToCb) {
-        return ResponseEntity.ok(claimbatchService.processClaims(from, to, save_mode, avgIncome, sendToCb));
-    }
-
-    @GetMapping("/contract/run")
-    public ResponseEntity<List<String>> runContracts(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            @RequestParam(defaultValue = "02") String loanLine,
-            @RequestParam(required = false) String decisionNumber,
-            @RequestParam(defaultValue = "1") String save_mode,
-            @RequestParam(defaultValue = "false") boolean sendToCb) {
-        return ResponseEntity.ok(contractbatchService.processContracts(from, to, loanLine, decisionNumber, save_mode, sendToCb));
-    }
-
 }

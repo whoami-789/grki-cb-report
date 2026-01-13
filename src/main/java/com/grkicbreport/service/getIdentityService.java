@@ -24,6 +24,7 @@ public class getIdentityService {
     private final KreditRepository kreditRepository;
     private final InformHelper informHelper;
 
+
     public getIdentityService(RestTemplate restTemplate, KreditRepository kreditRepository, InformHelper informHelper) {
         this.restTemplate = restTemplate;
         this.kreditRepository = kreditRepository;
@@ -37,11 +38,12 @@ public class getIdentityService {
             // Создаем и заполняем DTO
             getInformationDTO dto = new getInformationDTO();
 
-            String cleanedNumdog = id.replaceAll("[-KК/\\\\]", "");
+            String cleanedNumdog = id.replaceAll("[-KК/\\\\.]", "");
+
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
-            creditorDTO.setType("02");
+            creditorDTO.setType("03");
             creditorDTO.setCode(inform.getNumks());
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
@@ -58,12 +60,11 @@ public class getIdentityService {
     }
 
     public ResponseEntity<String> sendSaveInfo(String id, String type) {
+        Inform inform = informHelper.fetchSingleRow();
         getInformationDTO dto = createDTO(id, type);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
-        Inform inform = informHelper.fetchSingleRow();
 
         // Добавляем заголовки login и password
         headers.set("Login", "NK" + inform.getNumks());

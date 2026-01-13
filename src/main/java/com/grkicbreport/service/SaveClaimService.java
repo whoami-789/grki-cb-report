@@ -36,7 +36,6 @@ public class SaveClaimService {
     private final InformHelper informHelper;
 
 
-
     public SaveClaimService(AzolikFizRepository azolikFizRepository, AzolikYurRepository azolikYurRepository, KreditRepository kreditRepository, RestTemplate restTemplate, InformHelper informHelper) {
         this.azolikFizRepository = azolikFizRepository;
         this.azolikYurRepository = azolikYurRepository;
@@ -46,33 +45,21 @@ public class SaveClaimService {
     }
 
 
-    public saveClaimDTO createClaim(String contractNumber, String save_mode, String averageIncome) {
+    public saveClaimDTO createClaim(String contractNumber, String save_mode) {
 
-        Optional<Kredit> kreditOptional;
-
-        // Сначала пытаемся найти по номеру договора
-        kreditOptional = kreditRepository.findByNumdog(contractNumber);
-
-        // Если не нашли по номеру договора, пытаемся найти по GrkiContractId
-        if (kreditOptional.isEmpty()) {
-            kreditOptional = kreditRepository.findByGrkiContractId(contractNumber);
-        }
-
+        Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
         Inform inform = informHelper.fetchSingleRow();
 
-        if (kreditOptional.isEmpty()) {
-            throw new IllegalArgumentException("Кредит с номером/ID: " + contractNumber + " не найден.");
+
+        if (kreditList.isEmpty()) {
+            throw new IllegalArgumentException("Кредит с таким номером не найден.");
         }
 
-        Kredit kredit = kreditOptional.get();
+        Kredit kredit = kreditList.get();
 
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
             Optional<AzolikFiz> azolikFizList = azolikFizRepository.findByKodchlen(kredit.getKod());
-
-            if (azolikFizList.isEmpty()) {
-                throw new IllegalArgumentException("АзоликФиз с кодом: " + kredit.getKod() + " не найден.");
-            }
 
             AzolikFiz azolikFiz = azolikFizList.get();
 
@@ -134,7 +121,7 @@ public class SaveClaimService {
             // Заполнение списка IncomeDTO
             IncomeDTO incomeDTO = new IncomeDTO();
             incomeDTO.setIncome_type("07");
-            incomeDTO.setAverage_income(averageIncome);
+            incomeDTO.setAverage_income("4000000");
             dto.setIncome(List.of(incomeDTO)); // Устанавливаем список доходов
 
             // Заполнение ContactsDTO
@@ -151,32 +138,28 @@ public class SaveClaimService {
             String formattedJson = gson.toJson(dto);
             logger.info(formattedJson);
             return dto;
-
         } catch (Exception e) {
-            // Обработка для юрлиц
-            Optional<AzolikYur> azolikYurList = azolikYurRepository.findByKodchlen(kredit.getKod());
 
-            if (azolikYurList.isEmpty()) {
-                throw new IllegalArgumentException("АзоликЮр с кодом: " + kredit.getKod() + " не найден.");
-            }
+            Optional<AzolikYur> azolikYurList = azolikYurRepository.findByKodchlen(kredit.getKod());
 
             AzolikYur azolikYur = azolikYurList.get();
 
             // Создаем и заполняем DTO
             saveClaimDTO dto = new saveClaimDTO();
 
-            dto.setSave_mode("1");
+            dto.setSave_mode(save_mode);
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
-            creditorDTO.setType("02");
+            creditorDTO.setType("03");
             creditorDTO.setCode(inform.getNumks());
             dto.setCreditor(creditorDTO);
 
             // Заполнение ClaimDTO
             ClaimDTO claimDTO = new ClaimDTO();
             claimDTO.setClaim_guid("");
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-K/\\\\]", "");
+            if (Objects.equals(save_mode, "5")) claimDTO.setClaim_guid(kredit.getGrkiClaimId());
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[.\\-KК/\\\\]", "");
             claimDTO.setClaim_id(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setNumber(cleanedNumdog.replaceAll("\\s", ""));
             claimDTO.setType("01");
@@ -188,7 +171,7 @@ public class SaveClaimService {
             creditDTO.setSubject_type("1");
             creditDTO.setType("10");
             creditDTO.setCurrency("000");
-            creditDTO.setAmount(String.valueOf(kredit.getSumma()));
+            creditDTO.setAmount(kredit.getSumma() + "00");
             creditDTO.setPercent(String.valueOf(kredit.getProsent()));
             creditDTO.setPeriod(String.valueOf(kredit.getSrokkred()));
             creditDTO.setTargets(List.of()); // Если список пустой
@@ -198,7 +181,6 @@ public class SaveClaimService {
             // Заполнение BorrowerDTO
             BorrowerDTO borrowerDTO = new BorrowerDTO();
             borrowerDTO.setResident("1");
-            borrowerDTO.setInn(azolikYur.getInn().replaceAll("\\s", ""));
             borrowerDTO.setNibbd_code(azolikYur.getKodchlen().replaceAll("\\s", ""));
             borrowerDTO.setCitizenship("860");
             borrowerDTO.setArea(azolikYur.getKodObl().replaceFirst("0", ""));
@@ -212,7 +194,8 @@ public class SaveClaimService {
 
             // Заполнение списка IncomeDTO
             IncomeDTO incomeDTO = new IncomeDTO();
-            incomeDTO.setIncome_type("08");
+            incomeDTO.setIncome_type("07");
+            incomeDTO.setAverage_income("5000000");
             dto.setIncome(List.of(incomeDTO)); // Устанавливаем список доходов
 
             // Заполнение ContactsDTO
@@ -226,21 +209,17 @@ public class SaveClaimService {
         }
     }
 
-    public ResponseEntity<String> sendSaveClaim(String contractNumber, String save_mode, String averageIncome) {
-        saveClaimDTO dto = createClaim(contractNumber, save_mode, averageIncome);
-
-        if (dto == null) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Ошибка при создании DTO.");
-        }
-
+    public ResponseEntity<String> sendSaveClaim(String contractNumber, String save_mode) {
+        saveClaimDTO dto = createClaim(contractNumber, save_mode);
         Inform inform = informHelper.fetchSingleRow();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
+        // Добавляем заголовки login и password
         headers.set("Login", "NK" + inform.getNumks());
         headers.set("Password", inform.getGrki_password());
+
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Включить null значения в JSON
@@ -261,16 +240,24 @@ public class SaveClaimService {
 
             String success = responseBody.getResult().getSuccess();
 
-            // Ищем кредит так же, как в createClaim
             Optional<Kredit> kreditOptional = kreditRepository.findByNumdog(contractNumber);
-            if (kreditOptional.isEmpty()) {
-                kreditOptional = kreditRepository.findByGrkiContractId(contractNumber);
-            }
 
             if (kreditOptional.isPresent()) {
                 Kredit kredit = kreditOptional.get();
 
-                if ("1".equals(success)) {
+                if ("0".equals(success)) {
+                    // Проверяем наличие ошибок с кодом 24023
+                    boolean isDuplicateError = responseBody.getAnswer().getErrors().stream()
+                            .anyMatch(error -> "24023".equals(error.getCode()));
+
+                    if (isDuplicateError) {
+                        String sendInfoUrl = "http://localhost:5051/api/grki/send-save-info?id=" + kredit.getNumdog() + "&type=1";
+                        restTemplate.getForEntity(sendInfoUrl, String.class);
+                        logger.info("Отправлен запрос на: " + sendInfoUrl);
+                        return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body("Заявка с указанным номером кредитной организации уже существует. Дополнительный запрос выполнен. Ответ: " + responseJson);
+                    }
+                } else if ("1".equals(success)) {
                     // Успешный результат — сохраняем в базу
                     String claimGuid = responseBody.getAnswer().getIdentity().getClaim_guid();
 
@@ -283,27 +270,11 @@ public class SaveClaimService {
                         return ResponseEntity.status(HttpStatus.OK)
                                 .body("Claim_guid уже существует, обновление не выполнено. Ответ: " + responseJson);
                     }
-                } else if ("0".equals(success)) {
-                    // Если код успеха равен 0, проверяем наличие ошибки 24023
-                    if (responseBody.getAnswer() != null && responseBody.getAnswer().getErrors() != null) {
-                        boolean isDuplicateError = responseBody.getAnswer().getErrors().stream()
-                                .anyMatch(error -> "24023".equals(error.getCode()));
-
-                        if (isDuplicateError) {
-                            String sendInfoUrl = "http://localhost:5051/api/grki/send-save-info?id=" + kredit.getNumdog() + "&type=1";
-                            restTemplate.getForEntity(sendInfoUrl, String.class);
-                            logger.info("Отправлен запрос на: " + sendInfoUrl);
-                            return ResponseEntity.status(HttpStatus.CONFLICT)
-                                    .body("Заявка с указанным номером кредитной организации уже существует. Дополнительный запрос выполнен. Ответ: " + responseJson);
-                        }
-                    }
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Ошибка при сохранении заявки. Ответ: " + responseJson);
                 }
             } else {
-                logger.warning("Кредит с номером/ID: " + contractNumber + " не найден.");
+                logger.warning("Кредит с таким номером договора не найден.");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Кредит с номером/ID: " + contractNumber + " не найден. Ответ: " + gson.toJson(responseBody));
+                        .body("Кредит с таким номером договора не найден. Ответ: " + gson.toJson(responseBody));
             }
         } else {
             logger.warning("Ошибка при выполнении запроса к внешнему сервису.");
@@ -314,5 +285,6 @@ public class SaveClaimService {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Неизвестная ошибка при обработке запроса.");
     }
+
 
 }

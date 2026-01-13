@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,33 +41,20 @@ public class saveScheduleService {
     }
 
     public saveScheduleDTO createSchedule(String contractNumber, String save_mode) {
-
-        Optional<Kredit> kreditOptional;
-
-        // Сначала пытаемся найти по номеру договора
-        kreditOptional = kreditRepository.findByNumdog(contractNumber);
-
-        // Если не нашли по номеру договора, пытаемся найти по GrkiContractId
-        if (kreditOptional.isEmpty()) {
-            kreditOptional = kreditRepository.findByGrkiContractId(contractNumber);
-        }
-
-        if (kreditOptional.isEmpty()) {
-            throw new IllegalArgumentException("Кредит с номером/ID: " + contractNumber + " не найден.");
-        }
-
-        Kredit kredit = kreditOptional.get();
-
-        // Используем actualNumdog для поиска графика платежей
-        String actualNumdog = kredit.getNumdog();
-        List<Grafik> grafikList = grafikRepository.findAllByNumdog(actualNumdog);
-
-        if (grafikList.isEmpty()) {
-            throw new IllegalArgumentException("График платежей для кредита с номером: " + actualNumdog + " не найден.");
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         Inform inform = informHelper.fetchSingleRow();
+
+        Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
+        List<Grafik> grafikList = grafikRepository.findAllByNumdog(contractNumber);
+
+        if (kreditList.isEmpty()) {
+            throw new IllegalArgumentException("Кредит с таким номером не найден.");
+        }
+        if (grafikList.isEmpty()) {
+            throw new IllegalArgumentException("График с таким номером не найден.");
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
+        Kredit kredit = kreditList.get();
 
         try {
             saveScheduleDTO dto = new saveScheduleDTO();
@@ -74,14 +62,15 @@ public class saveScheduleService {
             dto.setSave_mode(save_mode);
 
             CreditorDTO creditorDTO = new CreditorDTO();
-            creditorDTO.setType("02");
+            creditorDTO.setType("03");
             creditorDTO.setCode(inform.getNumks());
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             saveScheduleDTO.Contract contract = new saveScheduleDTO.Contract();
             contract.setContract_guid(kredit.getGrkiContractId());
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
+
             contract.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contract);
 
@@ -91,9 +80,9 @@ public class saveScheduleService {
             for (Grafik grafik : grafikList) {
                 saveScheduleDTO.Repayment repayment = new saveScheduleDTO.Repayment();
                 repayment.setDate_percent(grafik.getDats().format(formatter));
-                repayment.setAmount_percent(grafik.getPogProc().intValue() + "00"); // Сумма процентов
+                repayment.setAmount_percent(String.valueOf(grafik.getPogProc().intValue()) + "00"); // Сумма процентов
                 repayment.setDate_main(grafik.getDats().format(formatter)); // Устанавливаем дату основного платежа только если pogProc = 0.00
-                repayment.setAmount_main(grafik.getPogKred().intValue() + "00"); // Сумма основного платежа
+                repayment.setAmount_main(String.valueOf(grafik.getPogKred().intValue()) + "00"); // Сумма основного платежа
 
                 repaymentList.add(repayment);
             }
@@ -119,12 +108,12 @@ public class saveScheduleService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
         Inform inform = informHelper.fetchSingleRow();
 
         // Добавляем заголовки login и password
         headers.set("Login", "NK" + inform.getNumks());
         headers.set("Password", inform.getGrki_password());
+
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output

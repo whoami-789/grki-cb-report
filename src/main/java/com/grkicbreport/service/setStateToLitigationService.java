@@ -36,13 +36,12 @@ public class setStateToLitigationService {
                                                     String conclusion, LocalDate send_date) {
 
         Optional<Kredit> kreditList = kreditRepository.findByNumdog(contractNumber);
+        Inform inform = informHelper.fetchSingleRow();
 
         if (kreditList.isEmpty()) {
             throw new IllegalArgumentException("Кредит с таким номером не найден.");
         }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        Inform inform = informHelper.fetchSingleRow();
-
 
         Kredit kredit = kreditList.get();
 
@@ -52,14 +51,15 @@ public class setStateToLitigationService {
             dto.setSave_mode("1");
 
             CreditorDTO creditorDTO = new CreditorDTO();
-            creditorDTO.setType("02");
+            creditorDTO.setType("03");
             creditorDTO.setCode(inform.getNumks());
             creditorDTO.setOffice(null);
             dto.setCreditor(creditorDTO);
 
             setStateToLitigationDTO.Contract contract = new setStateToLitigationDTO.Contract();
             contract.setContract_guid(kredit.getGrkiContractId());
-            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\]", "");
+            String cleanedNumdog = kredit.getNumdog().replaceAll("[-KК/\\\\.]", "");
+
             contract.setContract_id(cleanedNumdog.replaceAll("\\s", ""));
             dto.setContract(contract);
 
@@ -88,12 +88,12 @@ public class setStateToLitigationService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
         Inform inform = informHelper.fetchSingleRow();
 
         // Добавляем заголовки login и password
         headers.set("Login", "NK" + inform.getNumks());
         headers.set("Password", inform.getGrki_password());
+
 
         Gson gson = new GsonBuilder()
                 .serializeNulls() // Include null values in the JSON output

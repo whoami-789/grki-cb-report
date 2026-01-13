@@ -23,7 +23,7 @@ public class ZipService {
     private static final Logger logger = LoggerFactory.getLogger(ZipService.class);
     private final InformHelper informHelper;
 
-    String receiveFolderPath = "//192.168.2.99/Recv";
+    String receiveFolderPath = "C:/Recv";
 
     // Укажите правильные пути к папкам
 
