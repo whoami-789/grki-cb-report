@@ -1,6 +1,7 @@
 package com.grkicbreport.controller;
 
 import com.grkicbreport.service.MahallaImportService;
+import com.grkicbreport.service.SprMahallaImportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,8 @@ import java.util.Map;
 public class MahallaAdminController {
 
     private final MahallaImportService importService;
+    private final SprMahallaImportService service;
+
 
     @PostMapping("/import")
     public ResponseEntity<?> importMahalla(@RequestParam("file") MultipartFile file) {
@@ -60,5 +63,14 @@ public class MahallaAdminController {
                             )
                     );
         }
+    }
+
+    @PostMapping("/import-125")
+    public ResponseEntity<?> import125(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(defaultValue = "true") boolean truncate
+    ) throws Exception {
+        int count = service.importExcel125(file, truncate);
+        return ResponseEntity.ok(Map.of("processed", count));
     }
 }
