@@ -75,6 +75,9 @@ public class AzolikFiz {
     @Column(name = "otch")
     private String otch;
 
+    @Column(name = "mahalla")
+    private String mahalla;
+
     @Column(name = "kodPension", nullable = false, columnDefinition = "nchar()")
     private String kodPension;
 
@@ -339,6 +342,14 @@ public class AzolikFiz {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getMahalla() {
+        return mahalla;
+    }
+
+    public void setMahalla(String mahalla) {
+        this.mahalla = mahalla;
     }
 
     public boolean equals(final Object o) {

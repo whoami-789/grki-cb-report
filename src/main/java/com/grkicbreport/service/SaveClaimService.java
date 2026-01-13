@@ -121,7 +121,7 @@ public class SaveClaimService {
             borrowerDTO.setBirth_date(azolikFiz.getDatsRojd().format(formatter));
             borrowerDTO.setGender(String.valueOf(azolikFiz.getFsobst()));
             borrowerDTO.setCitizenship("860");
-            borrowerDTO.setWork_village();
+            borrowerDTO.setWork_village(azolikFiz.getMahalla());
             borrowerDTO.setArea(azolikFiz.getKodObl());
             borrowerDTO.setRegion(azolikFiz.getKodRayon().replaceAll("\\s", ""));
             borrowerDTO.setDoc_type("1");
@@ -193,7 +193,7 @@ public class SaveClaimService {
             creditDTO.setPeriod(String.valueOf(kredit.getSrokkred()));
             creditDTO.setTargets(List.of()); // Если список пустой
             creditDTO.setNew_staff(null); // Если значение null
-            dto.setCredit(creditDTO);
+            dto.setFinancing(creditDTO);
 
             // Заполнение BorrowerDTO
             BorrowerDTO borrowerDTO = new BorrowerDTO();
