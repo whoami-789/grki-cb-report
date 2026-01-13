@@ -9,8 +9,7 @@ import java.time.LocalDate;
 @Table(
         name = "mahalla"
 )
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
