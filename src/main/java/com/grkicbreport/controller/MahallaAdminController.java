@@ -18,7 +18,7 @@ import java.util.Map;
 public class MahallaAdminController {
 
     private final MahallaImportService importService;
-    private final SprMahallaImportService service;
+    private final SprMahallaImportService sprservice;
 
 
     @PostMapping("/import")
@@ -66,11 +66,46 @@ public class MahallaAdminController {
     }
 
     @PostMapping("/import-125")
-    public ResponseEntity<?> import125(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(defaultValue = "true") boolean truncate
-    ) throws Exception {
-        int count = service.importExcel125(file, truncate);
-        return ResponseEntity.ok(Map.of("processed", count));
+    public ResponseEntity<?> import125(@RequestParam("file") MultipartFile file) {
+
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", "Файл не передан или пустой"));
+        }
+
+        String filename = file.getOriginalFilename();
+        if (filename == null || !filename.toLowerCase().endsWith(".xlsx")) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", "Поддерживаются только файлы .xlsx"));
+        }
+
+        try {
+            log.info("SprMahalla import-125 started, file={}", filename);
+
+            int count = sprservice.importExcel125(file);
+
+            log.info("SprMahalla import-125 finished, processed={}", count);
+
+            return ResponseEntity.ok(
+                    Map.of(
+                            "processed", count,
+                            "status", "OK"
+                    )
+            );
+
+        } catch (Exception e) {
+            log.error("SprMahalla import-125 failed", e);
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(
+                            Map.of(
+                                    "status", "ERROR",
+                                    "message", e.getMessage()
+                            )
+                    );
+        }
     }
 }

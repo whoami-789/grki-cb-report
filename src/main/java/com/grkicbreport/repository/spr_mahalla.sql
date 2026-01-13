@@ -1,21 +1,22 @@
-CREATE TABLE spr_mahalla
+CREATE TABLE dbo.spr_mahalla
 (
     id             BIGINT IDENTITY (1,1) NOT NULL PRIMARY KEY,
 
-    uz_kad       BIGINT                NULL, -- Код УзКад (колонка 1)
-    code_1c        BIGINT                NULL, -- Код 1C  (колонка 2)
-    uz_kad_2       BIGINT                NULL, -- Код УзКад (колонка 3, дубль)
+    uz_kad         NVARCHAR(16)          NULL, -- Код УзКад (колонка 1)
+    code_1c        NVARCHAR(16)          NULL, -- Код 1C (колонка 2)
+    uz_kad_2       NVARCHAR(16)          NULL, -- второй "Код УзКад" (колонка 3)
 
-    mahalla_inn    VARCHAR(32)           NULL, -- ИНН махалли
-    soato_region   INT                   NULL, -- Код области СОАТО
-    soato_district INT                   NULL, -- Код района СОАТО
-    cb_district    VARCHAR(32)           NULL, -- Код района махалли (ЦБ)
+    mahalla_inn    NVARCHAR(32)          NULL, -- ИНН махалли (колонка 4)
+    soato_region   NVARCHAR(16)          NULL, -- СОАТО область (колонка 5)
+    soato_district NVARCHAR(16)          NULL, -- СОАТО район (колонка 6)
+    cb_district    NVARCHAR(16)          NULL, -- Код района ЦБ (колонка 7)
 
-    name_uz        NVARCHAR(255)         NULL, -- Наименование махалли Uz
-    name_ru        NVARCHAR(255)         NULL, -- Наименование махалли Ru
-    name_en        NVARCHAR(255)         NULL, -- Наименование махалли En
+    name_uz        NVARCHAR(256)         NULL, -- (колонка 8)
+    name_ru        NVARCHAR(256)         NULL, -- (колонка 9)
+    name_en        NVARCHAR(256)         NULL, -- (колонка 10)
 
-    date_active    DATE                  NULL, -- Дата активизации
-    date_end       DATE                  NULL, -- Дата деактивизации
-    active_flag    CHAR(1)               NULL  -- Признак активности
+    date_active    DATE                  NULL, -- (колонка 11)
+    date_end       DATE                  NULL, -- (колонка 12)
+
+    active_flag    NVARCHAR(1)           NULL  -- (колонка 13)
 );
