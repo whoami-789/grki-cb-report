@@ -70,7 +70,7 @@ public class SaveClaimService {
 
             // Заполнение CreditorDTO
             CreditorDTO creditorDTO = new CreditorDTO();
-            creditorDTO.setType("02");
+            creditorDTO.setType("03");
             creditorDTO.setCode(inform.getNumks());
             dto.setCreditor(creditorDTO);
 
@@ -95,7 +95,6 @@ public class SaveClaimService {
             List<String> targets = new ArrayList<>();
             targets.add("0699");
             creditDTO.setTargets(targets);
-            creditDTO.setBusiness_project("02");
             dto.setFinancing(creditDTO);
 
             // Заполнение BorrowerDTO
@@ -109,7 +108,6 @@ public class SaveClaimService {
             borrowerDTO.setBirth_date(azolikFiz.getDatsRojd().format(formatter));
             borrowerDTO.setGender(String.valueOf(azolikFiz.getFsobst()));
             borrowerDTO.setCitizenship("860");
-            borrowerDTO.setWork_village(azolikFiz.getMahalla().replaceAll("\\s", ""));
             borrowerDTO.setVillage(azolikFiz.getMahalla().replaceAll("\\s", ""));
             borrowerDTO.setArea(azolikFiz.getKodObl());
             borrowerDTO.setRegion(azolikFiz.getKodRayon().replaceAll("\\s", ""));
