@@ -29,6 +29,8 @@ public class ContractDTO {
     private String amount;
     private String account;
     private String effective_percent;
+    private String mortgage;
+
 
     public ContractDTO() {
     }
