@@ -30,6 +30,13 @@ public class ContractDTO {
     private String account;
     private String effective_percent;
     private String mortgage;
+    private String currency_first;
+    private String amount_first;
+    private String amount_obligations;
+    private String discont_comissions;
+    private String currency_commission;
+    private String amount_commission;
+    private String guarantee_info;
     private String business_project_info ;
     private PercentDTO percent;
     private List<CompensationsDTO> compensations;

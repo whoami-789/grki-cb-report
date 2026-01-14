@@ -100,7 +100,14 @@ public class SaveContractService {
             contractDTO.setAccount(kredit.getLskred());
             contractDTO.setEffective_percent(kredit.getProsent().toString());
             contractDTO.setAmount(kredit.getSumma().intValue() + "00");
-
+            PercentDTO percentDTO = new PercentDTO();
+            percentDTO.setPercent_type("101");
+            percentDTO.setPercent_total(String.valueOf(kredit.getProsent()));
+            percentDTO.setBorrower_percent(String.valueOf(kredit.getProsent()));
+            percentDTO.setOverdue_percent("0");
+            contractDTO.setPercent(percentDTO);
+            contractDTO.setCurrency_first("000");
+            contractDTO.setAmount_first("0");
             dto.setContract(contractDTO);
 
             TargetsDTO targetsDTO = new TargetsDTO();
