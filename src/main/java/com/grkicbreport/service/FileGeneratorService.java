@@ -311,7 +311,7 @@ public class FileGeneratorService {
 
                 fileContent.append(dateStringReverse).append(separator)
                         .append("03").append(separator)
-                        .append(inform.getNumks()).append(separator)
+                        .append(inform.getNumks()).append(separator).append(separator)
                         .append(kredit.getGrkiContractId() != null ? kredit.getGrkiContractId() : "0").append(separator)
                         .append(cleanedNumdog).append(separator)
                         .append(dto.getAccount()).append(separator)
@@ -665,7 +665,7 @@ public class FileGeneratorService {
                         if (fiz == null) {
                             String line009 = dateStringReverse + separator +
                                     "03" + separator +
-                                    inform.getNumks() + separator +
+                                    inform.getNumks() + separator + separator +
                                     ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
                                     cleanedNumdog + separator +
                                     dok.getKod().intValue() + separator +
@@ -694,7 +694,7 @@ public class FileGeneratorService {
                         } else {
                             String line009 = dateStringReverse + separator +
                                     "03" + separator +
-                                    inform.getNumks() + separator +
+                                    inform.getNumks() + separator + separator +
                                     ((found_kredit != null && found_kredit.getGrkiContractId() != null) ? found_kredit.getGrkiContractId() : "0") + separator +
                                     cleanedNumdog + separator +
                                     dok.getKod().intValue() + separator +
