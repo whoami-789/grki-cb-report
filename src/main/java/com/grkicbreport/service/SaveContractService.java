@@ -98,7 +98,7 @@ public class SaveContractService {
             contractDTO.setDate_end(maxDats.format(formatter));
             contractDTO.setCurrency("000");
             contractDTO.setAccount(kredit.getLskred());
-            contractDTO.setEffective_percent(kredit.getProsent().toString());
+            contractDTO.setEffective_percent("0");
             contractDTO.setAmount(kredit.getSumma().intValue() + "00");
             PercentDTO percentDTO = new PercentDTO();
             percentDTO.setPercent_type("101");
