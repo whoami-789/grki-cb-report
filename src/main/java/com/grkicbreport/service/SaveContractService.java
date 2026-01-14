@@ -91,22 +91,16 @@ public class SaveContractService {
             ContractDTO contractDTO = new ContractDTO();
             contractDTO.setLoan_type("10");
             contractDTO.setIssue_mode("02");
-            contractDTO.setLoan_line("02");
+            contractDTO.setFinancing_line("02");
             contractDTO.setAsset_quality("1");
             contractDTO.setNumber(kredit.getNumdog().replaceAll("\\s", ""));
             contractDTO.setDate_begin(kredit.getDatadog().format(formatter));
             contractDTO.setDate_end(maxDats.format(formatter));
             contractDTO.setCurrency("000");
+            contractDTO.setAccount(kredit.getLskred());
+            contractDTO.setEffective_percent(kredit.getProsent().toString());
             contractDTO.setAmount(kredit.getSumma().intValue() + "00");
-            contractDTO.setDiscont_comissions(null);
-            PercentDTO percentDTO = new PercentDTO();
-            percentDTO.setPercent_type("101");
-            percentDTO.setPercent_total(String.valueOf(kredit.getProsent()));
-            percentDTO.setBorrower_percent(String.valueOf(kredit.getProsent()));
-            percentDTO.setOverdue_percent("0");
-            contractDTO.setPercent(percentDTO);
-            contractDTO.setCurrency_first("000");
-            contractDTO.setAmount_first("0");
+
             dto.setContract(contractDTO);
 
             TargetsDTO targetsDTO = new TargetsDTO();

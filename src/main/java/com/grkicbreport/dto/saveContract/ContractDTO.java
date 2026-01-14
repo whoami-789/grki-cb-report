@@ -10,23 +10,25 @@ public class ContractDTO {
     private String issue_mode;
     private String financing_line;
     private String factoring_type;
+    private String factoring_sort;
+    private String legal_form_factoring;
+    private String factoring_structure;
+    private String factoring_main_type;
     private String guarantee_type;
-    private String borrower_class;
+    private String letter_of_credit;
+    private String settlement_method;
+    private String order_of_changes;
+    private String type_of_operation;
+    private String target_letter_of_credit;
+    private String swift_code;
     private String asset_quality;
     private String number;
     private String date_begin;
     private String date_end;
     private String currency;
     private String amount;
-    private PercentDTO percent;
-    private List<CompensationsDTO> compensations;
-    private String currency_first;
-    private String amount_first;
-    private String amount_obligations;
-    private String discont_comissions;
-    private String currency_commission;
-    private String amount_commission;
-    private String guarantee_info;
+    private String account;
+    private String effective_percent;
 
     public ContractDTO() {
     }
