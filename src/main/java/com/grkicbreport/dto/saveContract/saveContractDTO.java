@@ -19,10 +19,11 @@ public class saveContractDTO {
     private List<SourcesDTO> sources = new ArrayList<>();
     private Inner_infoDTO inner_info;
     private Change_basisDTO change_basis;
-    private String mortgage;
     private String leasing_objects;
     private String export_info;
     private String prolongation;
+    private String import_letter_of_credit;
+    private String export_letter_of_credit;
 
     public saveContractDTO() {
     }

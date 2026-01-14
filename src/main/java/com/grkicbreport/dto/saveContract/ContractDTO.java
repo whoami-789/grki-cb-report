@@ -30,6 +30,10 @@ public class ContractDTO {
     private String account;
     private String effective_percent;
     private String mortgage;
+    private String business_project_info ;
+    private PercentDTO percent;
+    private List<CompensationsDTO> compensations;
+
 
 
     public ContractDTO() {
