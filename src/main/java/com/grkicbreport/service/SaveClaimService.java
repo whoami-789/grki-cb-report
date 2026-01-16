@@ -121,7 +121,7 @@ public class SaveClaimService {
             borrowerDTO.setBirth_date(azolikFiz.getDatsRojd().format(formatter));
             borrowerDTO.setGender(String.valueOf(azolikFiz.getFsobst()));
             borrowerDTO.setCitizenship("860");
-            borrowerDTO.setWork_village(azolikFiz.getMahalla());
+            borrowerDTO.setVillage(azolikFiz.getMahalla().replaceAll("\\s", ""));
             borrowerDTO.setArea(azolikFiz.getKodObl());
             borrowerDTO.setRegion(azolikFiz.getKodRayon().replaceAll("\\s", ""));
             borrowerDTO.setDoc_type("1");

@@ -101,34 +101,35 @@ public class SaveContractService {
             ContractDTO contractDTO = new ContractDTO();
             contractDTO.setLoan_type("10");
             contractDTO.setIssue_mode("02");
-            contractDTO.setLoan_line(Loan_line != null ? Loan_line : "02");
+            contractDTO.setFinancing_line("02");
             contractDTO.setAsset_quality(String.valueOf(kredit.getKlass()));
             contractDTO.setNumber(kredit.getNumdog().replaceAll("\\s", ""));
             contractDTO.setDate_begin(kredit.getDatadog().format(formatter));
             contractDTO.setDate_end(maxDats.format(formatter));
             contractDTO.setCurrency("000");
+            contractDTO.setAccount(kredit.getLskred());
+            contractDTO.setEffective_percent("0");
             contractDTO.setAmount(kredit.getSumma().intValue() + "00");
             PercentDTO percentDTO = new PercentDTO();
             percentDTO.setPercent_type("101");
             percentDTO.setPercent_total(String.valueOf(kredit.getProsent()));
             percentDTO.setBorrower_percent(String.valueOf(kredit.getProsent()));
-            percentDTO.setOverdue_percent(String.valueOf(kredit.getProcpeni()));
+            percentDTO.setOverdue_percent("0");
             contractDTO.setPercent(percentDTO);
             contractDTO.setCurrency_first("000");
             contractDTO.setAmount_first("0");
-            contractDTO.setDiscont_comissions(null);
             dto.setContract(contractDTO);
 
             TargetsDTO targetsDTO = new TargetsDTO();
             targetsDTO.setType("0699");
-            targetsDTO.setAmount(String.valueOf(kredit.getSumma().intValue()) + "00");
+            targetsDTO.setAmount(kredit.getSumma().intValue() + "00");
             targetsDTO.setInfo("Ремонт дома");
             dto.getTargets().add(targetsDTO);
 
             SourcesDTO sourcesDTO = new SourcesDTO();
             sourcesDTO.setType("100");
             sourcesDTO.setCurrency("000");
-            sourcesDTO.setAmount(String.valueOf(kredit.getSumma().intValue()) + "00");
+            sourcesDTO.setAmount(kredit.getSumma().intValue() + "00");
             dto.getSources().add(sourcesDTO);
 
             if (Objects.equals(save_mode, "5")) {

@@ -43,7 +43,7 @@ public class MahallaSearchController {
 
         return page.getContent().stream()
                 .map(m -> new MahallaSearchDTO(
-                        m.getCode(),         // <-- код махалли
+                        m.getInn(),         // <-- код махалли
                         m.getName(),         // <-- название махалли
                         m.getDistrictName(), // <-- район
                         m.getRegionName()    // <-- область
